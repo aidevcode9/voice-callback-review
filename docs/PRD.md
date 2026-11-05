@@ -2,9 +2,9 @@
 
 Status: draft for discussion.
 Product and acceptance owner: the user.
-Sources: SRC-001, SRC-004, and SRC-009 in the [source register](../intake/README.md).
+Sources: SRC-001, SRC-004, SRC-009, and SRC-010 in the [source register](../intake/README.md).
 Last updated: 2026-11-05.
-Acceptance record: input modes selected and unresolved-issue rule UR-001 accepted; the remaining product design is proposed.
+Acceptance record: input modes and callback policy v1.0 accepted. Dataset preparation defaults and application design remain distinct decisions.
 
 ## Purpose
 
@@ -35,15 +35,17 @@ The initial interface needs a case list, filters for the recommendation, a case 
 
 The proposed [user flow](USER_FLOW.md), [architecture](ARCHITECTURE.md), and [evaluation flow](EVALUATION.md) show how these responsibilities connect.
 
-## Callback rubric: partially agreed
+## Accepted callback rubric
 
-| Outcome | Working definition | Fictional example |
-| --- | --- | --- |
-| Callback required | Accepted UR-001: the conversation establishes an unresolved service issue, even without a callback request or promise. Explicit callback requests and promises remain proposed additional triggers. | "My issue is still unresolved." followed by "I'll pass that to the team." |
-| No callback required | The conversation establishes that the request is resolved and no follow-up is outstanding, or it is clearly a non-actionable wrong-number or spam call. | "That answers my question. I don't need anything else." |
-| Needs review | The transcript is incomplete, contradictory, unintelligible, or lacks enough context to decide whether follow-up remains. | A recording ends before the representative answers the request. |
+The user accepted [callback policy v1.0](CALLBACK_POLICY.md), including all proposed outcomes and the final-resolution boundary.
 
-The user accepted UR-001 in the [callback policy](CALLBACK_POLICY.md). The other boundaries remain proposals. No firm operating policy has been supplied. Missing contact details do not by themselves mean no callback is needed. A recommendation does not prove that a callback has occurred. Urgency scoring and service-level deadlines are outside the first rubric.
+| Outcome | Accepted condition |
+| --- | --- |
+| callback_required | The issue remains unresolved, the caller has an outstanding callback request, or the representative has an outstanding callback promise. |
+| no_callback | The issue is resolved with no outstanding follow-up, including one resolved later in the same call; or the call is clearly non-actionable spam or a wrong number. |
+| needs_review | Incomplete, contradictory, or unintelligible conversation leaves resolution or follow-up unclear. |
+
+A separate outstanding callback request or promise still requires a callback after the issue is resolved. Missing contact details do not erase an obligation. A recommendation does not establish that a callback occurred. Urgency scoring and service-level deadlines remain outside the first rubric.
 
 ## Product requirements
 
@@ -60,7 +62,7 @@ The user accepted UR-001 in the [callback policy](CALLBACK_POLICY.md). The other
 
 ## Golden set and evaluation
 
-Start with a proposed small candidate collection of roughly 30 to 50 fictional transcripts. Include clear positives, clear negatives, ambiguous cases, truncated conversations, explicit callback promises, already-resolved requests, and wording variations. The count and composition await D-002.
+Start with a proposed small candidate collection of roughly 30 to 50 fictional transcripts. Include clear positives, clear negatives, ambiguous cases, truncated conversations, explicit callback promises, already-resolved requests, and wording variations. The agent is preparing a 40-case English-language starter proposal under D-002; human review and gold freeze remain pending. See the [candidate-set plan](CANDIDATE_SET_PLAN.md).
 
 A person reviews candidate labels using the rubric before the collection is called gold. Candidate model outputs cannot define their own expected answers. Keep development examples separate from held-out evaluation cases, and keep related conversations or paraphrases in the same split.
 
@@ -80,4 +82,4 @@ A reviewer supplies a text example, inspects a recommendation and excerpt, compa
 
 Functional implementation, decision quality, and audio quality are separate acceptance areas. No product-quality threshold or acceptance result is approved by this draft.
 
-Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). The next step is [F-001: callback rubric](../features/backlog/F-001-callback-rubric/FEATURE.md).
+Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). The next step is [F-001: callback rubric](../features/completed/F-001-callback-rubric/FEATURE.md).

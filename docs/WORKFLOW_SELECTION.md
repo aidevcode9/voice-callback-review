@@ -58,6 +58,10 @@ flowchart LR
     Review --> Complete["Complete the agreed scope"]
 ```
 
-Current state: PRD draft and proposed backlog feature. F-001 is a small documentation feature, so it uses one file. A substantial application feature will use three documents.
+Current state: PRD draft with completed F-001 policy documentation and specified F-002 candidate preparation. F-001 is a small documentation feature, so it uses one file. A substantial application feature will use three documents.
 
-The user selected audio and text inputs, text-first decision evaluation, diagrams, project orchestration during intake, and relevant pstack consideration. Callback policy, dataset review details, stack, and quality thresholds remain open.
+The user selected audio and text inputs, text-first decision evaluation, diagrams, project orchestration during intake, and relevant pstack consideration. Callback policy is accepted. Dataset review/freeze details, stack, and quality thresholds remain open.
+
+## Accepted policy and candidate preparation checkpoint
+
+The user accepted callback policy v1.0 (SRC-010). F-001 completed the policy, human labeling guide, and proposed 40-case preparation plan. Independent review found and confirmed the fix for the diagram's uncertain-obligation path. For F-002, planning-workflows was selected after inspecting pstack Feature; the fixed data contract needs bounded preparation rather than competing application architectures. Pstack writing skills support the documents. No full pstack Feature run is claimed.

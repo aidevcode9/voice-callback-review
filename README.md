@@ -14,7 +14,7 @@ Project stage: draft PRD and intake. No application or model evaluation has been
 - [Demo story](docs/DEMO_STORY.md) outlines how to explain the product and development workflow.
 - [Documentation map](docs/README.md) links the remaining project documents.
 
-The user selected audio upload and text transcript input for the demo, with callback decisions evaluated on text first. Other scope and rubric choices remain proposals.
+The user selected audio upload and text transcript input for the demo, with callback decisions evaluated on text first. Callback policy v1.0 is accepted; dataset preparation and application choices are tracked separately.
 
 ## Planned flow
 
@@ -22,7 +22,7 @@ Upload a recording or supply a text transcript. Review the transcript, callback 
 
 ## Continue work
 
-The first proposed feature is [F-001: callback rubric](features/backlog/F-001-callback-rubric/FEATURE.md). It remains in backlog while the callback policy is discussed.
+[F-001: callback rubric](features/completed/F-001-callback-rubric/FEATURE.md) is completed: the accepted policy, labeling procedure, and candidate preparation plan are recorded. [F-002: candidate set](features/backlog/F-002-candidate-set/01_REQUIREMENTS.md) is specified for the next checkpoint.
 
 Use [project-workflow](.agents/skills/project-workflow/SKILL.md) as the project's orchestration entrypoint. It was configured during intake, before implementation, and compares relevant pstack and house skills for substantive tasks.
 

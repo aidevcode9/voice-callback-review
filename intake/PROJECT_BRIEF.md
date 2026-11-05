@@ -13,7 +13,7 @@ Primary prototype user: the project owner demonstrating and evaluating the workf
 
 ## Scope and delivery
 
-- Confirmed callback rule: an explicitly unresolved service issue requires a callback even without a return-call request or promise. UR-001, source SRC-009.
+- Confirmed callback policy v1.0: unresolved issues, outstanding explicit requests, and promises require a callback; clear resolution with no separate obligation and non-actionable calls do not; uncertain cases need review. Sources: SRC-009 and SRC-010.
 - Confirmed process: configure the project-workflow orchestrator during intake, before implementation; compare relevant pstack and house skills for substantive tasks. Sources: SRC-007 and SRC-008.
 - Confirmed documentation preference: user-flow and architecture diagrams, with supporting diagrams where useful. Source: SRC-005.
 - Confirmed: a separate local repository, a draft PRD, audio upload and text inputs, and text-first callback evaluation. Sources: SRC-001 through SRC-004.
@@ -35,20 +35,20 @@ Use this stage to settle product behavior. Technical specifications and dependen
 | --- | --- | --- | --- |
 | Audio upload and text transcripts; evaluate decisions on text first | User-selected | SRC-004 | Separate transcription quality from callback decision quality. |
 | Browser dashboard | Proposal | SRC-001 suggested a simple dashboard | Keep the interface focused on review and evaluation. |
-| Three outcomes: callback, no callback, needs review | Proposal | Incomplete calls may not justify a binary decision | Discuss the operational rubric before labeling examples. |
+| Three outcomes and final-resolution boundary | User-accepted | SRC-009 and SRC-010 | Apply callback policy v1.0 to candidate examples. |
 | Golden labels require human review | Proposal | Evaluation needs a reference independent of candidate predictions | Model-generated labels remain candidates until reviewed. |
 | Fictional English-language data | Proposal | No real corpus or language requirement supplied | Keep the first experiment small and reproducible. |
 
-## Open decisions
+## Decisions
 
 | ID | Decision | Owner | What it blocks |
 | --- | --- | --- | --- |
-| D-001 | Partially resolved: UR-001 accepted for explicitly unresolved issues. Other callback, no-callback, and review boundaries remain open. | User | Golden-set acceptance and classifier requirements. |
-| D-002 | Initial example count, label reviewer, and language coverage | User with agent proposal | Golden-set completion and evaluation claims. |
+| D-001 | Resolved: callback policy v1.0 accepted, including the final-resolution boundary and outstanding-obligation exception. | User | No remaining policy blocker for candidate preparation. |
+| D-002 | Agent preparation defaults: 40 fictional English cases, user as proposed human reviewer, 20 development and 20 evaluation candidates grouped by family. Final review/freeze pending. | User with agent proposal | Gold release and evaluation claims; preparation may proceed. |
 | D-003 | Stack, model provider, and transcription provider | User with implementation recommendation | Executable application and audio integration. |
 | D-004 | Minimum acceptable decision quality and review workload | User, informed by baseline results | A claim that the model is fit for a defined use. |
 | D-005 | Local demo versus hosted sharing | User | Deployment work only. |
 
 ## Intake outcome
 
-The PRD is a draft. The first proposed feature is F-001, a bounded callback-policy document. Product discussion and candidate example design can proceed. Application implementation has not been selected. No dataset has been labeled, no model has been run, and no product acceptance has been recorded.
+The PRD remains a draft for the wider product. F-001 completed the accepted callback policy, labeling guide, and proposed candidate plan. F-002 prepares synthetic candidates under the instruction to proceed. No model has run, and no application acceptance is claimed.
