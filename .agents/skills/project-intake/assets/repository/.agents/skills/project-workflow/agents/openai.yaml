@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Workflow"
+  short_description: "Choose and coordinate the right project skills"
+  default_prompt: "Use $project-workflow to choose the right workflow for this task and carry it through the project checks."

@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.*
+!.env.example
+
+# Raw intake material is local by default. Track a sanitized source index.
+intake/sources/transcripts/*
+!intake/sources/transcripts/.gitkeep
+intake/sources/sow/*
+!intake/sources/sow/.gitkeep
+intake/sources/prd-drafts/*
+!intake/sources/prd-drafts/.gitkeep
