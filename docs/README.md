@@ -4,6 +4,7 @@
 | --- | --- |
 | [Project brief](../intake/PROJECT_BRIEF.md) | Intake synthesis, assumptions, constraints, and open decisions. |
 | [Source register](../intake/README.md) | Provenance and locations of supplied source material. |
+| [Callback policy](CALLBACK_POLICY.md) | Accepted callback rules, policy examples, and remaining label decisions. |
 | [PRD](PRD.md) | Working product intent, scope, users, and product requirements. |
 | [Demo story](DEMO_STORY.md) | Planned walkthrough of the product and development process. |
 | [User flow](USER_FLOW.md) | Proposed reviewer journey and processing-error paths. |

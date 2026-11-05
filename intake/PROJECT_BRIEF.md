@@ -13,6 +13,7 @@ Primary prototype user: the project owner demonstrating and evaluating the workf
 
 ## Scope and delivery
 
+- Confirmed callback rule: an explicitly unresolved service issue requires a callback even without a return-call request or promise. UR-001, source SRC-009.
 - Confirmed process: configure the project-workflow orchestrator during intake, before implementation; compare relevant pstack and house skills for substantive tasks. Sources: SRC-007 and SRC-008.
 - Confirmed documentation preference: user-flow and architecture diagrams, with supporting diagrams where useful. Source: SRC-005.
 - Confirmed: a separate local repository, a draft PRD, audio upload and text inputs, and text-first callback evaluation. Sources: SRC-001 through SRC-004.
@@ -42,7 +43,7 @@ Use this stage to settle product behavior. Technical specifications and dependen
 
 | ID | Decision | Owner | What it blocks |
 | --- | --- | --- | --- |
-| D-001 | Exact callback policy and handling of ambiguous calls | User | Golden-set acceptance and classifier requirements. |
+| D-001 | Partially resolved: UR-001 accepted for explicitly unresolved issues. Other callback, no-callback, and review boundaries remain open. | User | Golden-set acceptance and classifier requirements. |
 | D-002 | Initial example count, label reviewer, and language coverage | User with agent proposal | Golden-set completion and evaluation claims. |
 | D-003 | Stack, model provider, and transcription provider | User with implementation recommendation | Executable application and audio integration. |
 | D-004 | Minimum acceptable decision quality and review workload | User, informed by baseline results | A claim that the model is fit for a defined use. |

@@ -2,9 +2,9 @@
 
 Status: draft for discussion.
 Product and acceptance owner: the user.
-Sources: SRC-001 and SRC-004 in the [source register](../intake/README.md).
+Sources: SRC-001, SRC-004, and SRC-009 in the [source register](../intake/README.md).
 Last updated: 2026-11-05.
-Acceptance record: input modes selected; the remaining product design is proposed.
+Acceptance record: input modes selected and unresolved-issue rule UR-001 accepted; the remaining product design is proposed.
 
 ## Purpose
 
@@ -35,15 +35,15 @@ The initial interface needs a case list, filters for the recommendation, a case 
 
 The proposed [user flow](USER_FLOW.md), [architecture](ARCHITECTURE.md), and [evaluation flow](EVALUATION.md) show how these responsibilities connect.
 
-## Proposed callback rubric
+## Callback rubric: partially agreed
 
 | Outcome | Working definition | Fictional example |
 | --- | --- | --- |
-| Callback required | The caller explicitly requests a return call, the representative promises one, or an unresolved service request explicitly needs later contact. | "Please have someone call me back about scheduling my consultation." |
+| Callback required | Accepted UR-001: the conversation establishes an unresolved service issue, even without a callback request or promise. Explicit callback requests and promises remain proposed additional triggers. | "My issue is still unresolved." followed by "I'll pass that to the team." |
 | No callback required | The conversation establishes that the request is resolved and no follow-up is outstanding, or it is clearly a non-actionable wrong-number or spam call. | "That answers my question. I don't need anything else." |
 | Needs review | The transcript is incomplete, contradictory, unintelligible, or lacks enough context to decide whether follow-up remains. | A recording ends before the representative answers the request. |
 
-This rubric is a proposal, not a supplied firm policy. Missing contact details do not by themselves mean no callback is needed. A recommendation does not prove that a callback has occurred. Urgency scoring and service-level deadlines are outside the first rubric.
+The user accepted UR-001 in the [callback policy](CALLBACK_POLICY.md). The other boundaries remain proposals. No firm operating policy has been supplied. Missing contact details do not by themselves mean no callback is needed. A recommendation does not prove that a callback has occurred. Urgency scoring and service-level deadlines are outside the first rubric.
 
 ## Product requirements
 

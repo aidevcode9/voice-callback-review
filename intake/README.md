@@ -6,6 +6,7 @@ No recordings, transcripts, statement of work, or external PRD have been supplie
 
 | Source ID | Date and title | Location | Authority |
 | --- | --- | --- | --- |
+| SRC-009 | 2026-11-05: unresolved issue callback rule | User response to the ambiguous follow-up example | Accepted callback required because the caller states that the issue remains unresolved; no explicit callback request or promise is necessary. |
 | SRC-001 | 2026-11-05: voice project idea | User message beginning "So I'm gonna try it out our workflow" | Direct project intent: interview learning, callback assessment, golden set, simple dashboard, and an explainable development workflow. |
 | SRC-002 | 2026-11-05: separate project | Follow-up beginning "crfeate it in a new project" | Direct instruction to create a separate repository directory. |
 | SRC-003 | 2026-11-05: project location | Follow-up "move it to projects out of skill-building" | Direct instruction to place the repo under the parent projects directory. |

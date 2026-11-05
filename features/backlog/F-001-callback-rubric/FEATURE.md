@@ -26,13 +26,14 @@ No application design is needed. Update the PRD if policy changes and add a labe
 
 ## Implementation and verification
 
-- [ ] Discuss and settle D-001.
+- [x] Record the user's unresolved-issue decision as UR-001 with policy example POLICY-001 (SRC-009).
+- [ ] Finish the remaining D-001 rubric boundaries.
 - [ ] Record the label guide and reviewer procedure.
 - [ ] Settle D-002 and record the candidate set plan.
 - [ ] Review each acceptance criterion against the resulting documents.
 
 ## Current state and evidence
 
-The PRD contains proposed definitions. No label guide is accepted, no golden dataset exists, and none of these acceptance checks has passed. Next action: discuss the callback boundary and ambiguous-call handling with the user.
+UR-001 is accepted in the [callback policy](../../../docs/CALLBACK_POLICY.md): an explicitly unresolved issue requires a callback without an explicit request or promise. The full rubric remains incomplete, no golden dataset exists, and the overall acceptance criteria are not yet satisfied. Next action: confirm the other proposed triggers and the no-callback and needs-review boundaries.
 
 No merge, deployment, or completion is recorded.
