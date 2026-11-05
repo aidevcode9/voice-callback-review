@@ -51,4 +51,4 @@ Use this stage to settle product behavior. Technical specifications and dependen
 
 ## Intake outcome
 
-The PRD remains a draft for the wider product. F-001 completed the accepted callback policy, labeling guide, and proposed candidate plan. F-002 prepares synthetic candidates under the instruction to proceed. No model has run, and no application acceptance is claimed.
+The PRD remains a draft for the wider product. F-001 completed the accepted callback policy, labeling guide, and proposed candidate plan. F-002 completed 40 synthetic candidates, a readable review packet, and offline checks. All 40 human label reviews remain pending under F-003. No model has run, and no application acceptance is claimed.

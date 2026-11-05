@@ -10,6 +10,8 @@
 | [PRD](PRD.md) | Working product intent, scope, users, and product requirements. |
 | [Demo story](DEMO_STORY.md) | Planned walkthrough of the product and development process. |
 | [User flow](USER_FLOW.md) | Proposed reviewer journey and processing-error paths. |
+| [Candidate review packet](../data/candidates/v0.1/REVIEW.md) | Forty fictional transcripts with proposed labels, all pending human review. |
+| [Candidate data](../data/candidates/v0.1/README.md) | Data format, provenance, reproduction commands, and limitations. |
 | [Evaluation](EVALUATION.md) | Proposed gold-label separation and audio evaluation flow. |
 | [Workflow selection](WORKFLOW_SELECTION.md) | Selected skills, orchestration role, and actual process stage. |
 | [Architecture](ARCHITECTURE.md) | Current system structure and ownership. Proposed designs stay labeled. |

@@ -12,3 +12,4 @@ intake/sources/sow/*
 !intake/sources/sow/.gitkeep
 intake/sources/prd-drafts/*
 !intake/sources/prd-drafts/.gitkeep
+.test-work/

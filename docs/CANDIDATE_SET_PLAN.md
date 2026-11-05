@@ -18,8 +18,8 @@ Human review adds an identified reviewer and reviewed label. Neither policy acce
 
 A readable review packet should show the same cases as the JSONL. Validation checks shape, evidence quotes, IDs, review metadata, and split grouping. It cannot validate semantic label correctness.
 
-## Next feature
+## Candidate preparation feature
 
-[F-002](../features/backlog/F-002-candidate-set/01_REQUIREMENTS.md) prepares the candidate files, readable review packet, and repeatable validation. Human review and a frozen gold release remain separate deliverables.
+[F-002](../features/completed/F-002-candidate-set/01_REQUIREMENTS.md) prepares the candidate files, readable review packet, and repeatable validation. Human review and a frozen gold release remain separate deliverables.
 
 No actual customer data, provider credentials, transcription service, or model call is needed for this preparation.

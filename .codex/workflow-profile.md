@@ -1,6 +1,6 @@
 # Voice Callback Review workflow profile
 
-Stage: intake and PRD draft. No application exists.
+Stage: accepted callback policy and completed candidate preparation. No application exists.
 
 ## Source of truth
 
@@ -23,6 +23,14 @@ The intake and project-workflow skills are bundled. For every substantial task, 
 For documentation changes, inspect relative links, source claims, and diagram consistency with the written behavior, then run `git diff --check` for tracked edits and `git diff --cached --check` before commit. Structural validation of the bundled skill uses the installed skill-creator validator when available.
 
 Application, model-quality, audio-quality, UI, and integration checks cannot run before implementation. Define actual commands and passing conditions in the selected feature's plan before coding. Do not treat missing commands as passed checks.
+
+## Candidate preparation commands
+
+- `python scripts/check_candidates.py data/candidates/v0.1/cases.jsonl` validates structure and reports counts.
+- `python scripts/render_candidate_review.py data/candidates/v0.1/cases.jsonl --check` detects packet drift.
+- `python -m unittest discover -s tests -v` exercises CLI behavior and the actual starter artifacts.
+
+Run these for candidate data or tool changes. They do not validate semantic label correctness or human approval.
 
 ## Project invariants
 

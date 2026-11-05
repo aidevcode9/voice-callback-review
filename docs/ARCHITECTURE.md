@@ -1,6 +1,6 @@
 # Proposed architecture
 
-Current state: documentation-only repository. No application, API integration, database, or deployed service exists. The diagram describes logical responsibilities, not selected frameworks or deployment units.
+Current state: policy documents, synthetic candidate data, and offline validation and review-packet tools. No application, API integration, database, or deployed service exists. The diagram describes logical responsibilities, not selected frameworks or deployment units.
 
 ```mermaid
 flowchart LR

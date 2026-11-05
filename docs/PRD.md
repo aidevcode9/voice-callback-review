@@ -62,7 +62,7 @@ A separate outstanding callback request or promise still requires a callback aft
 
 ## Golden set and evaluation
 
-Start with a proposed small candidate collection of roughly 30 to 50 fictional transcripts. Include clear positives, clear negatives, ambiguous cases, truncated conversations, explicit callback promises, already-resolved requests, and wording variations. The agent is preparing a 40-case English-language starter proposal under D-002; human review and gold freeze remain pending. See the [candidate-set plan](CANDIDATE_SET_PLAN.md).
+Start with a proposed small candidate collection of roughly 30 to 50 fictional transcripts. Include clear positives, clear negatives, ambiguous cases, truncated conversations, explicit callback promises, already-resolved requests, and wording variations. The agent prepared 40 English-language candidates under D-002; human review and gold freeze remain pending. See the [candidate-set plan](CANDIDATE_SET_PLAN.md).
 
 A person reviews candidate labels using the rubric before the collection is called gold. Candidate model outputs cannot define their own expected answers. Keep development examples separate from held-out evaluation cases, and keep related conversations or paraphrases in the same split.
 
@@ -82,4 +82,4 @@ A reviewer supplies a text example, inspects a recommendation and excerpt, compa
 
 Functional implementation, decision quality, and audio quality are separate acceptance areas. No product-quality threshold or acceptance result is approved by this draft.
 
-Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). The next step is [F-001: callback rubric](../features/completed/F-001-callback-rubric/FEATURE.md).
+Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). F-001 accepted the rubric and F-002 prepared the candidate set. The next step is [F-003: human review and gold freeze](../features/backlog/F-003-human-gold-review/FEATURE.md).

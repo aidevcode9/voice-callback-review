@@ -1,6 +1,6 @@
 # Workflow and skill selection
 
-Stage: intake and PRD draft. This project has its own local Git repository under projects.
+Stage: accepted callback policy and completed candidate preparation; human review is pending. This project has its own local Git repository under projects.
 
 ## Orchestrator and timing
 
@@ -28,7 +28,7 @@ The two bundled skills travel with the repository. Other names describe the curr
 | Task | Candidates inspected | Choice and reason | Actual execution |
 | --- | --- | --- | --- |
 | Initial product definition | Project-intake; pstack in-your-own-words, sharpen, technical-writing, and unslop | Use intake plus pstack writing skills. Intake produces the requested artifacts; prompt rewriting alone does not replace a PRD. | Draft source register, brief, PRD, diagrams, and backlog proposal created. No product acceptance claimed. |
-| Later substantial feature | House planning-workflows and pstack Feature | Choice deferred until the feature and its risks are specified. Reinspect then; no automatic preference for either source. | Inspected as candidates; neither executed to build the application. |
+| Later application feature | House planning-workflows and pstack Feature | Choice deferred until the feature and its risks are specified. Reinspect then; no automatic preference for either source. | Inspected as candidates; neither executed to build the application. |
 | Later uncertain architecture | Relevant house design skills and pstack architect | Compare when there is a concrete design question. | Not executed. |
 
 For each substantial task, read the relevant pstack candidate and our candidate before choosing. Record the reason, unavailable prerequisites, and actual results in the feature plan or this record. Full playbooks and adaptations remain distinguishable.
@@ -58,10 +58,14 @@ flowchart LR
     Review --> Complete["Complete the agreed scope"]
 ```
 
-Current state: PRD draft with completed F-001 policy documentation and specified F-002 candidate preparation. F-001 is a small documentation feature, so it uses one file. A substantial application feature will use three documents.
+Current state: F-001 and F-002 are completed. Forty candidate labels await human review under F-003; the wider application PRD remains a draft. F-001 is a small documentation feature, so it uses one file. A substantial application feature will use three documents.
 
 The user selected audio and text inputs, text-first decision evaluation, diagrams, project orchestration during intake, and relevant pstack consideration. Callback policy is accepted. Dataset review/freeze details, stack, and quality thresholds remain open.
 
 ## Accepted policy and candidate preparation checkpoint
 
 The user accepted callback policy v1.0 (SRC-010). F-001 completed the policy, human labeling guide, and proposed 40-case preparation plan. Independent review found and confirmed the fix for the diagram's uncertain-obligation path. For F-002, planning-workflows was selected after inspecting pstack Feature; the fixed data contract needs bounded preparation rather than competing application architectures. Pstack writing skills support the documents. No full pstack Feature run is claimed.
+
+## Candidate preparation result
+
+F-002 completed 40 fictional cases, a reproducible review packet, and offline validation tools. All 12 behavior tests passed. Independent agent QA found no semantic mismatch across the 40 cases. Every record remains pending, with null reviewer and reviewed label. This is candidate preparation, not human gold approval or model evaluation. F-003 tracks the next human review and freeze step.

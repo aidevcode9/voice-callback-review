@@ -15,6 +15,7 @@ Pending records have null reviewer and reviewed_label. Approved records require 
 - `data/candidates/v0.1/cases.jsonl` owns candidate records.
 - `data/candidates/v0.1/REVIEW.md` presents the same records to a person.
 - `scripts/check_candidates.py` validates the file through a CLI.
+- `scripts/render_candidate_review.py` generates REVIEW.md and checks it for drift with --check. It refuses to overwrite its candidate input.
 - `tests/test_check_candidates.py` exercises the CLI on disposable candidate files.
 
 The validator performs no model calls, file rewrites, or gold promotion. It reports errors with line numbers and exits nonzero for an invalid set. It checks required field types, allowed values, unique case IDs, verbatim evidence, grouped splits, duplicate transcripts, and review metadata.

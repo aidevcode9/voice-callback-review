@@ -1,6 +1,6 @@
 # Proposed evaluation flow
 
-Status: design proposal. No dataset is accepted as gold, and no evaluation has run. The [PRD](PRD.md) owns the rubric, metrics, and acceptance decisions.
+Status: proposed model-evaluation flow. Forty candidate transcripts have passed structural checks and agent QA; all human reviews are pending. No gold release or model evaluation exists. The [PRD](PRD.md) owns the rubric, metrics, and acceptance decisions.
 
 ```mermaid
 flowchart TD
