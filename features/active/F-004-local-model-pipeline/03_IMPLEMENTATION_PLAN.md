@@ -113,3 +113,11 @@ Pre-commit verification reran all 49 tests, frozen gold integrity for 40 cases, 
 ## Quality baseline prerequisite
 
 The owner requested [F-005 engineering gates](../../completed/F-005-development-quality-baseline/01_REQUIREMENTS.md) before batch 2. Ruff/Pyright, the shared local/CI checker, snapshot preflight, and template requirements are owned there. This does not select a classifier or check off any later F-004 batch.
+
+## Batch 2 branch and new-chat handoff, 2026-11-06
+
+The owner requested feature branches for every new feature/batch and a GPT-6.1 Sol high chat for classifier selection. Created feature/f-004-text-classifier before further feature edits or pushes. The branch includes local completion record c5cfdcd for F-005 plus the new branch-policy instructions. No reset, history rewrite, model selection, download, inference, or push was performed during this handoff. The parent chat finishes writing before the new chat begins; the local checkout is shared, so avoid concurrent writes.
+
+The next owner reads AGENTS, README, documentation map, PRD, profile, project-workflow, all F-004 documents, and docs/LOCAL_MODEL_OPTIONS.md. Recheck Ollama/version/inventory rather than assuming the earlier empty state. Research current official model information, compare a few local classifiers that fit the RTX 4070 Laptop GPU with 8 GiB VRAM and roughly 32 GiB system RAM, and recommend an exact Ollama tag. Ask the owner which model to provision; no implicit default, download, or live inference is authorized until that selection is made. The deferred transcription candidates remain unchanged.
+
+Use the established shared quality/snapshot gates and feature-branch/PR workflow. Frozen policy, candidate source, approval, and gold remain immutable. Held-out answers never enter prompts or model-selection tuning. No cloud inference, API keys, audio/UI dependencies, billing changes, or unrequested main pushes.

@@ -84,3 +84,9 @@ Use [quality-gates.json](../quality-gates.json) as the explicit configuration re
 - Owner reports GitHub Free. Current included compute is $12/month shared across eligible account usage. Remaining allowance and spending-stop settings are unverified. Private-repo protected branches are unavailable on this plan; no upgrade or billing changes are authorized. Hosted workflow activation is a separate delivery observation, never inferred from local YAML checks.
 
 The template now requires explicit baseline configuration when the language is selected or source code appears. The bundled portable intake assets adopt that rule. Documentation-only intake with unknown language can defer tool choice without claiming application readiness.
+
+## Branch and feature handoff policy
+
+The owner requires a dedicated branch for every new feature or implementation batch before more code is pushed. Check git status and git branch --show-current before edits or publication. Use feature/<feature-id>-<short-name>; do not push feature work directly to main. Preserve existing unpublished commits instead of resetting them. Publish only the feature branch when authorized and use a pull request for review before merge. GitHub Free's private-repo protection limits do not waive this workflow.
+
+The current F-004 batch 2 branch is feature/f-004-text-classifier. It starts from local c5cfdcd, which records F-005 completion and is not yet on origin/main. The remote baseline 8ab41a8 has four passing CI jobs. This branch carries the completion record and branch-policy handoff; no new push is performed by this setup. Classifier choice is still the owner's D-003 decision.
