@@ -1,6 +1,6 @@
 # Architecture
 
-Current state: policy documents, synthetic candidates, an explicit human-approval ledger, frozen gold v1.0, and offline validation/export tools. F-004 batches 1 and 2 add diagnostics, local text classification, and exclusive JSON run records. Evaluation, audio, dashboard, and deployment remain planned. The first diagram describes the proposed full application.
+Current state: policy documents, synthetic candidates, an explicit human-approval ledger, frozen gold v1.0, and offline validation/export tools. F-004 batches 1 and 2 add diagnostics, local text classification, and exclusive JSON run records. Batch 3 adds isolated evaluation artifacts and offline scoring. Audio, dashboard, and deployment remain planned. The first diagram describes the proposed full application.
 
 ```mermaid
 flowchart LR
@@ -80,3 +80,21 @@ flowchart LR
 ```
 
 classify.py owns prompt construction and validation. The transcript is data in a separate user message. Expected answers are rejected by the JSONL reader. storage.py serializes immutable domain values and creates each record exclusively. Model identity is checked before and after a successful inference. A malformed response, context overflow, timeout, or resource error cannot contain a successful policy label. Semantic correctness of otherwise valid reasons remains an evaluation question.
+
+## Implemented batch 3 evaluation
+
+```mermaid
+flowchart LR
+    CLI["evaluate CLI"] --> Split["datasets.py validates manifest and input-only split"]
+    Split --> Config["evaluation_config.py snapshots the exact local system"]
+    Config --> Runner["evaluate.py invokes existing classifier per case"]
+    Runner --> Records["Exclusive run records and closed predictions"]
+    Records --> Marker["Inference completion and integrity hashes"]
+    Marker --> Answers["Separate reference-answer read"]
+    Answers --> Scorer["scoring.py computes counts and explicit denominators"]
+    Records --> Scorer
+    Scorer --> Report["Immutable report and offline rescore"]
+    Report --> Freeze["Explicit candidate freeze for later held-out use"]
+```
+
+json_io.py supplies strict duplicate/non-finite rejection and LF-only JSONL parsing to both classification and evaluation. classify.py exposes pure request construction with prompt/request hashes so evaluation reuses the actual classifier configuration. There is no second classifier prompt. Scoring depends on typed predictions and reference answers, not on Ollama or a UI. Inference completion is persisted before the scorer can open answers. Configuration drift or incomplete inference leaves inspectable artifacts without a quality report. Held-out execution requires a matching frozen system and explicit opt-in.

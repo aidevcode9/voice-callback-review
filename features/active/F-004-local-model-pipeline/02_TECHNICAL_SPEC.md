@@ -1,11 +1,11 @@
 # F-004: Local model pipeline specification
 
 Requirements: [feature requirements](01_REQUIREMENTS.md).
-Status: batches 1 and 2 implement diagnostics, text classification, and exclusive local classification records. Evaluation, transcription, and UI remain proposed.
+Status: batches 1 and 2 implement diagnostics, text classification, and exclusive local classification records. Batch 3 implements development evaluation and guarded held-out preparation; transcription and UI remain proposed.
 
 ## Current system and selected planning approach
 
-The repo has standard-library Python preparation tools and frozen gold. It now has a Python diagnostics package, local text classifier, and CLI run records, but no evaluation or UI. Batch 1 rechecked Ollama 0.40.14 responding locally with no installed models. Laptop details and external references are in [local model options](../../../docs/LOCAL_MODEL_OPTIONS.md).
+The repo has standard-library Python preparation tools and frozen gold. It now has a Python diagnostics package, local text classifier, and CLI run records, plus evaluation commands, but no UI. Batch 1 rechecked Ollama 0.40.14 responding locally with no installed models. Laptop details and external references are in [local model options](../../../docs/LOCAL_MODEL_OPTIONS.md).
 
 Use one Python package and thin CLI and UI entrypoints. The proposed dashboard is Streamlit, which avoids a separate frontend and API for this local demo. Keep inference outside UI reruns and require explicit submit actions.
 
@@ -95,7 +95,7 @@ Offline checks use controlled local HTTP responses and synthetic fixtures. Live 
 
 Batch 1 uses Python 3.10+ with no runtime dependencies and pins setuptools 80.9.0 for editable builds. Optional audio/UI dependency declarations are deferred until their owning batches verify versions, avoiding speculative dependencies or installation in batch 1.
 
-Implemented signatures are doctor(client: OllamaClient) -> DoctorReport, load_registry(path: Path) -> tuple[ModelConfig, ...], and list_models(configs, installed, stage=None) -> tuple[ModelAvailability, ...]. A null installed inventory means unknown; an empty tuple means the server reported zero models. The CLI exposes doctor, models, and classify. Evaluation and transcription signatures remain proposed without placeholder implementations.
+Implemented signatures are doctor(client: OllamaClient) -> DoctorReport, load_registry(path: Path) -> tuple[ModelConfig, ...], and list_models(configs, installed, stage=None) -> tuple[ModelAvailability, ...]. A null installed inventory means unknown; an empty tuple means the server reported zero models. The CLI exposes doctor, models, classify, evaluate, score, and freeze-evaluation. Transcription remains proposed without a placeholder implementation.
 
 RunResult is RunSuccess | RunFailure. TranscriptVersion hashes exact UTF-8 text and records parent/origin. ModelConfig copies settings into a read-only mapping. RunProvenance records model configuration, digest uncertainty, runtime version, transcript identity/hash, prompt/policy versions and hashes, start time, and elapsed seconds. The classifier now creates actual validated RunSuccess or RunFailure records; transcription remains a later adapter.
 
@@ -112,3 +112,11 @@ The application caps transcript text at 12000 UTF-8 bytes and the input file at 
 Inference uses a separate 180-second total deadline, configurable up to 600 seconds; health and metadata retain the shorter diagnostic limits. Responses require completed assistant output from the exact tag. Validation rejects extra or duplicate fields, invalid labels, unknown or outcome-inconsistent rules, empty or oversized reasons/evidence, and quotes absent from the exact transcript. It validates structure and support locations, not semantic truth of every claim in the reason.
 
 Provenance adds case ID, loopback URL, model-metadata hash, and request hash to the existing versions, model digest, settings, hashes, UTC start, and elapsed time. storage.py was pulled forward from later storage work to retain individual classification successes and failures in exclusive runtime/classifications files. Evaluation reports, case management, and reviewer decisions remain later work. A filesystem error is reported separately from a policy outcome. No retries, pull endpoint, or cloud fallback exists in the application.
+
+### Batch 3 implementation decisions
+
+The evaluator reuses the classifier and its actual request hashes. json_io.py centralizes bounded strict JSON and LF-only JSONL parsing; datasets.py validates frozen manifest hashes and split coverage with separate input and answer reads. scoring.py owns Prediction, ReferenceAnswer, and pure score(predictions, answers) with explicit denominators. evaluation_config.py owns system/source identity and frozen-configuration compatibility. evaluate.py owns exclusive artifact directories, interruption/completion state, persisted predictions, deterministic offline scoring, and freeze preparation. CLI adapters invoke those operations without business logic.
+
+Each report requires exactly one success or processing failure per frozen input. The three-by-three outcome matrix excludes processing failures while a separate expected-label failure count preserves its denominators. Undefined ratios are null. Per-case disagreements retain expected labels and rationales only in scoring artifacts. No answer fields are passed to classify. A source/data/model/prompt/policy/runtime/settings mismatch blocks reuse; no automatic model download or retry is added.
+
+Development evaluation is authorized for this batch. Real held-out inference remains unperformed until explicit owner authorization with a frozen configuration. Freezing verifies completed clean-source development evidence and records the current clean revision; it is not semantic-quality acceptance. Source fingerprints cover package Python bytes; Git revision and clean state remain separate provenance. Reports and freezes are ignored local artifacts, while their commands and observed evidence belong in this plan.

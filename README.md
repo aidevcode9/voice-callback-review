@@ -2,7 +2,7 @@
 
 A learning prototype for reviewing recorded service calls and identifying which callers need a callback. The intended interface is a small browser dashboard.
 
-Project stage: 40 owner-approved fictional cases are frozen as golden set v1.0. F-004 is active. Batches 1 and 2 implement diagnostics, an explicit model registry, and local text classification with validated evidence and run provenance. Evaluation, audio, and dashboard batches remain planned.
+Project stage: 40 owner-approved fictional cases are frozen as golden set v1.0. F-004 is active. Batches 1 and 2 implement diagnostics, an explicit model registry, and local text classification with validated evidence and run provenance. Batch 3 implements development evaluation, offline scoring, and configuration freezing; live baseline evidence is pending. Audio and dashboard remain planned.
 
 ## Start here
 
@@ -29,7 +29,7 @@ Upload a recording or supply a text transcript. Review the transcript, callback 
 
 Use [project-workflow](.agents/skills/project-workflow/SKILL.md) as the project's orchestration entrypoint. It was configured during intake, before implementation, and compares relevant pstack and house skills for substantive tasks.
 
-The [workflow profile](.codex/workflow-profile.md) records the current skill choices and validation limits. Ollama responds locally. Doctor and models commands are available through the [setup guide](docs/LOCAL_SETUP.md). F-004 implements text inference and still proposes evaluation, transcription, and the dashboard. Hosting remains undecided.
+The [workflow profile](.codex/workflow-profile.md) records the current skill choices and validation limits. Ollama responds locally. Doctor and models commands are available through the [setup guide](docs/LOCAL_SETUP.md). F-004 implements text inference and evaluation commands; transcription and the dashboard remain proposed. Hosting remains undecided.
 
 This repository was generated from the project-template starter at commit `bac0ba6f1a4e46fda0c09fdcacaef8e01243a61d`. During intake it adopted the version 0.2 orchestration and diagram update from `52a045957eac7eaddf9ba533b628d88e893cc933`. It has its own local Git history. The shared [build process](docs/HOW_WE_BUILD.md) governs later feature work.
 

@@ -3,7 +3,7 @@
 import json
 import re
 import time
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from hashlib import sha256
 from pathlib import Path
@@ -25,6 +25,7 @@ from .domain import (
     TranscriptOrigin,
     TranscriptVersion,
 )
+from .json_io import parse_json, parse_jsonl, read_bounded
 from .models import list_models
 from .ollama import OllamaClient, OllamaError
 
@@ -69,15 +70,6 @@ def decision_schema() -> dict[str, JsonValue]:
     }
 
 
-def _unique_object(pairs: list[tuple[str, JsonValue]]) -> dict[str, JsonValue]:
-    value: dict[str, JsonValue] = {}
-    for key, item in pairs:
-        if key in value:
-            raise ValueError("Duplicate JSON fields are not allowed.")
-        value[key] = item
-    return value
-
-
 def _strings(value: JsonValue, limit: int) -> tuple[str, ...]:
     if not isinstance(value, list) or not 1 <= len(value) <= limit:
         raise ValueError("Expected a nonempty bounded list.")
@@ -91,7 +83,7 @@ def _strings(value: JsonValue, limit: int) -> tuple[str, ...]:
 
 def validate_decision(content: str, transcript: str) -> CallbackDecision:
     try:
-        value: JsonValue = json.loads(content, object_pairs_hook=_unique_object)
+        value = parse_json(content)
         if not isinstance(value, dict) or set(value) != {"label", "rule_ids", "reason", "evidence"}:
             raise ValueError
         label = Outcome(value["label"])
@@ -114,32 +106,41 @@ def validate_decision(content: str, transcript: str) -> CallbackDecision:
         ) from None
 
 
+def parse_transcripts(raw: bytes) -> tuple[TranscriptVersion, ...]:
+    transcripts: list[TranscriptVersion] = []
+    seen: set[str] = set()
+    for row in parse_jsonl(raw):
+        if (
+            not isinstance(row, dict)
+            or set(row) != {"case_id", "transcript"}
+            or not isinstance(row["case_id"], str)
+            or not row["case_id"].strip()
+            or len(row["case_id"]) > 120
+            or row["case_id"] in seen
+            or not isinstance(row["transcript"], str)
+        ):
+            raise ValueError("Input rows require unique case IDs and transcript only.")
+        seen.add(row["case_id"])
+        text = row["transcript"]
+        transcripts.append(
+            TranscriptVersion(
+                row["case_id"],
+                sha256(text.encode("utf-8")).hexdigest(),
+                text,
+                TranscriptOrigin.TEXT,
+            )
+        )
+    return tuple(transcripts)
+
+
 def load_transcript(path: Path, case_id: str, version_id: str | None = None) -> TranscriptVersion:
     try:
         if not case_id.strip() or len(case_id) > 120:
             raise ValueError
-        with path.open("rb") as stream:
-            raw = stream.read(1024 * 1024 + 1)
-        if len(raw) > 1024 * 1024:
-            raise ValueError
+        raw = read_bounded(path)
         text = raw.decode("utf-8")
         if path.suffix.lower() == ".jsonl":
-            matches: list[str] = []
-            seen: set[str] = set()
-            for line in text.removesuffix("\n").split("\n"):
-                row: JsonValue = json.loads(line, object_pairs_hook=_unique_object)
-                if (
-                    not isinstance(row, dict)
-                    or set(row) != {"case_id", "transcript"}
-                    or not isinstance(row["case_id"], str)
-                    or not row["case_id"].strip()
-                    or row["case_id"] in seen
-                    or not isinstance(row["transcript"], str)
-                ):
-                    raise ValueError
-                seen.add(row["case_id"])
-                if row["case_id"] == case_id:
-                    matches.append(row["transcript"])
+            matches = [row.text for row in parse_transcripts(raw) if row.case_id == case_id]
             if len(matches) != 1:
                 raise ValueError
             text = matches[0]
@@ -156,9 +157,16 @@ def load_transcript(path: Path, case_id: str, version_id: str | None = None) -> 
         ) from None
 
 
-def _request(
+@dataclass(frozen=True)
+class ClassificationRequest:
+    body: dict[str, JsonValue]
+    prompt_sha256: str
+    request_sha256: str
+
+
+def build_classification_request(
     transcript: TranscriptVersion, model: ModelConfig, policy: bytes
-) -> dict[str, JsonValue]:
+) -> ClassificationRequest:
     settings = model.settings
     if model.runtime != Runtime.OLLAMA or Stage.CLASSIFICATION not in model.stages:
         raise ValueError("Choose an explicitly configured Ollama classifier.")
@@ -196,7 +204,8 @@ def _request(
         + "\n\nResponse JSON schema:\n"
         + json.dumps(decision_schema(), sort_keys=True)
     )
-    return {
+    system_message: dict[str, JsonValue] = {"role": "system", "content": system}
+    body: dict[str, JsonValue] = {
         "model": model.model_id,
         "stream": False,
         "think": False,
@@ -204,7 +213,7 @@ def _request(
         "truncate": False,
         "shift": False,
         "messages": [
-            {"role": "system", "content": system},
+            system_message,
             {
                 "role": "user",
                 "content": json.dumps({"transcript": transcript.text}, ensure_ascii=False),
@@ -215,9 +224,16 @@ def _request(
             key: value for key, value in settings.items() if key not in {"think", "keep_alive"}
         },
     }
+    return ClassificationRequest(
+        body,
+        sha256(json.dumps(system_message, sort_keys=True).encode()).hexdigest(),
+        sha256(json.dumps(body, sort_keys=True).encode()).hexdigest(),
+    )
 
 
-def _verify_runtime(version: str, metadata: dict[str, JsonValue], context: JsonValue) -> None:
+def verify_classifier_runtime(
+    version: str, metadata: dict[str, JsonValue], context: JsonValue
+) -> None:
     match = re.fullmatch(r"(\d+)\.(\d+)\.(\d+)(?:[-+].*)?", version)
     if match is None or tuple(int(part) for part in match.groups()) < (0, 40, 15):
         raise ValueError(
@@ -291,14 +307,11 @@ def classify(
         provenance = replace(provenance, policy_sha256=policy_hash)
         if policy_hash != POLICY_SHA256:
             raise ValueError("Accepted policy hash differs from the frozen v1.0 policy.")
-        request = _request(transcript, model, policy)
-        messages = request["messages"]
+        request = build_classification_request(transcript, model, policy)
         provenance = replace(
             provenance,
-            prompt_sha256=sha256(json.dumps(messages[0], sort_keys=True).encode()).hexdigest()
-            if isinstance(messages, list)
-            else None,
-            request_sha256=sha256(json.dumps(request, sort_keys=True).encode()).hexdigest(),
+            prompt_sha256=request.prompt_sha256,
+            request_sha256=request.request_sha256,
         )
         provenance = replace(provenance, runtime_version=client.version())
         choices = list_models((model,), client.installed_models(), Stage.CLASSIFICATION)
@@ -318,8 +331,8 @@ def classify(
             provenance,
             model_metadata_sha256=sha256(json.dumps(metadata, sort_keys=True).encode()).hexdigest(),
         )
-        _verify_runtime(provenance.runtime_version, metadata, model.settings["num_ctx"])
-        response = client.chat(request)
+        verify_classifier_runtime(provenance.runtime_version, metadata, model.settings["num_ctx"])
+        response = client.chat(request.body)
         message = response.get("message")
         if (
             response.get("done") is not True
