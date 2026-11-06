@@ -18,6 +18,7 @@
 | [Evaluation](EVALUATION.md) | Proposed gold-label separation and audio evaluation flow. |
 | [Workflow selection](WORKFLOW_SELECTION.md) | Selected skills, orchestration role, and actual process stage. |
 | [Local model build plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) | Sequenced implementation batches, model-choice dependencies, and acceptance evidence. |
+| [Quality checks](QUALITY_CHECKS.md) | Shared static, behavior, data, documentation, package, and snapshot gates; CI costs and limits. |
 | [Local setup](LOCAL_SETUP.md) | Reproducible project environment, runtime diagnostics, registry states, and offline checks. |
 | [Local model options](LOCAL_MODEL_OPTIONS.md) | Observed laptop/runtime, proposed model fit, and selectable-stage requirements. |
 | [Architecture](ARCHITECTURE.md) | Current system structure and ownership. Proposed designs stay labeled. |

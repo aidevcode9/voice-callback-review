@@ -2,12 +2,11 @@
 
 import hashlib
 import json
-from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
-
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPORTER = ROOT / "scripts/freeze_gold.py"
@@ -32,10 +31,22 @@ class GoldFreezeChecks(unittest.TestCase):
 
     def run_export(self, *extra):
         return subprocess.run(
-            [sys.executable, str(EXPORTER), "--source", str(self.source),
-             "--review", str(self.review), "--policy", str(self.policy),
-             "--output", str(self.output), *extra],
-            capture_output=True, text=True, encoding="utf-8",
+            [
+                sys.executable,
+                str(EXPORTER),
+                "--source",
+                str(self.source),
+                "--review",
+                str(self.review),
+                "--policy",
+                str(self.policy),
+                "--output",
+                str(self.output),
+                *extra,
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
         )
 
     def change_review(self, **updates):
@@ -50,15 +61,22 @@ class GoldFreezeChecks(unittest.TestCase):
         self.assertEqual(manifest["case_count"], 40)
         self.assertEqual(manifest["family_count"], 20)
         for split in ("development", "evaluation"):
-            inputs = [json.loads(line) for line in (self.output / f"inputs/{split}.jsonl").read_text().splitlines()]
-            answers = [json.loads(line) for line in (self.output / f"answers/{split}.jsonl").read_text().splitlines()]
+            inputs = [
+                json.loads(line)
+                for line in (self.output / f"inputs/{split}.jsonl").read_text().splitlines()
+            ]
+            answers = [
+                json.loads(line)
+                for line in (self.output / f"answers/{split}.jsonl").read_text().splitlines()
+            ]
             self.assertEqual(len(inputs), 20)
             self.assertEqual([r["case_id"] for r in inputs], [r["case_id"] for r in answers])
             for row in inputs:
                 self.assertEqual(set(row), {"case_id", "transcript"})
         for name, metadata in manifest["files"].items():
-            self.assertEqual(hashlib.sha256((self.output / name).read_bytes()).hexdigest(),
-                             metadata["sha256"])
+            self.assertEqual(
+                hashlib.sha256((self.output / name).read_bytes()).hexdigest(), metadata["sha256"]
+            )
 
     def test_reviewed_without_approval_does_not_export(self):
         self.change_review(decision="reviewed")
@@ -84,11 +102,17 @@ class GoldFreezeChecks(unittest.TestCase):
 
     def test_repeat_does_not_rewrite_existing_release(self):
         self.assertEqual(self.run_export().returncode, 0)
-        before = {p.relative_to(self.output): (p.read_bytes(), p.stat().st_mtime_ns)
-                  for p in self.output.rglob("*") if p.is_file()}
+        before = {
+            p.relative_to(self.output): (p.read_bytes(), p.stat().st_mtime_ns)
+            for p in self.output.rglob("*")
+            if p.is_file()
+        }
         self.assertEqual(self.run_export().returncode, 0)
-        after = {p.relative_to(self.output): (p.read_bytes(), p.stat().st_mtime_ns)
-                 for p in self.output.rglob("*") if p.is_file()}
+        after = {
+            p.relative_to(self.output): (p.read_bytes(), p.stat().st_mtime_ns)
+            for p in self.output.rglob("*")
+            if p.is_file()
+        }
         self.assertEqual(before, after)
 
     def test_differing_release_is_preserved(self):
@@ -127,7 +151,9 @@ class GoldFreezeChecks(unittest.TestCase):
     def test_actual_gold_release_verifies(self):
         result = subprocess.run(
             [sys.executable, str(EXPORTER), "--check"],
-            capture_output=True, text=True, encoding="utf-8",
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
         )
         self.assertEqual(result.returncode, 0, result.stderr)
 

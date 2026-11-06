@@ -69,3 +69,7 @@ git diff --check
 ```
 
 The behavior tests use controlled loopback HTTP servers and a controlled connection-refusal fixture. They need no running Ollama, downloaded models, or external network. Classification, transcription, evaluation, and UI execution remain planned in [F-004](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md).
+
+## Development quality baseline
+
+Install requirements-dev.txt with --require-hashes and run scripts/check_project.py for the full baseline. The [quality guide](QUALITY_CHECKS.md) records Ruff, Pyright, snapshot preflight, clean-wheel tests, and GitHub Actions. Those are development tools; the application still has no third-party runtime dependencies.

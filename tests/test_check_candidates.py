@@ -2,21 +2,27 @@
 
 import copy
 import json
-from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
-
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CHECKER = ROOT / "scripts/check_candidates.py"
 CASE = {
-    "case_id": "VC-999", "family_id": "FAM-999", "suggested_split": "development",
-    "source": "synthetic", "transcript": "Caller: My issue is still unresolved.",
-    "proposed_label": "callback_required", "rule_ids": ["UR-001"],
-    "rationale": "The issue remains unresolved.", "evidence": ["My issue is still unresolved."],
-    "review_status": "pending", "reviewed_label": None, "reviewer": None,
+    "case_id": "VC-999",
+    "family_id": "FAM-999",
+    "suggested_split": "development",
+    "source": "synthetic",
+    "transcript": "Caller: My issue is still unresolved.",
+    "proposed_label": "callback_required",
+    "rule_ids": ["UR-001"],
+    "rationale": "The issue remains unresolved.",
+    "evidence": ["My issue is still unresolved."],
+    "review_status": "pending",
+    "reviewed_label": None,
+    "reviewer": None,
 }
 
 
@@ -32,15 +38,15 @@ class CandidateChecks(unittest.TestCase):
         self.path = self.base / "cases.jsonl"
 
     def run_records(self, records):
-        self.path.write_text(
-            "".join(json.dumps(row) + "\n" for row in records), encoding="utf-8"
-        )
+        self.path.write_text("".join(json.dumps(row) + "\n" for row in records), encoding="utf-8")
         return self.run_path(self.path)
 
     def run_path(self, path):
         return subprocess.run(
             [sys.executable, str(CHECKER), str(path)],
-            capture_output=True, text=True, encoding="utf-8",
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
         )
 
     def test_valid_pending_case_passes_and_is_not_rewritten(self):
@@ -65,8 +71,11 @@ class CandidateChecks(unittest.TestCase):
 
     def test_family_cannot_cross_splits(self):
         row = copy.deepcopy(CASE)
-        row.update(case_id="VC-998", suggested_split="evaluation",
-                   transcript="Caller: My issue is still unresolved. No answer yet.")
+        row.update(
+            case_id="VC-998",
+            suggested_split="evaluation",
+            transcript="Caller: My issue is still unresolved. No answer yet.",
+        )
         result = self.run_records([CASE, row])
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("family occurs in more than one split", result.stderr)
@@ -119,9 +128,15 @@ class CandidateChecks(unittest.TestCase):
 
     def test_actual_review_packet_matches_the_data(self):
         result = subprocess.run(
-            [sys.executable, str(ROOT / "scripts/render_candidate_review.py"),
-             str(ROOT / "data/candidates/v0.1/cases.jsonl"), "--check"],
-            capture_output=True, text=True, encoding="utf-8",
+            [
+                sys.executable,
+                str(ROOT / "scripts/render_candidate_review.py"),
+                str(ROOT / "data/candidates/v0.1/cases.jsonl"),
+                "--check",
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
         )
         self.assertEqual(result.returncode, 0, result.stderr)
 
@@ -129,9 +144,16 @@ class CandidateChecks(unittest.TestCase):
         self.run_records([CASE])
         before = self.path.read_bytes()
         result = subprocess.run(
-            [sys.executable, str(ROOT / "scripts/render_candidate_review.py"),
-             str(self.path), "--output", str(self.path)],
-            capture_output=True, text=True, encoding="utf-8",
+            [
+                sys.executable,
+                str(ROOT / "scripts/render_candidate_review.py"),
+                str(self.path),
+                "--output",
+                str(self.path),
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("must differ", result.stderr)

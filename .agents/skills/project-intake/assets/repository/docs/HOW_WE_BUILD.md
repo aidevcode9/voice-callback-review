@@ -17,6 +17,14 @@ For a new repository, initialize Git locally and record the reviewed intake arti
 
 Intake is sufficient when the first feature can be specified and verified without guessing a material product decision. Later release questions may remain open with owners. Routine preparation continues within the user's authorization.
 
+## Establish engineering checks
+
+Once the implementation language is selected, configure quality-gates.json before writing source code. Select linting, formatting, type checking, behavior tests, the shared local check command, and CI. For Python, Ruff and Pyright are the default static tools. For other languages, select equivalent tools and record any justified exception. Documentation-only intake can defer these choices while the language is unknown.
+
+Run python scripts/check_quality_baseline.py. This verifies explicit configuration, not tool success. Install pinned development tools separately from runtime dependencies, run the real checks, and record evidence. Missing tools or commands remain unfinished setup rather than silently skipped gates. Use the same check command locally and in CI. Verify a staged or committed snapshot at handoff.
+
+CI uses bounded jobs and read-only permissions by default. Record hosted costs and required-check availability for the repository plan. Protect immutable inputs from automatic formatting and regeneration.
+
 ## Prepare a feature
 
 1. Choose an unused stable feature ID and a short name.

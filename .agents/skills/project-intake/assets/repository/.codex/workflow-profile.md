@@ -57,3 +57,11 @@ Replace TBD rows with exact commands, expected results, and evidence locations. 
 - Required integration or deployment work, if any: TBD.
 - Publication and external-action scope: follow the user's actual authorization.
 - If a required check is unavailable, report the missing check and its effect. Do not claim that gate passed.
+
+## Required quality baseline
+
+[quality-gates.json](../quality-gates.json) records the language, lint, formatter, type-check, behavior-test commands, shared local command, and CI file. Run `python scripts/check_quality_baseline.py` to validate that record. Documentation-only intake may leave tools unresolved until language selection; choosing a language or adding first-party code makes the record mandatory. Missing gates cannot silently count as passing.
+
+For Python, use Ruff lint/format checks and Pyright type checking by default, with focused behavior tests. Other languages choose equivalent tools. Configure exact versions in an isolated development environment and record exceptions explicitly. Keep generated/vendor code and immutable data outside automatic formatting. Use the same check command in local work and CI, and test the declared minimum runtime plus the development platform.
+
+Before handoff, run the configured checks against the staged index or committed tree, not unrelated dirty files. CI must have bounded jobs, read-only default permissions, and explicit cost/credential expectations. Report unavailable hosted runs and branch protection separately from local validation.

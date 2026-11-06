@@ -1,14 +1,14 @@
 """Exercise actual HTTP and CLI boundaries against controlled loopback responses."""
 
-from contextlib import contextmanager, redirect_stdout
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from io import StringIO
 import json
 import subprocess
 import sys
 import threading
 import time
 import unittest
+from contextlib import contextmanager, redirect_stdout
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from io import StringIO
 from unittest.mock import patch
 
 from voice_callback.cli import main
@@ -44,11 +44,13 @@ def server(routes):
             except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
                 pass
 
-        def log_message(self, *args):
+        def log_message(self, format: str, *args: object) -> None:
             pass
 
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
-    worker = threading.Thread(target=httpd.serve_forever, kwargs={"poll_interval": 0.01}, daemon=True)
+    worker = threading.Thread(
+        target=httpd.serve_forever, kwargs={"poll_interval": 0.01}, daemon=True
+    )
     worker.start()
     try:
         yield f"http://127.0.0.1:{httpd.server_port}", requests
@@ -59,8 +61,10 @@ def server(routes):
 
 
 def routes(models=None):
-    return {"/api/version": (200, {"version": "test-1"}, 0),
-            "/api/tags": (200, {"models": [] if models is None else models}, 0)}
+    return {
+        "/api/version": (200, {"version": "test-1"}, 0),
+        "/api/tags": (200, {"models": [] if models is None else models}, 0),
+    }
 
 
 class OllamaBehavior(unittest.TestCase):
@@ -73,8 +77,10 @@ class OllamaBehavior(unittest.TestCase):
         self.assertEqual(requests, [("GET", "/api/version"), ("GET", "/api/tags")])
 
     def test_populated_models_preserve_identity_and_remote_status(self):
-        data = [{"name": "local:4b", "digest": "sha256:abc"},
-                {"name": "remote", "digest": "sha256:def", "remote_host": "https://ollama.com"}]
+        data = [
+            {"name": "local:4b", "digest": "sha256:abc"},
+            {"name": "remote", "digest": "sha256:def", "remote_host": "https://ollama.com"},
+        ]
         with server(routes(data)) as (url, _):
             observed = OllamaClient(url).installed_models()
         self.assertEqual(observed[0].digest, "sha256:abc")
@@ -101,7 +107,10 @@ class OllamaBehavior(unittest.TestCase):
 
     def test_http_error_and_redirect_are_not_followed_or_echoed(self):
         for status in (302, 404, 500):
-            with self.subTest(status=status), server({"/api/version": (status, {"error": "sensitive"}, 0)}) as (url, requests):
+            with (
+                self.subTest(status=status),
+                server({"/api/version": (status, {"error": "sensitive"}, 0)}) as (url, requests),
+            ):
                 with self.assertRaises(OllamaError) as caught:
                     OllamaClient(url).version()
             self.assertEqual(caught.exception.failure.code, FailureCode.HTTP_ERROR)
@@ -109,16 +118,31 @@ class OllamaBehavior(unittest.TestCase):
             self.assertEqual(requests, [("GET", "/api/version")])
 
     def test_malformed_json_and_version_schema_are_failures(self):
-        for payload in (b"not-json", b"\xff", [], {"version": 3}, {"version": ""}, {"error": "private"}):
-            with self.subTest(payload=payload), server({"/api/version": (200, payload, 0)}) as (url, _):
+        for payload in (
+            b"not-json",
+            b"\xff",
+            [],
+            {"version": 3},
+            {"version": ""},
+            {"error": "private"},
+        ):
+            with (
+                self.subTest(payload=payload),
+                server({"/api/version": (200, payload, 0)}) as (url, _),
+            ):
                 with self.assertRaises(OllamaError) as caught:
                     OllamaClient(url).version()
             self.assertEqual(caught.exception.failure.code, FailureCode.INVALID_RESPONSE)
 
     def test_missing_or_malformed_model_list_does_not_claim_empty(self):
-        for payload in ({}, {"models": None}, {"models": {}}, {"models": [None]},
-                        {"models": [{"name": "x"}]},
-                        {"models": [{"name": "x", "digest": "a"}] * 2}):
+        for payload in (
+            {},
+            {"models": None},
+            {"models": {}},
+            {"models": [None]},
+            {"models": [{"name": "x"}]},
+            {"models": [{"name": "x", "digest": "a"}] * 2},
+        ):
             with self.subTest(payload=payload):
                 fixtures = routes()
                 fixtures["/api/tags"] = (200, payload, 0)
@@ -141,9 +165,17 @@ class OllamaBehavior(unittest.TestCase):
         self.assertEqual(caught.exception.failure.code, FailureCode.INVALID_RESPONSE)
 
     def test_remote_urls_credentials_and_unbounded_timeouts_are_rejected(self):
-        for url in ("https://127.0.0.1", "http://example.com", "http://127.0.0.1@evil.com",
-                    "http://user:secret@localhost", "http://localhost/api", "http://localhost?x=1",
-                    "http://localhost#x", "http://localhost:abc", "http://localhost:0"):
+        for url in (
+            "https://127.0.0.1",
+            "http://example.com",
+            "http://127.0.0.1@evil.com",
+            "http://user:secret@localhost",
+            "http://localhost/api",
+            "http://localhost?x=1",
+            "http://localhost#x",
+            "http://localhost:abc",
+            "http://localhost:0",
+        ):
             with self.subTest(url=url), self.assertRaises(ValueError):
                 OllamaClient(url)
         for timeout in (0, -1, float("nan"), float("inf"), 31):
@@ -179,8 +211,12 @@ class DiagnosticCLI(unittest.TestCase):
             code, result = self.invoke(["models", "--stage", "transcription", "--url", url])
         self.assertEqual(code, 0)
         self.assertEqual(len(result["configured_models"]), 2)
-        self.assertTrue(all(row["availability"] == "runtime_not_verified" and not row["selectable"]
-                            for row in result["configured_models"]))
+        self.assertTrue(
+            all(
+                row["availability"] == "runtime_not_verified" and not row["selectable"]
+                for row in result["configured_models"]
+            )
+        )
 
     def test_http_failure_returns_exit_one_and_unknown_installation(self):
         with server({}) as (url, _):
@@ -198,7 +234,11 @@ class DiagnosticCLI(unittest.TestCase):
 
     def test_module_entrypoint_process_exit_and_json(self):
         with server(routes()) as (url, _):
-            result = subprocess.run([sys.executable, "-m", "voice_callback.cli", "doctor", "--url", url],
-                                    capture_output=True, text=True, timeout=5)
+            result = subprocess.run(
+                [sys.executable, "-m", "voice_callback.cli", "doctor", "--url", url],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout)["server_version"], "test-1")

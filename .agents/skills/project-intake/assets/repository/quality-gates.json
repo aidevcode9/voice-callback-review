@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "language": null,
+  "gates": {
+    "lint": {
+      "command": null,
+      "not_applicable_reason": null
+    },
+    "format": {
+      "command": null,
+      "not_applicable_reason": null
+    },
+    "type_check": {
+      "command": null,
+      "not_applicable_reason": null
+    },
+    "tests": {
+      "command": null,
+      "not_applicable_reason": null
+    }
+  },
+  "local_check_command": null,
+  "ci_workflow": null
+}

@@ -27,6 +27,7 @@ Availability and the actual instructions determine what can run. Do not install 
 
 ## Carry out the project work
 
+- Before source implementation, validate quality-gates.json with scripts/check_quality_baseline.py. Configure linting, formatting, type checking, behavior tests, a shared local check command, and CI for the selected language. Missing setup is unfinished work, not a passed or implicitly skipped check.
 - Follow the selected execution workflow within the user's scope. Substantial features use requirements, technical specification, and implementation plan files; small changes use one document.
 - Maintain user-flow and architecture diagrams where they clarify the product or design. Label proposals and update diagrams with meaningful changes.
 - Keep the selected feature's plan current, including blockers, evidence, and the next action when pausing.

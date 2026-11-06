@@ -109,3 +109,7 @@ Changed implementation files are pyproject.toml, config/models.json, src/voice_c
 The owner requested a local commit followed by code review. Re-read project-workflow, branch-finish, code-review-workflow, verification-before-completion, and the pstack blast-radius candidate. House code-review-workflow leads the review because this is a bounded new package with coupled HTTP/registry/CLI contracts. Blast-radius was inspected but its full playbook was not selected. No delegated review is claimed.
 
 Pre-commit verification reran all 49 tests, frozen gold integrity for 40 cases, pip check, git diff --check, and an immutable-path Git comparison. All passed. Commit scope includes the batch-1 package, tests, model registry, setup documentation, active F-004 records, and the intentional earlier local-model planning/intake documentation. The earlier handoff's uncommitted state above is a historical snapshot. No push or publication is requested. Review findings are reported against the resulting local commit.
+
+## Quality baseline prerequisite
+
+The owner requested [F-005 engineering gates](../F-005-development-quality-baseline/01_REQUIREMENTS.md) before batch 2. Ruff/Pyright, the shared local/CI checker, snapshot preflight, and template requirements are owned there. This does not select a classifier or check off any later F-004 batch.

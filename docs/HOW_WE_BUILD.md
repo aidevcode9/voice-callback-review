@@ -16,6 +16,10 @@ For a new repository, initialize Git locally and record the reviewed intake arti
 
 Intake is sufficient when the first feature can be specified and verified without guessing a material product decision. Later release questions may remain open with owners. Routine preparation continues within the user's authorization.
 
+## Establish engineering checks
+
+Before source implementation, configure quality-gates.json with lint, format, type-check, behavior, local runner, and CI commands for the selected language. This project uses Ruff/Pyright and the [shared quality runner](QUALITY_CHECKS.md). Missing tool configuration is unfinished setup, not a silently skipped check. Validate the staged or committed snapshot before a code handoff. Documentation-only intake with an unknown language can defer tool selection.
+
 ## Prepare a feature
 
 1. Choose an unused stable feature ID and a short name.

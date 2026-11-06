@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "language": "python",
+  "gates": {
+    "lint": {
+      "command": "python -m ruff check src scripts tests",
+      "not_applicable_reason": null
+    },
+    "format": {
+      "command": "python -m ruff format --check src scripts tests",
+      "not_applicable_reason": null
+    },
+    "type_check": {
+      "command": "python -m pyright",
+      "not_applicable_reason": null
+    },
+    "tests": {
+      "command": "python -m unittest discover -s tests -v",
+      "not_applicable_reason": null
+    }
+  },
+  "local_check_command": "python scripts/check_project.py",
+  "ci_workflow": ".github/workflows/ci.yml"
+}

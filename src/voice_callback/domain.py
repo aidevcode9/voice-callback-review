@@ -1,10 +1,14 @@
 """Model-independent values. A processing failure never contains a policy label."""
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import Enum
 from hashlib import sha256
 from types import MappingProxyType
-from typing import Mapping
+from typing import TypeAlias
+
+JsonScalar: TypeAlias = str | int | float | bool
+JsonValue: TypeAlias = JsonScalar | None | list["JsonValue"] | dict[str, "JsonValue"]
 
 
 class Stage(str, Enum):
@@ -66,7 +70,7 @@ class ModelConfig:
     runtime: Runtime
     model_id: str
     stages: tuple[Stage, ...]
-    settings: Mapping[str, str | int | float | bool] = field(default_factory=dict)
+    settings: Mapping[str, JsonScalar] = field(default_factory=lambda: dict[str, JsonScalar]())
 
     def __post_init__(self):
         object.__setattr__(self, "settings", MappingProxyType(dict(self.settings)))

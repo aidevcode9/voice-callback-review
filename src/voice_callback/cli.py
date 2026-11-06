@@ -1,10 +1,10 @@
 """JSON diagnostics. Zero installed models is a successful observation, not inference."""
 
 import argparse
-from dataclasses import asdict
 import json
-from pathlib import Path
 import shutil
+from dataclasses import asdict
+from pathlib import Path
 
 from .domain import Stage
 from .models import list_models, load_registry
@@ -34,24 +34,34 @@ def main(argv: list[str] | None = None) -> int:
     installed = report.installed_models
     messages = ["Inference was not run. Configured capabilities do not establish model quality."]
     if installed == ():
-        messages.append("Ollama is reachable with zero installed models. Choose a classifier before explicit provisioning in batch 2.")
+        messages.append(
+            "Ollama is reachable with zero installed models. Choose a classifier before explicit provisioning in batch 2."
+        )
     if not any(Stage.CLASSIFICATION in config.stages for config in configs):
         messages.append("No classifier is configured; owner selection remains deferred.")
     if not any(choice.selectable for choice in choices):
         messages.append("No installed compatible choices are available for this selection.")
     binary = shutil.which("ollama")
     if binary is None:
-        messages.append("Ollama executable was not found on PATH; server availability is checked independently.")
+        messages.append(
+            "Ollama executable was not found on PATH; server availability is checked independently."
+        )
     result = {
         "status": "diagnostic_error" if report.failures else "ok",
         "ollama_binary": binary,
         "server_version": report.version,
         "installed_models": None if installed is None else [asdict(model) for model in installed],
         "configured_models": [
-            {"id": choice.config.id, "runtime": choice.config.runtime.value,
-             "model_id": choice.config.model_id, "stages": [s.value for s in choice.config.stages],
-             "settings": dict(choice.config.settings), "availability": choice.status,
-             "digest": choice.digest, "selectable": choice.selectable}
+            {
+                "id": choice.config.id,
+                "runtime": choice.config.runtime.value,
+                "model_id": choice.config.model_id,
+                "stages": [s.value for s in choice.config.stages],
+                "settings": dict(choice.config.settings),
+                "availability": choice.status,
+                "digest": choice.digest,
+                "selectable": choice.selectable,
+            }
             for choice in choices
         ],
         "inference_verified": False,

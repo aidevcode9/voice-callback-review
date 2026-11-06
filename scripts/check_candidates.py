@@ -1,12 +1,11 @@
 """Validate callback candidate data without changing it or promoting labels."""
 
 import argparse
-from collections import Counter
 import json
-from pathlib import Path
 import re
 import sys
-
+from collections import Counter
+from pathlib import Path
 
 LABELS = {"callback_required", "no_callback", "needs_review"}
 RULE_IDS = {"UR-001", "CB-002", "CB-003", "NC-001", "NC-002", "NC-003", "NR-001"}
@@ -16,14 +15,24 @@ def validate_record(record):
     if not isinstance(record, dict):
         return ["record must be an object"]
     errors = []
-    for field in ("case_id", "family_id", "suggested_split", "source", "transcript",
-                  "proposed_label", "rationale", "review_status"):
+    for field in (
+        "case_id",
+        "family_id",
+        "suggested_split",
+        "source",
+        "transcript",
+        "proposed_label",
+        "rationale",
+        "review_status",
+    ):
         if not isinstance(record.get(field), str) or not record[field].strip():
             errors.append(f"{field} must be a nonempty string")
     for field in ("rule_ids", "evidence"):
         value = record.get(field)
-        if not isinstance(value, list) or not value or any(
-            not isinstance(item, str) or not item.strip() for item in value
+        if (
+            not isinstance(value, list)
+            or not value
+            or any(not isinstance(item, str) or not item.strip() for item in value)
         ):
             errors.append(f"{field} must be a nonempty list of nonempty strings")
     for field in ("reviewer", "reviewed_label"):
@@ -48,7 +57,9 @@ def validate_record(record):
     status = record["review_status"]
     if status not in {"pending", "approved", "rejected"}:
         errors.append("review_status is invalid")
-    if status == "pending" and (record["reviewer"] is not None or record["reviewed_label"] is not None):
+    if status == "pending" and (
+        record["reviewer"] is not None or record["reviewed_label"] is not None
+    ):
         errors.append("pending records must have null reviewer and reviewed_label")
     if status in {"approved", "rejected"} and (
         not isinstance(record["reviewer"], str) or not record["reviewer"].strip()
@@ -96,9 +107,12 @@ def load_candidates(path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("path", nargs="?", type=Path, default=(
-        Path(__file__).resolve().parents[1] / "data/candidates/v0.1/cases.jsonl"
-    ))
+    parser.add_argument(
+        "path",
+        nargs="?",
+        type=Path,
+        default=(Path(__file__).resolve().parents[1] / "data/candidates/v0.1/cases.jsonl"),
+    )
     args = parser.parse_args()
     try:
         records, errors = load_candidates(args.path)
@@ -116,7 +130,9 @@ def main():
         "splits": dict(Counter(row["suggested_split"] for row in records)),
         "review_statuses": dict(Counter(row["review_status"] for row in records)),
         "labels_by_split": {
-            split: dict(Counter(row["proposed_label"] for row in records if row["suggested_split"] == split))
+            split: dict(
+                Counter(row["proposed_label"] for row in records if row["suggested_split"] == split)
+            )
             for split in sorted({row["suggested_split"] for row in records})
         },
     }

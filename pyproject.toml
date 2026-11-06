@@ -14,3 +14,26 @@ voice-callback = "voice_callback.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+include = ["src/**/*.py", "scripts/**/*.py", "tests/**/*.py"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B"]
+
+[tool.pyright]
+include = ["src", "scripts", "tests"]
+strict = ["src/voice_callback"]
+extraPaths = ["src", "scripts"]
+pythonVersion = "3.10"
+typeCheckingMode = "standard"
+
+[tool.coverage.run]
+branch = true
+source = ["voice_callback"]
+data_file = ".test-work/.coverage"
+
+[tool.coverage.report]
+show_missing = true

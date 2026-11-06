@@ -1,16 +1,28 @@
 """Registry, stage selection, and provenance behavior without weights or inference."""
 
-from dataclasses import replace
 import json
-from pathlib import Path
 import tempfile
 import unittest
+from collections.abc import MutableMapping
+from dataclasses import replace
+from pathlib import Path
+from typing import cast
 
-from voice_callback.domain import (Failure, FailureCode, ModelConfig, Outcome, RunFailure,
-                                   RunProvenance, Runtime, Stage, TranscriptOrigin, TranscriptVersion)
+from voice_callback.domain import (
+    Failure,
+    FailureCode,
+    JsonScalar,
+    ModelConfig,
+    Outcome,
+    RunFailure,
+    RunProvenance,
+    Runtime,
+    Stage,
+    TranscriptOrigin,
+    TranscriptVersion,
+)
 from voice_callback.models import list_models, load_registry
 from voice_callback.ollama import InstalledModel
-
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -22,8 +34,13 @@ class ModelRegistryBehavior(unittest.TestCase):
         folder = tempfile.TemporaryDirectory(dir=scratch)
         self.addCleanup(folder.cleanup)
         self.path = Path(folder.name) / "models.json"
-        self.row = {"id": "classifier-candidate", "runtime": "ollama", "model_id": "example:4b",
-                    "stages": ["classification"], "settings": {"temperature": 0}}
+        self.row = {
+            "id": "classifier-candidate",
+            "runtime": "ollama",
+            "model_id": "example:4b",
+            "stages": ["classification"],
+            "settings": {"temperature": 0},
+        }
 
     def registry(self, rows):
         self.path.write_text(json.dumps({"schema_version": 1, "models": rows}), encoding="utf-8")
@@ -45,7 +62,9 @@ class ModelRegistryBehavior(unittest.TestCase):
         self.assertEqual(choice.digest, "abc")
         self.assertEqual(len(list_models(configs, observed)), 1)
         self.assertEqual(list_models(configs, observed, Stage.TRANSCRIPTION), ())
-        self.assertFalse(list_models(configs, (InstalledModel("example:latest", "abc"),))[0].selectable)
+        self.assertFalse(
+            list_models(configs, (InstalledModel("example:latest", "abc"),))[0].selectable
+        )
 
     def test_observed_remote_model_is_never_selectable(self):
         configs = self.registry([self.row])
@@ -55,25 +74,36 @@ class ModelRegistryBehavior(unittest.TestCase):
 
     def test_ollama_transcription_is_not_an_implemented_adapter(self):
         configs = self.registry([{**self.row, "stages": ["transcription"]}])
-        choice = list_models(configs, (InstalledModel("example:4b", "abc"),), Stage.TRANSCRIPTION)[0]
+        choice = list_models(configs, (InstalledModel("example:4b", "abc"),), Stage.TRANSCRIPTION)[
+            0
+        ]
         self.assertEqual(choice.status, "adapter_not_implemented")
         self.assertFalse(choice.selectable)
 
     def test_ollama_installation_never_proves_whisper_installation(self):
         configs = load_registry(ROOT / "config/models.json")
         choices = list_models(configs, (InstalledModel("small", "ollama-digest"),))
-        self.assertTrue(all(c.status == "runtime_not_verified" and c.digest is None for c in choices))
+        self.assertTrue(
+            all(c.status == "runtime_not_verified" and c.digest is None for c in choices)
+        )
 
     def test_invalid_registry_is_rejected(self):
         invalid_rows = [
-            [self.row, self.row], [{**self.row, "stages": []}],
+            [self.row, self.row],
+            [{**self.row, "stages": []}],
             [{**self.row, "stages": ["classification", "classification"]}],
-            [{**self.row, "stages": ["unknown"]}], [{**self.row, "runtime": "cloud"}],
-            [{**self.row, "model_id": "example:cloud"}], [{**self.row, "model_id": "https://example.com"}],
-            [{**self.row, "runtime": "faster-whisper"}], [{**self.row, "settings": []}],
+            [{**self.row, "stages": ["unknown"]}],
+            [{**self.row, "runtime": "cloud"}],
+            [{**self.row, "model_id": "example:cloud"}],
+            [{**self.row, "model_id": "https://example.com"}],
+            [{**self.row, "runtime": "faster-whisper"}],
+            [{**self.row, "settings": []}],
             [{**self.row, "settings": {"temperature": float("nan")}}],
-            [{**self.row, "settings": {"nested": {}}}], [{**self.row, "default": True}],
-            [{**self.row, "id": ""}], [{**self.row, "id": 2}], [None],
+            [{**self.row, "settings": {"nested": {}}}],
+            [{**self.row, "default": True}],
+            [{**self.row, "id": ""}],
+            [{**self.row, "id": 2}],
+            [None],
         ]
         for rows in invalid_rows:
             with self.subTest(rows=rows), self.assertRaises(ValueError):
@@ -82,8 +112,12 @@ class ModelRegistryBehavior(unittest.TestCase):
     def test_bad_json_missing_file_and_defaults_are_rejected(self):
         with self.assertRaises(ValueError):
             load_registry(self.path)
-        for value in ("not-json", '[]', '{"schema_version": 2, "models": []}',
-                      '{"schema_version": 1, "models": [], "default": "x"}'):
+        for value in (
+            "not-json",
+            "[]",
+            '{"schema_version": 2, "models": []}',
+            '{"schema_version": 1, "models": [], "default": "x"}',
+        ):
             self.path.write_text(value, encoding="utf-8")
             with self.subTest(value=value), self.assertRaises(ValueError):
                 load_registry(self.path)
@@ -92,8 +126,13 @@ class ModelRegistryBehavior(unittest.TestCase):
 class DomainContracts(unittest.TestCase):
     def test_corrected_transcript_retains_parent_and_exact_text_hash(self):
         original = TranscriptVersion("case", "v1", "Call back.\n", TranscriptOrigin.TEXT)
-        corrected = replace(original, version_id="v2", text="Call back!\n",
-                            origin=TranscriptOrigin.CORRECTION, parent_version_id="v1")
+        corrected = replace(
+            original,
+            version_id="v2",
+            text="Call back!\n",
+            origin=TranscriptOrigin.CORRECTION,
+            parent_version_id="v1",
+        )
         self.assertEqual(original.text, "Call back.\n")
         self.assertEqual(corrected.parent_version_id, original.version_id)
         self.assertNotEqual(original.text_sha256, corrected.text_sha256)
@@ -101,16 +140,31 @@ class DomainContracts(unittest.TestCase):
 
     def test_run_model_settings_do_not_change_with_callers_dictionary(self):
         settings = {"temperature": 0}
-        model = ModelConfig("candidate", Runtime.OLLAMA, "example:4b", (Stage.CLASSIFICATION,), settings)
+        model = ModelConfig(
+            "candidate", Runtime.OLLAMA, "example:4b", (Stage.CLASSIFICATION,), settings
+        )
         settings["temperature"] = 1
         self.assertEqual(model.settings["temperature"], 0)
         with self.assertRaises(TypeError):
-            model.settings["temperature"] = 2
+            cast(MutableMapping[str, JsonScalar], model.settings)["temperature"] = 2
 
     def test_failure_does_not_contain_or_masquerade_as_policy_outcome(self):
         model = ModelConfig("candidate", Runtime.OLLAMA, "example:4b", (Stage.CLASSIFICATION,))
-        provenance = RunProvenance("run", Stage.CLASSIFICATION, model, None, "test", "v1", "hash",
-                                   None, None, None, None, "2026-11-05T00:00:00Z", 0.1)
+        provenance = RunProvenance(
+            "run",
+            Stage.CLASSIFICATION,
+            model,
+            None,
+            "test",
+            "v1",
+            "hash",
+            None,
+            None,
+            None,
+            None,
+            "2026-11-05T00:00:00Z",
+            0.1,
+        )
         failure = RunFailure(provenance, Failure(FailureCode.TIMEOUT, "Local request timed out."))
         self.assertFalse(hasattr(failure, "label"))
         self.assertFalse(hasattr(failure, "output"))

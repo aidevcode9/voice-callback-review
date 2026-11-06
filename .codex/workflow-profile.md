@@ -16,7 +16,7 @@ The [brief](../intake/PROJECT_BRIEF.md) owns open decisions, the [PRD](../docs/P
 - F-004 planning and batch 1: house `planning-workflows` selected after inspecting pstack Feature and architect. The agreed module design and coupled diagnostics slice use one implementation owner. Pstack technical-writing/unslop support documentation. No full pstack Feature, architect, or delegated implementation run is claimed. See the [active implementation plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) for actual execution.
 - Later hard runtime bugs: consider pstack Bug fix when its required tools are available.
 
-The intake and project-workflow skills are bundled. For every substantial task, inspect relevant pstack and house candidates, then record the choice and reason. See [workflow selection](../docs/WORKFLOW_SELECTION.md) for this stage's actual decisions. Other names describe this session's available skills, not portable installation guarantees. There is no application-specific preflight runner.
+The intake and project-workflow skills are bundled. For every substantial task, inspect relevant pstack and house candidates, then record the choice and reason. See [workflow selection](../docs/WORKFLOW_SELECTION.md) for this stage's actual decisions. Other names describe this session's available skills, not portable installation guarantees. F-005 provides the configured snapshot preflight and shared local/CI runner described below.
 
 ## Validation at this stage
 
@@ -69,3 +69,18 @@ Classify, evaluate, transcribe, and dashboard commands remain proposed in the [F
 - Demo data is proposed to be fictional. No real customer source data has been supplied.
 
 Product acceptance and model quality remain open. Preparing this PRD does not claim that an application is implemented or fit for operational use.
+
+## Required engineering baseline (F-005)
+
+Use [quality-gates.json](../quality-gates.json) as the explicit configuration record and [quality checks](../docs/QUALITY_CHECKS.md) for installation, execution, CI, and cost details. This section supersedes batch 1's earlier lack of static checks. The immutable-data and no-inference invariants remain in force.
+
+- Install hash-pinned development tools with `.venv\Scripts\python.exe -m pip install --require-hashes -r requirements-dev.txt`, then install the project with `--no-deps --no-build-isolation -e .`. Runtime dependencies remain empty.
+- Shared working-tree command: `.venv\Scripts\python.exe scripts/check_project.py`. It must pass lint, format, Pyright, behavior/coverage reporting, data, docs/lifecycle/workflow configuration, and clean-wheel installation. Named --suite options select the identical implementation used by CI.
+- Before a commit: `.venv\Scripts\python.exe scripts/codex_preflight.py --mode pre-commit` validates the staged index. Stage the intended complete changes first. Untracked or unstaged files cannot satisfy the snapshot gate.
+- Before push or committed review: `.venv\Scripts\python.exe scripts/codex_preflight.py --mode pre-push` or `--mode review` validates HEAD. Base branch is origin/main. The runner exports the exact selected tree and uses its source for subprocess imports. No separate preflight configuration file is required.
+- Documentation-only changes may run `--suite docs` plus `git diff --check`; source/configuration/tool changes require the full baseline and matching snapshot preflight. Missing dependencies, commands, or nonzero checks block readiness.
+- Ruff applies to first-party src/scripts/tests. Pyright is strict for src/voice_callback and standard for scripts/tests. No blanket type/lint suppressions are permitted to obtain a pass. Frozen data and bundled template assets stay outside automatic formatting.
+- CI matrix: Ubuntu Python 3.10/3.13 and Windows Python 3.13. Quality/data/docs run once on Ubuntu. Hosted status must be reported separately from local results; live Ollama/inference/GPU checks are manual integration evidence.
+- Owner reports GitHub Free. Current included compute is $12/month shared across eligible account usage. Remaining allowance and spending-stop settings are unverified. Private-repo protected branches are unavailable on this plan; no upgrade or billing changes are authorized. Hosted workflow activation is a separate delivery observation, never inferred from local YAML checks.
+
+The template now requires explicit baseline configuration when the language is selected or source code appears. The bundled portable intake assets adopt that rule. Documentation-only intake with unknown language can defer tool choice without claiming application readiness.

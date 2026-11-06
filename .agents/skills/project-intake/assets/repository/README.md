@@ -15,3 +15,7 @@ Read the [project brief](intake/PROJECT_BRIEF.md), the [PRD](docs/PRD.md), and t
 The [build process](docs/HOW_WE_BUILD.md) explains how we select skills, implement features, and verify completion.
 
 Use [project-workflow](.agents/skills/project-workflow/SKILL.md) to coordinate ongoing tasks. Intake configures it and the repository profile before implementation. Record choices in [workflow selection](docs/WORKFLOW_SELECTION.md). Include [user-flow diagrams](docs/USER_FLOW.md) and architecture diagrams as the design becomes clear.
+
+## Engineering baseline
+
+Before source implementation, configure [quality-gates.json](quality-gates.json) for linting, formatting, type checking, behavior tests, the shared local check command, and CI. Run `python scripts/check_quality_baseline.py` to check the record. See the [workflow profile](.codex/workflow-profile.md) for stack-specific choices. Unknown tools may be deferred only during documentation-only intake before language selection.

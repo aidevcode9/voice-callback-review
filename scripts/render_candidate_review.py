@@ -1,8 +1,8 @@
 """Render a human review packet from validated candidate data."""
 
 import argparse
-from pathlib import Path
 import sys
+from pathlib import Path
 
 from check_candidates import load_candidates
 
@@ -15,21 +15,23 @@ def render(records):
         "",
     ]
     for row in records:
-        parts.extend([
-            f"## {row['case_id']}",
-            "",
-            f"Family: {row['family_id']}. Suggested split: {row['suggested_split']}.",
-            f"Proposed label: {row['proposed_label']}. Rules: {', '.join(row['rule_ids'])}.",
-            f"Review status: {row['review_status']}. Human label: {row['reviewed_label'] or 'not reviewed'}.",
-            f"Reviewer: {row['reviewer'] or 'not recorded'}.",
-            "",
-            *["> " + line for line in row["transcript"].splitlines()],
-            "",
-            "Proposed rationale: " + row["rationale"],
-            "",
-            "Evidence: " + " | ".join(row["evidence"]),
-            "",
-        ])
+        parts.extend(
+            [
+                f"## {row['case_id']}",
+                "",
+                f"Family: {row['family_id']}. Suggested split: {row['suggested_split']}.",
+                f"Proposed label: {row['proposed_label']}. Rules: {', '.join(row['rule_ids'])}.",
+                f"Review status: {row['review_status']}. Human label: {row['reviewed_label'] or 'not reviewed'}.",
+                f"Reviewer: {row['reviewer'] or 'not recorded'}.",
+                "",
+                *["> " + line for line in row["transcript"].splitlines()],
+                "",
+                "Proposed rationale: " + row["rationale"],
+                "",
+                "Evidence: " + " | ".join(row["evidence"]),
+                "",
+            ]
+        )
     return "\n".join(parts).rstrip() + "\n"
 
 

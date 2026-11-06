@@ -46,6 +46,12 @@ The scaffold includes `project-workflow`. Configure that project orchestrator af
 
 Pstack is optional. The template does not bundle or install it. Instructions to create PRs or run deployment steps remain subject to the user's authorized scope.
 
+## Configure quality gates
+
+A selected language requires explicit linting, formatting, type checking, behavior tests, the shared local check command, and CI in quality-gates.json before source implementation. For Python, use Ruff and Pyright by default. Choose equivalent tools for another language and record justified exceptions. Pin development dependencies separately from runtime dependencies. Documentation-only intake can defer the tools until language selection.
+
+Run scripts/check_quality_baseline.py to catch missing configuration, then execute the real tools. The validator does not imply the recorded commands pass. Validate staged or committed source before handoff and record hosted CI costs and unavailable checks.
+
 ## Finish intake
 
 The output is a reviewable brief, a working PRD with its status stated, a configured project orchestrator and profile, and a first feature proposal. Include useful user-flow and architecture diagrams. Update `intake/PROJECT_BRIEF.md` to record what can start and what is blocked. Leave decisions unresolved when the evidence cannot settle them. Do not stop merely to ask whether to create already-requested documents.

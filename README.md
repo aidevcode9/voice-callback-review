@@ -10,6 +10,7 @@ Project stage: 40 owner-approved fictional cases are frozen as golden set v1.0. 
 - [Project brief](intake/PROJECT_BRIEF.md) separates user instructions from recommendations.
 - [Source register](intake/README.md) records the context supplied so far.
 - [User flow](docs/USER_FLOW.md), [architecture](docs/ARCHITECTURE.md), and [evaluation](docs/EVALUATION.md) include proposed diagrams.
+- [Quality checks](docs/QUALITY_CHECKS.md) defines the shared local/CI gates, snapshot preflight, and Actions cost limits.
 - [Local setup](docs/LOCAL_SETUP.md) creates the project environment and runs doctor/models diagnostics.
 - [Local model options](docs/LOCAL_MODEL_OPTIONS.md) records laptop fit and the independent model choices; classifier selection is deferred.
 - [Workflow selection](docs/WORKFLOW_SELECTION.md) records which skills are used and what has actually run.
@@ -44,3 +45,7 @@ python -m unittest discover -s tests -v
 ```
 
 These offline checks use Python 3.10 or later and no API credentials. They validate data preparation, not model quality.
+
+## Engineering baseline
+
+After installing the pinned development requirements, run `.venv\Scripts\python.exe scripts/check_project.py` for lint, format, types, behavior tests, data, docs, and a clean package smoke test. [Quality checks](docs/QUALITY_CHECKS.md) explains the staged/committed snapshot gates and GitHub Actions matrix. [F-005](features/active/F-005-development-quality-baseline/01_REQUIREMENTS.md) establishes this baseline before F-004 batch 2; classifier selection remains deferred.
