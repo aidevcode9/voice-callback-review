@@ -1,6 +1,6 @@
 # Workflow and skill selection
 
-Stage: accepted policy and frozen owner-approved gold v1.0; no model evaluation has run. This project has its own local Git repository under projects.
+Stage: accepted policy, frozen owner-approved gold v1.0, and active F-004 batch 1 diagnostics; no model inference or evaluation has run. This project has its own local Git repository under projects.
 
 ## Orchestrator and timing
 
@@ -28,12 +28,13 @@ The two bundled skills travel with the repository. Other names describe the curr
 | Task | Candidates inspected | Choice and reason | Actual execution |
 | --- | --- | --- | --- |
 | Initial product definition | Project-intake; pstack in-your-own-words, sharpen, technical-writing, and unslop | Use intake plus pstack writing skills. Intake produces the requested artifacts; prompt rewriting alone does not replace a PRD. | Draft source register, brief, PRD, diagrams, and backlog proposal created. No product acceptance claimed. |
-| Later application feature | House planning-workflows and pstack Feature | Choice deferred until the feature and its risks are specified. Reinspect then; no automatic preference for either source. | Inspected as candidates; neither executed to build the application. |
+| F-004 local model pipeline planning | House planning-workflows and pstack Feature; architect inspected as an architecture candidate | House planning leads the requested plan and bounded first batch. Pstack writing supports requirements and diagrams. Full Feature mandates design exploration and delegated implementation beyond this planning task. | Three planning documents and PRD build sequence created. No full pstack Feature or architect playbook executed; no application built at that planning checkpoint. |
+| F-004 batch 1 implementation | House planning-workflows; pstack Feature and architect; workflow-skill-manager routing | House planning remains the lead. Shared contracts, registry, HTTP, and CLI form one coupled slice with an agreed spec; full design exploration and delegated implementation add no required outcome here. | One owner activated F-004 after verifying paths, implemented the standard-library package, and verified offline and live diagnostics. Pstack writing guidance supports docs; code-review-workflow and verification-before-completion support self-review and evidence. No full pstack playbook ran. |
 | Later uncertain architecture | Relevant house design skills and pstack architect | Compare when there is a concrete design question. | Not executed. |
 
 For each substantial task, read the relevant pstack candidate and our candidate before choosing. Record the reason, unavailable prerequisites, and actual results in the feature plan or this record. Full playbooks and adaptations remain distinguishable.
 
-No application-specific preflight runner, framework, model provider, transcription API, or hosting is selected.
+No application-specific preflight runner exists. F-004 proposes Python, Ollama, faster-whisper, and Streamlit for local delivery. Classifier selection remains deferred; hosting is outside its scope.
 
 ## Read-only routing trial
 
@@ -70,6 +71,22 @@ The user accepted callback policy v1.0 (SRC-010). F-001 completed the policy, hu
 
 F-002 completed 40 fictional cases, a reproducible review packet, and offline validation tools. All 12 behavior tests passed. Independent agent QA found no semantic mismatch across the 40 cases. Every record remains pending, with null reviewer and reviewed label. This is candidate preparation, not human gold approval or model evaluation. F-003 tracks the next human review and freeze step.
 
+## Local model build planning checkpoint
+
+SRC-016 makes local inference part of the build. F-004 uses the substantial-feature template: requirements, technical specification, and implementation plan. Batch 1 is model-independent health, registry, and CLI work; later batches add text classification, evaluation, transcription, and dashboard integration. SRC-017 requests the next batch in a GPT-6.1 Sol high chat. Planning documents stay in backlog until that owner begins implementation.
+
+## Local model selection checkpoint
+
+This task uses project-workflow for intake reconciliation and pstack technical-writing for the bounded documentation update. Verification-before-completion supports hardware/API observations and document checks. No application feature or full pstack Feature playbook is executed. Existing house implementation planning is deferred until a model integration feature is specified.
+
+The laptop and local Ollama were inspected against official documentation. The model selectors are recorded as requirements; Whisper large-v3-turbo is recommended for audio, while classifier selection remains deferred. No model was downloaded, no inference was run, and no model-quality result is claimed.
+
 ## Human approval and gold-freeze checkpoint
 
 The owner explicitly approved all 40 proposed labels as-is after approval scope was clarified (SRC-011). F-003 used bounded house planning and pstack writing support; full pstack Feature was inspected but not executed. An independent review found missing policy binding in the exporter. A regression reproduced the issue, the approval was bound to the accepted policy version/hash, and follow-up review confirmed resolution. All 22 tests passed. The release preserves original proposals, separate approval, isolated inputs/answers, grouped frozen splits, and artifact hashes. No model result is claimed.
+
+## Batch 1 local diagnostics checkpoint
+
+F-004 moved to active at implementation start after Git status review and exact resolved-path checks. Prior uncommitted documentation was preserved and incoming links were repaired. The package provides model-independent contracts, explicit registry validation, bounded loopback Ollama health/inventory requests, and doctor/models CLI commands. The one-owner throughput checkpoint in the feature plan remains applicable; no subagents or other-chat messages were used.
+
+The first offline run exposed an HTTP/1.0 socket lifecycle bug. Systematic-debugging traced the first error to resetting the timeout after response completion. The adapter now stops at response closure, preserves total deadlines, and rejects premature bodies. Current verification is 49 passing tests, 40-case gold integrity, and live Ollama 0.40.14 with zero installed models. No inference or model-quality claim follows. See the [active plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) for exact commands and remaining batches.

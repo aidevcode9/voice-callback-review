@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "models": [
+    {
+      "id": "whisper-large-v3-turbo",
+      "runtime": "faster-whisper",
+      "model_id": "large-v3-turbo",
+      "stages": ["transcription"],
+      "settings": {}
+    },
+    {
+      "id": "whisper-small",
+      "runtime": "faster-whisper",
+      "model_id": "small",
+      "stages": ["transcription"],
+      "settings": {}
+    }
+  ]
+}

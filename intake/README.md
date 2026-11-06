@@ -6,6 +6,12 @@ No recordings, transcripts, statement of work, or external PRD have been supplie
 
 | Source ID | Date and title | Location | Authority |
 | --- | --- | --- | --- |
+| SRC-016 | 2026-11-05: local inference enters build scope | User requests a workflow plan and PRD update and says this is part of the build now | Include local runtime setup, selectable models, text classification, and transcription in the build plan. Classifier selection remains deferred. |
+| SRC-017 | 2026-11-05: next implementation chat | User requests another GPT-6.1 Sol high thread for the next batch | Start a separate chat with those model settings and a bounded implementation handoff. |
+| SRC-012 | 2026-11-05: local model development | User reports no OpenAI or Claude key and asks about local runners | Explore local inference without provisioning cloud credentials. |
+| SRC-013 | 2026-11-05: Ollama setup instructions | User supplies official documentation and setup sequence | Read docs, inspect hardware, recommend suitable models; do not sign in, create, or use keys for the user. |
+| SRC-014 | 2026-11-05: two stages and model choice | User asks about speech-to-text as well as classification and wants to pick | Support independent model choices; speech synthesis is not requested. |
+| SRC-015 | 2026-11-05: laptop fit and classifier deferral | User requests the best sensible laptop fit and answers Choose the classifier later | Recommend using observed hardware; leave classifier selection open. |
 | SRC-011 | 2026-11-05: candidate labels approved | User explicitly answered approved after clarification that the question covered all 40 proposed labels as-is | Human approval of the unchanged 40-case candidate set; no label corrections supplied. |
 | SRC-010 | 2026-11-05: full callback rubric and proceed | User accepts all proposed outcomes, including final resolution, and says to proceed | Callback policy v1.0 accepted; proceed with the rubric and candidate preparation workflow. |
 | SRC-009 | 2026-11-05: unresolved issue callback rule | User response to the ambiguous follow-up example | Accepted callback required because the caller states that the issue remains unresolved; no explicit callback request or promise is necessary. |

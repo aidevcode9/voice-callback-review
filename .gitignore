@@ -13,3 +13,10 @@ intake/sources/sow/*
 intake/sources/prd-drafts/*
 !intake/sources/prd-drafts/.gitkeep
 .test-work/
+
+# Local package metadata, build products, and future run artifacts.
+*.egg-info/
+build/
+dist/
+runtime/
+reports/

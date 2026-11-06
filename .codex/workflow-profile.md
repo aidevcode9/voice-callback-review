@@ -1,6 +1,6 @@
 # Voice Callback Review workflow profile
 
-Stage: owner-approved golden set v1.0 is frozen. No application exists.
+Stage: owner-approved golden set v1.0 is frozen. F-004 is active with batch 1 diagnostics and contracts implemented. Inference, evaluation, audio, and UI remain planned.
 
 ## Source of truth
 
@@ -13,7 +13,7 @@ The [brief](../intake/PROJECT_BRIEF.md) owns open decisions, the [PRD](../docs/P
 - Lead for intake: bundled `project-intake`.
 - Documentation: pstack `technical-writing` and `unslop`, read from the current installed environment.
 - Review and handoff: `code-review-workflow`, `verification-before-completion`, and `branch-finish` when relevant.
-- Later substantial implementation: compare `planning-workflows` with pstack Feature for the selected task. No implementation workflow is selected yet.
+- F-004 planning and batch 1: house `planning-workflows` selected after inspecting pstack Feature and architect. The agreed module design and coupled diagnostics slice use one implementation owner. Pstack technical-writing/unslop support documentation. No full pstack Feature, architect, or delegated implementation run is claimed. See the [active implementation plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) for actual execution.
 - Later hard runtime bugs: consider pstack Bug fix when its required tools are available.
 
 The intake and project-workflow skills are bundled. For every substantial task, inspect relevant pstack and house candidates, then record the choice and reason. See [workflow selection](../docs/WORKFLOW_SELECTION.md) for this stage's actual decisions. Other names describe this session's available skills, not portable installation guarantees. There is no application-specific preflight runner.
@@ -22,7 +22,7 @@ The intake and project-workflow skills are bundled. For every substantial task, 
 
 For documentation changes, inspect relative links, source claims, and diagram consistency with the written behavior, then run `git diff --check` for tracked edits and `git diff --cached --check` before commit. Structural validation of the bundled skill uses the installed skill-creator validator when available.
 
-Application, model-quality, audio-quality, UI, and integration checks cannot run before implementation. Define actual commands and passing conditions in the selected feature's plan before coding. Do not treat missing commands as passed checks.
+Batch 1 offline behavior and live runtime diagnostics are executable below. Model-quality, audio-quality, and UI checks remain unavailable until their owning batches. Do not treat a missing command or a successful diagnostic as successful inference.
 
 ## Data validation commands
 
@@ -34,6 +34,29 @@ Application, model-quality, audio-quality, UI, and integration checks cannot run
 
 Run these for candidate data or tool changes. They do not validate semantic label correctness or human approval.
 
+## Implemented batch 1 verification
+
+Use [local setup](../docs/LOCAL_SETUP.md) to create .venv and install the package with the pinned build backend. Run repository commands from voice-callback-review. Python 3.10+ is supported; Python 3.13.1 was used for this batch.
+
+| Surface | Exact command | Passing condition and observed result, 2026-11-05 |
+| --- | --- | --- |
+| Editable package | .venv\Scripts\python.exe -m pip install --disable-pip-version-check --no-deps -e . | Installed voice-callback-review 0.1.0 with no runtime dependencies. |
+| Dependency consistency | .venv\Scripts\python.exe -m pip check | No broken requirements found. |
+| Full offline behavior | .venv\Scripts\python.exe -m unittest discover -s tests -v | 49 tests passed: existing 22 plus 27 new behavior tests. No weights, Ollama server, or external network required. |
+| HTTP and CLI behavior | .venv\Scripts\python.exe -m unittest discover -s tests -p test_ollama.py -v | Controlled loopback responses verify empty/populated inventory, refusal, timeout/deadline, HTTP/JSON/schema errors, response limits, local URL restrictions, and CLI exits. |
+| Registry and domain behavior | .venv\Scripts\python.exe -m unittest discover -s tests -p test_models.py -v | Exact stage/tag matching, missing/unknown installation, incompatible/remote models, no default, immutable settings, and transcript hashing. |
+| Runtime diagnostics | .venv\Scripts\python.exe -m voice_callback.cli doctor | Exit 0, Ollama 0.40.14 reachable, zero installed models, inference_verified false. Executable absent from this shell's PATH is reported separately. |
+| Classification inventory | .venv\Scripts\python.exe -m voice_callback.cli models --stage classification | Exit 0 and no configured classifier; no implicit selection. |
+| Transcription inventory | .venv\Scripts\python.exe -m voice_callback.cli models --stage transcription | Exit 0 and two planned candidates, both runtime_not_verified and not selectable. |
+| Frozen data | .venv\Scripts\python.exe scripts/freeze_gold.py --check | Verified v1.0, 40 cases unchanged. |
+| Source hygiene | git diff --check | No whitespace errors in tracked edits. Inspect new untracked source/config/docs as well before handoff. |
+
+Diagnostic exit 1 indicates a request failure and unknown inventory is null. Exit 2 indicates configuration or argument errors. Zero models is an expected successful observation. Availability and configured capability never prove inference or quality. Local HTTP is read-only and bounded; no downloads, cloud fallbacks, or credentials.
+
+## Later application verification
+
+Classify, evaluate, transcribe, and dashboard commands remain proposed in the [F-004 plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md). Only batch 1 is verified. Keep later batches unchecked and F-004 active. The owner must choose the classifier before batch 2 provisioning/inference. Optional audio/UI dependencies are deferred until their versions and hardware behavior can be verified.
+
 ## Project invariants
 
 - Candidate labels are not gold until reviewed under a stated rubric.
@@ -41,6 +64,8 @@ Run these for candidate data or tool changes. They do not validate semantic labe
 - Transcription failures do not become no-callback decisions.
 - Model output, reviewer decision, and the expected gold label stay distinguishable.
 - A displayed evidence excerpt refers to the transcript version used.
+- Configured and installed models are distinct; missing models never trigger a silent download or cloud fallback.
+- Transcript edits and model changes preserve prior run provenance; selector changes alone do not invoke inference.
 - Demo data is proposed to be fictional. No real customer source data has been supplied.
 
 Product acceptance and model quality remain open. Preparing this PRD does not claim that an application is implemented or fit for operational use.

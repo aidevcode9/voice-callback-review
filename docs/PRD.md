@@ -2,7 +2,7 @@
 
 Status: draft for discussion.
 Product and acceptance owner: the user.
-Sources: SRC-001, SRC-004, SRC-009, SRC-010, and SRC-011 in the [source register](../intake/README.md).
+Sources: SRC-001, SRC-004, SRC-009, SRC-010, SRC-011, and SRC-012 through SRC-017 in the [source register](../intake/README.md).
 Last updated: 2026-11-05.
 Acceptance record: input modes and callback policy v1.0 accepted. Dataset preparation defaults and application design remain distinct decisions.
 
@@ -22,7 +22,9 @@ The core question is operational: does this conversation leave a callback action
 
 The demo accepts uploaded prerecorded audio and existing text transcripts. Callback decision evaluation starts with text. Transcription is assessed separately before evaluating the combined audio-to-decision flow. This choice was made by the user in SRC-004.
 
-## Proposed first-demo scope
+## First-demo build scope
+
+Local inference setup and independent model choices are part of the build (SRC-016). The planned speech-to-text candidate is Whisper large-v3-turbo through faster-whisper, with small as a fallback; actual GPU fit must be verified. Callback-classifier choice remains deferred. The scope is specified in [F-004 requirements](../features/active/F-004-local-model-pipeline/01_REQUIREMENTS.md).
 
 1. Supply a text transcript or upload a prerecorded call.
 2. For audio, create a transcript and display transcription success or failure separately from decision status.
@@ -59,6 +61,23 @@ A separate outstanding callback request or promise still requires a callback aft
 | PRD-R006 | Maintain an independently reviewed golden set. | Each accepted case has a stable ID, transcript, expected outcome, rationale, provenance, reviewer, and dataset version. |
 | PRD-R007 | Evaluate a frozen system against held-out cases without label leakage. | A reproducible run identifies dataset, prompt, model, and input versions and reports counts and errors. |
 | PRD-R008 | Make the development and demo process explainable. | The owner can walk through intake, requirements, a feature plan, golden labels, observed errors, and an iteration without claiming unrun results. |
+| PRD-R009 | Select transcription and callback models independently. | Text skips transcription. Each selector shows compatible configured models and reports an unavailable choice before execution. Each run records stage-specific runtime, model identity, settings, and transcript version. There is no silent model download or cloud fallback. |
+| PRD-R010 | Make the local inference environment reproducible on the owner's laptop. | Runtime diagnostics distinguish installation, server availability, installed compatible models, and successful inference. Setup uses explicit local model provisioning without paid API credentials; failures and GPU limits are visible. |
+
+The user wants local open-model development and deferred the initial classifier choice. See [local model options](LOCAL_MODEL_OPTIONS.md) for observed hardware, recommendations, and remaining setup. Provider choices are not inferred from those recommendations.
+
+## Build sequence
+
+[F-004](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) owns requirements, specification, implementation checkpoints, and evidence.
+
+1. Add model-independent contracts, Ollama diagnostics, and compatible-model discovery.
+2. Select a classifier and implement policy-grounded text decisions with validated evidence.
+3. Evaluate on development text, then freeze a configuration before held-out evaluation.
+4. Set up local transcription and verify a fictional recording on the actual laptop.
+5. Add the dashboard with separate selectors, editable transcripts, and reviewer decisions.
+6. Demonstrate paired audio and reference-text behavior and record actual quality and timing.
+
+Text-first evaluation remains the sequence even though both input modes are in scope. The first implementation batch can proceed without choosing a classifier. Numeric quality targets and hosted sharing remain separate open decisions.
 
 ## Golden set and evaluation
 
@@ -82,4 +101,4 @@ A reviewer supplies a text example, inspects a recommendation and excerpt, compa
 
 Functional implementation, decision quality, and audio quality are separate acceptance areas. No product-quality threshold or acceptance result is approved by this draft.
 
-Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). F-001 accepted the rubric and F-002 prepared the candidate set. F-003 completed human approval and gold freeze. The next step is the text-classification baseline; model and implementation choices remain under D-003.
+Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). F-001 accepted the rubric and F-002 prepared the candidate set. F-003 completed human approval and gold freeze. F-004 now plans the local inference build. Its first batch is runtime diagnostics and model selection infrastructure; classifier choice remains deferred under D-003.
