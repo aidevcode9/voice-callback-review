@@ -112,4 +112,4 @@ Pre-commit verification reran all 49 tests, frozen gold integrity for 40 cases, 
 
 ## Quality baseline prerequisite
 
-The owner requested [F-005 engineering gates](../F-005-development-quality-baseline/01_REQUIREMENTS.md) before batch 2. Ruff/Pyright, the shared local/CI checker, snapshot preflight, and template requirements are owned there. This does not select a classifier or check off any later F-004 batch.
+The owner requested [F-005 engineering gates](../../completed/F-005-development-quality-baseline/01_REQUIREMENTS.md) before batch 2. Ruff/Pyright, the shared local/CI checker, snapshot preflight, and template requirements are owned there. This does not select a classifier or check off any later F-004 batch.

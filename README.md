@@ -48,4 +48,4 @@ These offline checks use Python 3.10 or later and no API credentials. They valid
 
 ## Engineering baseline
 
-After installing the pinned development requirements, run `.venv\Scripts\python.exe scripts/check_project.py` for lint, format, types, behavior tests, data, docs, and a clean package smoke test. [Quality checks](docs/QUALITY_CHECKS.md) explains the staged/committed snapshot gates and GitHub Actions matrix. [F-005](features/active/F-005-development-quality-baseline/01_REQUIREMENTS.md) establishes this baseline before F-004 batch 2; classifier selection remains deferred.
+After installing the pinned development requirements, run `.venv\Scripts\python.exe scripts/check_project.py` for lint, format, types, behavior tests, data, docs, and a clean package smoke test. [Quality checks](docs/QUALITY_CHECKS.md) explains the staged/committed snapshot gates and GitHub Actions matrix. [F-005](features/completed/F-005-development-quality-baseline/01_REQUIREMENTS.md) establishes this baseline before F-004 batch 2; classifier selection remains deferred.

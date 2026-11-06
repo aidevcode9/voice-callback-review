@@ -1,6 +1,6 @@
 # F-005: Quality baseline implementation
 
-Status: local implementation and both snapshot gates verified. Feature remains active pending explicit push approval and hosted CI results.
+Status: completed. Local, staged/committed snapshot, and hosted CI verification passed on 2026-11-06.
 
 Lead workflow: house planning-workflows, after re-reading project-workflow and inspecting pstack Feature. One owner handles coupled tool configuration, source typing, shared runner, and CI. Pstack Feature's delegated design/implementation is not selected or claimed. Build-the-lever supports the rerunnable checker; code-quality and verification-before-completion support implementation and handoff.
 
@@ -12,7 +12,7 @@ Lead workflow: house planning-workflows, after re-reading project-workflow and i
 - [x] Add shared suites, clean-wheel checks, snapshot preflight, and focused failure-path tests.
 - [x] Add bounded GitHub Actions workflow and canonical-template quality requirements with generated-project regression checks.
 - [x] Run local checks, immutable-data verification, template validation, self-review, and document actual evidence and delivery state.
-- [ ] Push the committed baseline after explicit owner approval, observe the Ubuntu/Windows matrix, and record actual hosted results before feature completion.
+- [x] Push the committed baseline after explicit owner approval, observe the Ubuntu/Windows matrix, and record actual hosted results before feature completion.
 
 Blocking steps: existing instructions/status and frozen invariants checked first. Independent workstreams: none delegated; template checks are separate commands after edits. Shared state: one owner writes the profile and runners. Smallest decomposition: one owner prevents config, type, and CI command drift.
 
@@ -37,3 +37,16 @@ The implementation was committed locally as c57a64a (Establish Python quality ga
 A push to the existing private origin was attempted as the final CI activation step. Automatic approval review rejected it because approval for the earlier commit did not explicitly cover this additional code/template payload and hosted Actions usage. No bypass or alternative upload was attempted. No new remote commit or hosted job was created. The owner must explicitly approve pushing this prepared quality baseline to aidevcode9/voice-callback-review and activating its four standard-runner jobs. Remaining Free allowance and a spending-stop budget are unverified; usage can incur charges beyond the included $12/month compute.
 
 Canonical project-template changes remain local and uncommitted in their own repository. The app commit includes the corresponding portable intake assets, not the template repository's Git history. No model or runtime feature beyond F-004 batch 1 was added. F-004 later batches remain unchecked.
+
+## Hosted delivery and acceptance, 2026-11-06
+
+The owner explicitly approved pushing the prepared baseline. Commits c57a64a and 8ab41a8 were pushed to the private origin/main; local and remote HEAD matched 8ab41a88665f0abae85a4dc7b62473b63fb60ee7. [Actions run 42275403623](https://github.com/aidevcode9/voice-callback-review/actions/runs/42275403623) completed successfully with all four jobs passing:
+
+- Quality, data, and docs: pinned installation, Ruff lint/format, Pyright, immutable-data checks, and documentation/workflow validation passed.
+- Ubuntu 24.04, Python 3.10: behavior and clean-package checks passed.
+- Ubuntu 24.04, Python 3.13: behavior and clean-package checks passed.
+- Windows 2022, Python 3.13: behavior and clean-package checks passed.
+
+F-005-AC01 through AC06 are verified through the local/shared runner, snapshot tests and gates, generated-template regression checks, hosted matrix, and documented Free-account limitations. Remaining allowance and billing-stop state are still unverified; a passing run does not establish that the account has no charges. Private-repository branch protection remains unavailable on Free, as scoped.
+
+The feature moved from active to completed only after the successful hosted result, with exact resolved-path checks and repaired incoming links. F-004 remains active and its later batches unchecked. Canonical template edits remain local in project-template; this repository contains their adopted portable assets. The lifecycle/evidence follow-up changes documentation only and is checked locally before publication. No model download or inference was performed.
