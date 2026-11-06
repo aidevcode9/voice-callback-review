@@ -1,6 +1,6 @@
 # Proposed evaluation flow
 
-Status: proposed model-evaluation flow. Forty candidate transcripts have passed structural checks and agent QA; all human reviews are pending. No gold release or model evaluation exists. The [PRD](PRD.md) owns the rubric, metrics, and acceptance decisions.
+Status: golden set v1.0 contains 40 owner-approved cases, frozen into 20 development and 20 evaluation cases. The release is verified; the model-evaluation flow below remains proposed and no model run exists. The [PRD](PRD.md) owns the rubric, metrics, and acceptance decisions.
 
 ```mermaid
 flowchart TD

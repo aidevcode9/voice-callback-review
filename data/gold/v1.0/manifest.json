@@ -1,0 +1,151 @@
+{
+  "approval_source": "SRC-011",
+  "candidate_source_sha256": "fa98c6ba285737f746cdb32c391a7e756e5b979b2aef148e886d499059fd5f71",
+  "case_count": 40,
+  "case_ids": [
+    "VC-001",
+    "VC-002",
+    "VC-003",
+    "VC-004",
+    "VC-005",
+    "VC-006",
+    "VC-007",
+    "VC-008",
+    "VC-009",
+    "VC-010",
+    "VC-011",
+    "VC-012",
+    "VC-013",
+    "VC-014",
+    "VC-015",
+    "VC-016",
+    "VC-017",
+    "VC-018",
+    "VC-019",
+    "VC-020",
+    "VC-021",
+    "VC-022",
+    "VC-023",
+    "VC-024",
+    "VC-025",
+    "VC-026",
+    "VC-027",
+    "VC-028",
+    "VC-029",
+    "VC-030",
+    "VC-031",
+    "VC-032",
+    "VC-033",
+    "VC-034",
+    "VC-035",
+    "VC-036",
+    "VC-037",
+    "VC-038",
+    "VC-039",
+    "VC-040"
+  ],
+  "classifier_input_fields": [
+    "case_id",
+    "transcript"
+  ],
+  "dataset_version": "1.0",
+  "family_count": 20,
+  "files": {
+    "README.md": {
+      "bytes": 984,
+      "sha256": "0b421cd93afd624ef459033f0199762ade289ddfe0e29a0de332e0280a7847bf"
+    },
+    "answers/development.jsonl": {
+      "bytes": 4968,
+      "sha256": "92d0c3d4e78e5d8d7a9b263435da23341f17cc0620284065f379f9c909f5b259"
+    },
+    "answers/evaluation.jsonl": {
+      "bytes": 5223,
+      "sha256": "f1c1fa193be4ee1915e3979174bce7ec832960a7429f399d96db0507a8ece705"
+    },
+    "approval.json": {
+      "bytes": 1181,
+      "sha256": "10ff5bb533c2c71fe7efc3b633b650ca93f602a9a9e7979db945c650e57f5138"
+    },
+    "cases.jsonl": {
+      "bytes": 23757,
+      "sha256": "40170dfaa506914d1c199f481ee68151694a2717ea753125237321382258b3cd"
+    },
+    "inputs/development.jsonl": {
+      "bytes": 3349,
+      "sha256": "fcc5be700deb238ee690cb67b1af6b8682cadbf37c68daf9f726720ed582d912"
+    },
+    "inputs/evaluation.jsonl": {
+      "bytes": 3597,
+      "sha256": "055bdf623ddd757023b5912db5e12e14666e3556b7c527a702663cedba199b83"
+    },
+    "policy-v1.0.txt": {
+      "bytes": 3513,
+      "sha256": "9c00285922fe835f1761a5f87b995848e810df71b37c5fa005ec4163c6db3c09"
+    },
+    "source-candidates.jsonl": {
+      "bytes": 21348,
+      "sha256": "fa98c6ba285737f746cdb32c391a7e756e5b979b2aef148e886d499059fd5f71"
+    }
+  },
+  "frozen_on": "2026-11-05",
+  "label_counts": {
+    "callback_required": 16,
+    "needs_review": 10,
+    "no_callback": 14
+  },
+  "policy_approval_source": "SRC-010",
+  "policy_sha256": "9c00285922fe835f1761a5f87b995848e810df71b37c5fa005ec4163c6db3c09",
+  "policy_version": "1.0",
+  "provenance": "Agent-authored fictional English transcripts; owner-approved labels as-is",
+  "review_id": "REVIEW-001",
+  "reviewer": "project_owner",
+  "split_rule": "Frozen prepared assignments; each scenario family stays in one split",
+  "splits": {
+    "development": [
+      "VC-001",
+      "VC-002",
+      "VC-005",
+      "VC-006",
+      "VC-009",
+      "VC-010",
+      "VC-013",
+      "VC-014",
+      "VC-017",
+      "VC-018",
+      "VC-021",
+      "VC-022",
+      "VC-025",
+      "VC-026",
+      "VC-029",
+      "VC-030",
+      "VC-033",
+      "VC-034",
+      "VC-037",
+      "VC-038"
+    ],
+    "evaluation": [
+      "VC-003",
+      "VC-004",
+      "VC-007",
+      "VC-008",
+      "VC-011",
+      "VC-012",
+      "VC-015",
+      "VC-016",
+      "VC-019",
+      "VC-020",
+      "VC-023",
+      "VC-024",
+      "VC-027",
+      "VC-028",
+      "VC-031",
+      "VC-032",
+      "VC-035",
+      "VC-036",
+      "VC-039",
+      "VC-040"
+    ]
+  },
+  "status": "frozen"
+}

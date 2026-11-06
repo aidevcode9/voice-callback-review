@@ -1,6 +1,6 @@
 # Proposed architecture
 
-Current state: policy documents, synthetic candidate data, and offline validation and review-packet tools. No application, API integration, database, or deployed service exists. The diagram describes logical responsibilities, not selected frameworks or deployment units.
+Current state: policy documents, synthetic candidates, an explicit human-approval ledger, frozen gold v1.0, and offline validation/export tools. No application, API integration, database, or deployed service exists. The diagram describes logical responsibilities, not selected frameworks or deployment units.
 
 ```mermaid
 flowchart LR
@@ -24,3 +24,17 @@ Golden labels are part of a separate [evaluation flow](EVALUATION.md). They do n
 Frameworks, model providers, persistence, background execution, and deployment remain open under D-003 in the [brief](../intake/PROJECT_BRIEF.md). A later technical specification will settle those choices and failure handling before application implementation.
 
 Update this diagram when the implemented structure changes. Keep proposed components labeled until they exist.
+
+## Implemented offline data flow
+
+```mermaid
+flowchart LR
+    Candidate["Original candidate snapshot"] --> Export["Gold exporter"]
+    Approval["Explicit human approval and hashes"] --> Export
+    Policy["Accepted policy snapshot"] --> Export
+    Export --> Inputs["Classifier inputs: ID and transcript only"]
+    Export --> Answers["Separate expected answers"]
+    Export --> Audit["Frozen manifest and audit snapshots"]
+```
+
+The application diagram above remains proposed. The implemented exporter validates approval against both the candidate and policy hashes and preserves an existing differing release.

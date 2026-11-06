@@ -1,6 +1,6 @@
 # Synthetic callback candidates v0.1
 
-Status: 40 agent-authored candidates, all pending human review. No gold release exists.
+Status: historical 40-case candidate snapshot. Its pending fields are intentionally preserved. Later owner approval is recorded in [REVIEW-001](../../reviews/v1.0.json), and accepted labels are frozen in [gold v1.0](../../gold/v1.0/README.md).
 
 - [cases.jsonl](cases.jsonl) owns the candidate records.
 - [Review packet](REVIEW.md) displays the same transcripts and proposed answers.
@@ -9,9 +9,13 @@ Status: 40 agent-authored candidates, all pending human review. No gold release 
 
 The starter has 20 scenario families with two related variants each. Suggested development and evaluation splits each contain 20 cases; a family stays within one split. Proposed labels total 16 callback_required, 14 no_callback, and 10 needs_review.
 
-These cases are fictional administrative conversations. The language, size, suggested split, and nominated reviewer are preparation defaults, not claims of operational representativeness or user-approved gold data.
+These cases are fictional administrative conversations. Owner approval is recorded separately from the original proposals. The set does not establish operational representativeness or model accuracy.
 
-## Review the data
+## Preserve this source snapshot
+
+The owner approved these labels unchanged. Keep this source file intact so the approval hash remains reproducible. Corrections require a new candidate/review version and a new gold release. The procedure below describes annotation fields for future candidate versions.
+
+## Review future candidates
 
 Read a transcript independently, record your reviewed label and reviewer identity in JSONL, and resolve disagreements using the policy. Use review_status approved only after a human has reviewed the record. Rejected records require an identified reviewer and a null reviewed_label. Pending records keep both fields null.
 

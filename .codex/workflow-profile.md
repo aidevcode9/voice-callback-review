@@ -1,6 +1,6 @@
 # Voice Callback Review workflow profile
 
-Stage: accepted callback policy and completed candidate preparation. No application exists.
+Stage: owner-approved golden set v1.0 is frozen. No application exists.
 
 ## Source of truth
 
@@ -24,7 +24,9 @@ For documentation changes, inspect relative links, source claims, and diagram co
 
 Application, model-quality, audio-quality, UI, and integration checks cannot run before implementation. Define actual commands and passing conditions in the selected feature's plan before coding. Do not treat missing commands as passed checks.
 
-## Candidate preparation commands
+## Data validation commands
+
+- `python scripts/freeze_gold.py --check` verifies the frozen release, source/policy approval bindings, hashes, and exact exports.
 
 - `python scripts/check_candidates.py data/candidates/v0.1/cases.jsonl` validates structure and reports counts.
 - `python scripts/render_candidate_review.py data/candidates/v0.1/cases.jsonl --check` detects packet drift.

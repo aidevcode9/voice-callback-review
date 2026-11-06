@@ -10,7 +10,10 @@
 | [PRD](PRD.md) | Working product intent, scope, users, and product requirements. |
 | [Demo story](DEMO_STORY.md) | Planned walkthrough of the product and development process. |
 | [User flow](USER_FLOW.md) | Proposed reviewer journey and processing-error paths. |
-| [Candidate review packet](../data/candidates/v0.1/REVIEW.md) | Forty fictional transcripts with proposed labels, all pending human review. |
+| [Golden set](../data/gold/v1.0/README.md) | Current frozen, owner-approved labels and isolated input/answer artifacts. |
+| [Gold manifest](../data/gold/v1.0/manifest.json) | Versions, frozen splits, provenance, and file hashes. |
+| [Human approval](../data/reviews/v1.0.json) | Explicit owner acceptance bound to candidate and policy snapshots. |
+| [Candidate review packet](../data/candidates/v0.1/REVIEW.md) | Historical proposed-label snapshot before the separate human approval. |
 | [Candidate data](../data/candidates/v0.1/README.md) | Data format, provenance, reproduction commands, and limitations. |
 | [Evaluation](EVALUATION.md) | Proposed gold-label separation and audio evaluation flow. |
 | [Workflow selection](WORKFLOW_SELECTION.md) | Selected skills, orchestration role, and actual process stage. |

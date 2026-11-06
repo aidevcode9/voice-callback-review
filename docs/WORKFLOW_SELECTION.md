@@ -1,6 +1,6 @@
 # Workflow and skill selection
 
-Stage: accepted callback policy and completed candidate preparation; human review is pending. This project has its own local Git repository under projects.
+Stage: accepted policy and frozen owner-approved gold v1.0; no model evaluation has run. This project has its own local Git repository under projects.
 
 ## Orchestrator and timing
 
@@ -58,9 +58,9 @@ flowchart LR
     Review --> Complete["Complete the agreed scope"]
 ```
 
-Current state: F-001 and F-002 are completed. Forty candidate labels await human review under F-003; the wider application PRD remains a draft. F-001 is a small documentation feature, so it uses one file. A substantial application feature will use three documents.
+Current state: F-001 through F-003 are completed. Golden set v1.0 contains 40 owner-approved labels; the wider application PRD remains a draft. F-001 is a small documentation feature, so it uses one file. A substantial application feature will use three documents.
 
-The user selected audio and text inputs, text-first decision evaluation, diagrams, project orchestration during intake, and relevant pstack consideration. Callback policy is accepted. Dataset review/freeze details, stack, and quality thresholds remain open.
+The user selected audio and text inputs, text-first decision evaluation, diagrams, project orchestration during intake, and relevant pstack consideration. Callback policy is accepted. Dataset review/freeze is complete for v1.0. Stack and quality thresholds remain open.
 
 ## Accepted policy and candidate preparation checkpoint
 
@@ -69,3 +69,7 @@ The user accepted callback policy v1.0 (SRC-010). F-001 completed the policy, hu
 ## Candidate preparation result
 
 F-002 completed 40 fictional cases, a reproducible review packet, and offline validation tools. All 12 behavior tests passed. Independent agent QA found no semantic mismatch across the 40 cases. Every record remains pending, with null reviewer and reviewed label. This is candidate preparation, not human gold approval or model evaluation. F-003 tracks the next human review and freeze step.
+
+## Human approval and gold-freeze checkpoint
+
+The owner explicitly approved all 40 proposed labels as-is after approval scope was clarified (SRC-011). F-003 used bounded house planning and pstack writing support; full pstack Feature was inspected but not executed. An independent review found missing policy binding in the exporter. A regression reproduced the issue, the approval was bound to the accepted policy version/hash, and follow-up review confirmed resolution. All 22 tests passed. The release preserves original proposals, separate approval, isolated inputs/answers, grouped frozen splits, and artifact hashes. No model result is claimed.

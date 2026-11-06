@@ -44,11 +44,11 @@ Use this stage to settle product behavior. Technical specifications and dependen
 | ID | Decision | Owner | What it blocks |
 | --- | --- | --- | --- |
 | D-001 | Resolved: callback policy v1.0 accepted, including the final-resolution boundary and outstanding-obligation exception. | User | No remaining policy blocker for candidate preparation. |
-| D-002 | Agent preparation defaults: 40 fictional English cases, user as proposed human reviewer, 20 development and 20 evaluation candidates grouped by family. Final review/freeze pending. | User with agent proposal | Gold release and evaluation claims; preparation may proceed. |
+| D-002 | Resolved for v1.0: the owner approved all 40 labels as-is. The release freezes the prepared English-language set and grouped 20/20 assignments. | User approval; agent export | No remaining gold-preparation blocker; operational model quality is separate. |
 | D-003 | Stack, model provider, and transcription provider | User with implementation recommendation | Executable application and audio integration. |
 | D-004 | Minimum acceptable decision quality and review workload | User, informed by baseline results | A claim that the model is fit for a defined use. |
 | D-005 | Local demo versus hosted sharing | User | Deployment work only. |
 
 ## Intake outcome
 
-The PRD remains a draft for the wider product. F-001 completed the accepted callback policy, labeling guide, and proposed candidate plan. F-002 completed 40 synthetic candidates, a readable review packet, and offline checks. All 40 human label reviews remain pending under F-003. No model has run, and no application acceptance is claimed.
+The PRD remains a draft for the wider product. F-001 completed the accepted callback policy, labeling guide, and proposed candidate plan. F-002 completed 40 synthetic candidates, a readable review packet, and offline checks. F-003 recorded owner approval of all 40 labels and froze gold v1.0. No model has run, and no application acceptance is claimed.

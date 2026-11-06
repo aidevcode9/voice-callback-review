@@ -11,7 +11,7 @@ def render(records):
     parts = [
         "# Candidate review packet",
         "",
-        "Generated from cases.jsonl. Proposed labels are not gold. Review JSONL fields, then regenerate this packet.",
+        "Generated candidate snapshot from cases.jsonl. Consult the version README for subsequent approval and gold-release records; snapshot review fields retain their original state.",
         "",
     ]
     for row in records:

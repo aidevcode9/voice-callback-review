@@ -2,7 +2,7 @@
 
 Status: draft for discussion.
 Product and acceptance owner: the user.
-Sources: SRC-001, SRC-004, SRC-009, and SRC-010 in the [source register](../intake/README.md).
+Sources: SRC-001, SRC-004, SRC-009, SRC-010, and SRC-011 in the [source register](../intake/README.md).
 Last updated: 2026-11-05.
 Acceptance record: input modes and callback policy v1.0 accepted. Dataset preparation defaults and application design remain distinct decisions.
 
@@ -62,7 +62,7 @@ A separate outstanding callback request or promise still requires a callback aft
 
 ## Golden set and evaluation
 
-Start with a proposed small candidate collection of roughly 30 to 50 fictional transcripts. Include clear positives, clear negatives, ambiguous cases, truncated conversations, explicit callback promises, already-resolved requests, and wording variations. The agent prepared 40 English-language candidates under D-002; human review and gold freeze remain pending. See the [candidate-set plan](CANDIDATE_SET_PLAN.md).
+Start with a proposed small candidate collection of roughly 30 to 50 fictional transcripts. Include clear positives, clear negatives, ambiguous cases, truncated conversations, explicit callback promises, already-resolved requests, and wording variations. The owner approved all 40 English-language candidates as-is (SRC-011). Golden set v1.0 freezes the prepared grouped 20/20 splits with separate model inputs and expected answers. See the [candidate-set plan](CANDIDATE_SET_PLAN.md).
 
 A person reviews candidate labels using the rubric before the collection is called gold. Candidate model outputs cannot define their own expected answers. Keep development examples separate from held-out evaluation cases, and keep related conversations or paraphrases in the same split.
 
@@ -82,4 +82,4 @@ A reviewer supplies a text example, inspects a recommendation and excerpt, compa
 
 Functional implementation, decision quality, and audio quality are separate acceptance areas. No product-quality threshold or acceptance result is approved by this draft.
 
-Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). F-001 accepted the rubric and F-002 prepared the candidate set. The next step is [F-003: human review and gold freeze](../features/backlog/F-003-human-gold-review/FEATURE.md).
+Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). F-001 accepted the rubric and F-002 prepared the candidate set. F-003 completed human approval and gold freeze. The next step is the text-classification baseline; model and implementation choices remain under D-003.

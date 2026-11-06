@@ -1,0 +1,20 @@
+{"case_id": "VC-001", "transcript": "Caller: My appointment request is still unresolved.\nRepresentative: I will pass it to scheduling."}
+{"case_id": "VC-002", "transcript": "Caller: Nobody has sorted out my consultation booking yet.\nRepresentative: I can forward your message."}
+{"case_id": "VC-005", "transcript": "Caller: Please call me back to discuss available consultation times.\nRepresentative: I have noted your request."}
+{"case_id": "VC-006", "transcript": "Caller: I would like someone to return my call about appointment availability.\nRepresentative: Your message is recorded."}
+{"case_id": "VC-009", "transcript": "Caller: When can I book a consultation?\nRepresentative: I will call you tomorrow with the available times."}
+{"case_id": "VC-010", "transcript": "Caller: Could you check the schedule?\nRepresentative: I promise to phone you in the morning with an update."}
+{"case_id": "VC-013", "transcript": "Representative: Your appointment is Thursday at ten.\nCaller: That answers my question. No further help is needed."}
+{"case_id": "VC-014", "transcript": "Representative: The consultation is confirmed for Thursday morning.\nCaller: Perfect, everything is settled. Goodbye."}
+{"case_id": "VC-017", "transcript": "Caller: Is this the bicycle repair shop?\nRepresentative: No, this is a legal office.\nCaller: Sorry, I dialed the wrong number. Goodbye."}
+{"case_id": "VC-018", "transcript": "Caller: I was trying to reach a florist.\nRepresentative: You have reached a law office.\nCaller: My mistake, wrong business. I do not need anything."}
+{"case_id": "VC-021", "transcript": "Caller: My booking is still unresolved.\nRepresentative: I have now booked the time you requested.\nCaller: Yes, the confirmation arrived. That resolves it; nothing else is needed."}
+{"case_id": "VC-022", "transcript": "Caller: Nobody has fixed my appointment problem yet.\nRepresentative: I have corrected the booking now.\nCaller: I can see the correct time. It is sorted out and no follow-up is needed."}
+{"case_id": "VC-025", "transcript": "Caller: I was calling about my appointment and wanted to ask...\n[recording ends]"}
+{"case_id": "VC-026", "transcript": "Caller: There is something about the consultation time that I...\n[recording ends before the question]"}
+{"case_id": "VC-029", "transcript": "Caller: My question is both resolved and not resolved; I cannot explain which.\nRepresentative: I do not have enough information to clarify that.\n[call ends]"}
+{"case_id": "VC-030", "transcript": "Caller: It is fixed and it is not fixed at the same time. I cannot clarify.\nRepresentative: We have no clarification before the call ends."}
+{"case_id": "VC-033", "transcript": "Representative: Your appointment is confirmed.\nCaller: That resolves my question, but please still call me tomorrow to confirm it again."}
+{"case_id": "VC-034", "transcript": "Caller: The booking issue is sorted out now. I would still like a return call in the morning for reassurance.\nRepresentative: I have noted that request."}
+{"case_id": "VC-037", "transcript": "Representative: Did the explanation answer your question?\nCaller: I am not sure whether...\n[recording ends]"}
+{"case_id": "VC-038", "transcript": "Representative: Is there anything still outstanding?\nCaller: I cannot tell from the information I have.\n[call ends without clarification]"}
