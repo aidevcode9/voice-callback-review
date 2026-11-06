@@ -171,3 +171,13 @@ F-004-AC03 through AC05 have batch 2 functional evidence. F-004-AC02's CLI selec
 Final working-tree scripts/check_project.py passed all suites, including 73 tests after the context-error and failure-provenance corrections, 159 local links, frozen 40-case integrity, and the clean-wheel smoke test. git diff --check and the immutable policy/candidate/approval/gold comparison passed. Self-review found no remaining actionable issue after retaining prompt/request hashes on runtime failures and respecting shorter connection deadlines. Matching staged snapshot preflight is required before the local commit; no publication is authorized. Keep F-004 active. The next scoped work is batch 3 development evaluation and configuration freeze; its acceptance/quality decision is separate. Batches 3 through 6 remain unchecked.
 
 Final read-only models --stage classification recheck reported the same selected tag/digest and selectable local configuration. GET /api/ps reported an empty loaded-model list after the live checks. This confirms that observation only; peak VRAM and sequential audio/GPU handoff remain unmeasured.
+
+## PR #1 Unicode JSONL review correction, 2026-11-06
+
+The owner authorized publication after batch 2's local commit; PR #1 is open from feature/f-004-text-classifier. This follow-up addresses its P2 reader finding on that existing branch. No new feature or later batch is started.
+
+House systematic-debugging leads after inspecting the pstack Bug fix candidate. The cause is confined to JSONL record parsing, with a cheap focused regression; TDD supplies failing-before/passing-after evidence. No full pstack playbook or delegated implementation ran.
+
+Confirmed that splitlines treats literal U+0085, U+2028, and U+2029 inside valid JSON strings as record boundaries. The new test failed before the fix with 12 ValueErrors across those characters, LF/CRLF record delimiters, and presence/absence of a final newline. The reader now removes one optional final LF and splits only on LF. Transcript characters and exact UTF-8 hashes remain intact. The regression then passed all 12 subcases.
+
+The full shared scripts/check_project.py passed all suites with 74 tests, strict application typing, frozen 40-case integrity, documentation/workflow checks, and clean-wheel smoke tests. git diff --check and the immutable policy/candidate/approval/gold comparison passed. Self-review checked final-newline handling and retained blank-record rejection. Staged and committed snapshot gates remain required before commit/push. No live inference was needed for this parsing-only correction; no held-out data, weights, dependencies, or policy changed.

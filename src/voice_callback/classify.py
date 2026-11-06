@@ -126,7 +126,7 @@ def load_transcript(path: Path, case_id: str, version_id: str | None = None) -> 
         if path.suffix.lower() == ".jsonl":
             matches: list[str] = []
             seen: set[str] = set()
-            for line in text.splitlines():
+            for line in text.removesuffix("\n").split("\n"):
                 row: JsonValue = json.loads(line, object_pairs_hook=_unique_object)
                 if (
                     not isinstance(row, dict)

@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import replace
+from hashlib import sha256
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
@@ -373,6 +374,31 @@ class InputStorageCLI(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             load_transcript(path, "DEV")
+
+    def test_jsonl_preserves_unicode_separators_and_exact_transcript_hash(self):
+        path = self.folder / "input.jsonl"
+        for separator in ("\u0085", "\u2028", "\u2029"):
+            text = f"Caller: Please call me back{separator}about my appointment."
+            rows = [
+                json.dumps({"case_id": "OTHER", "transcript": "Another call."}),
+                json.dumps({"case_id": "DEV", "transcript": text}, ensure_ascii=False),
+            ]
+            for delimiter in ("\n", "\r\n"):
+                for final_newline in (False, True):
+                    with self.subTest(
+                        separator=ascii(separator),
+                        delimiter=ascii(delimiter),
+                        final_newline=final_newline,
+                    ):
+                        raw = (delimiter.join(rows) + (delimiter if final_newline else "")).encode(
+                            "utf-8"
+                        )
+                        path.write_bytes(raw)
+                        transcript = load_transcript(path, "DEV")
+                        self.assertEqual(transcript.text, text)
+                        self.assertEqual(
+                            transcript.text_sha256, sha256(text.encode("utf-8")).hexdigest()
+                        )
 
     def test_invalid_encoding_missing_id_and_oversized_file_fail(self):
         for content in (b"\xff", b"x" * (1024 * 1024 + 1)):
