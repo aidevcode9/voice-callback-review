@@ -1,11 +1,11 @@
 # F-004: Local model pipeline specification
 
 Requirements: [feature requirements](01_REQUIREMENTS.md).
-Status: batch 1 diagnostics implemented. Classification, evaluation, transcription, storage, and UI remain proposed.
+Status: batches 1 and 2 implement diagnostics, text classification, and exclusive local classification records. Evaluation, transcription, and UI remain proposed.
 
 ## Current system and selected planning approach
 
-The repo has standard-library Python preparation tools and frozen gold. It now has a Python diagnostics package and a read-only Ollama adapter, but no inference or UI. Batch 1 rechecked Ollama 0.40.14 responding locally with no installed models. Laptop details and external references are in [local model options](../../../docs/LOCAL_MODEL_OPTIONS.md).
+The repo has standard-library Python preparation tools and frozen gold. It now has a Python diagnostics package, local text classifier, and CLI run records, but no evaluation or UI. Batch 1 rechecked Ollama 0.40.14 responding locally with no installed models. Laptop details and external references are in [local model options](../../../docs/LOCAL_MODEL_OPTIONS.md).
 
 Use one Python package and thin CLI and UI entrypoints. The proposed dashboard is Streamlit, which avoids a separate frontend and API for this local demo. Keep inference outside UI reruns and require explicit submit actions.
 
@@ -95,10 +95,20 @@ Offline checks use controlled local HTTP responses and synthetic fixtures. Live 
 
 Batch 1 uses Python 3.10+ with no runtime dependencies and pins setuptools 80.9.0 for editable builds. Optional audio/UI dependency declarations are deferred until their owning batches verify versions, avoiding speculative dependencies or installation in batch 1.
 
-Implemented signatures are doctor(client: OllamaClient) -> DoctorReport, load_registry(path: Path) -> tuple[ModelConfig, ...], and list_models(configs, installed, stage=None) -> tuple[ModelAvailability, ...]. A null installed inventory means unknown; an empty tuple means the server reported zero models. The CLI exposes doctor and models only. Later operation signatures remain proposed and have no placeholder implementations.
+Implemented signatures are doctor(client: OllamaClient) -> DoctorReport, load_registry(path: Path) -> tuple[ModelConfig, ...], and list_models(configs, installed, stage=None) -> tuple[ModelAvailability, ...]. A null installed inventory means unknown; an empty tuple means the server reported zero models. The CLI exposes doctor, models, and classify. Evaluation and transcription signatures remain proposed without placeholder implementations.
 
-RunResult is RunSuccess | RunFailure. TranscriptVersion hashes exact UTF-8 text and records parent/origin. ModelConfig copies settings into a read-only mapping. RunProvenance records model configuration, digest uncertainty, runtime version, transcript identity/hash, prompt/policy versions and hashes, start time, and elapsed seconds. Stage adapters will create and validate actual results in later batches.
+RunResult is RunSuccess | RunFailure. TranscriptVersion hashes exact UTF-8 text and records parent/origin. ModelConfig copies settings into a read-only mapping. RunProvenance records model configuration, digest uncertainty, runtime version, transcript identity/hash, prompt/policy versions and hashes, start time, and elapsed seconds. The classifier now creates actual validated RunSuccess or RunFailure records; transcription remains a later adapter.
 
-The shipped registry contains the planned faster-whisper turbo and small candidates with no selected classifier or defaults. Runtime availability for those candidates is unverified. Exact installed Ollama tags plus explicitly configured stage capability establish inventory compatibility, not semantic suitability or inference success. Remote metadata/cloud tags are excluded. Batch 2 must inspect selected model details before execution.
+The shipped registry contains the owner-selected qwen3.5:4b-q4_K_M classifier and planned faster-whisper turbo and small candidates. Every classify command requires an explicit configuration ID; no default is inferred. Runtime availability for those candidates is unverified. Exact installed Ollama tags plus explicitly configured stage capability establish inventory compatibility, not semantic suitability or inference success. Remote metadata/cloud tags are excluded. Batch 2 inspects local completion, thinking, format, and context metadata before execution and checks that the installed digest remains stable.
 
 HTTP uses http.client directly, bypasses proxies, refuses redirects, caps responses at 1 MiB, and bounds connection and total request time. A deadline timer interrupts even a continuously slow response. Defaults are 1 second to connect and 3 seconds total per request. Only loopback URLs are accepted. No inference, pull, resource-release, cloud, or mutation endpoint is called by batch 1. See [local setup](../../../docs/LOCAL_SETUP.md) for supported states and exit codes.
+
+### Batch 2 implementation decisions
+
+SRC-018 selects qwen3.5:4b-q4_K_M. classify(transcript, model, client, policy_path=...) returns RunSuccess | RunFailure. load_transcript accepts UTF-8 .txt and input-only .jsonl, preserving text exactly. No implicit model is selected. Policy v1.0 is pinned to its accepted byte hash, and the prompt includes that policy plus a JSON response schema. No candidate or gold answer file is read by classification.
+
+The application caps transcript text at 12000 UTF-8 bytes and the input file at 1 MiB. These are explicit demo limits, not token estimates. Ollama 0.40.15 or later is required for the inspected truncate/shift contract. Requests send truncate false and shift false so the runtime rejects actual token overflow rather than discarding context. The initial model configuration uses num_ctx 8192, num_predict 768, temperature 0, seed 42, think false, and keep_alive 0. These development settings establish no quality threshold. Output ending because of the token limit is a processing failure.
+
+Inference uses a separate 180-second total deadline, configurable up to 600 seconds; health and metadata retain the shorter diagnostic limits. Responses require completed assistant output from the exact tag. Validation rejects extra or duplicate fields, invalid labels, unknown or outcome-inconsistent rules, empty or oversized reasons/evidence, and quotes absent from the exact transcript. It validates structure and support locations, not semantic truth of every claim in the reason.
+
+Provenance adds case ID, loopback URL, model-metadata hash, and request hash to the existing versions, model digest, settings, hashes, UTC start, and elapsed time. storage.py was pulled forward from later storage work to retain individual classification successes and failures in exclusive runtime/classifications files. Evaluation reports, case management, and reviewer decisions remain later work. A filesystem error is reported separately from a policy outcome. No retries, pull endpoint, or cloud fallback exists in the application.

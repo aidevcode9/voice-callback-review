@@ -1,6 +1,6 @@
 # Architecture
 
-Current state: policy documents, synthetic candidates, an explicit human-approval ledger, frozen gold v1.0, and offline validation/export tools. Batch 1 adds a Python diagnostics package and read-only local Ollama API integration. Inference, the dashboard, storage, and deployment remain planned. The first diagram describes proposed application responsibilities.
+Current state: policy documents, synthetic candidates, an explicit human-approval ledger, frozen gold v1.0, and offline validation/export tools. F-004 batches 1 and 2 add diagnostics, local text classification, and exclusive JSON run records. Evaluation, audio, dashboard, and deployment remain planned. The first diagram describes the proposed full application.
 
 ```mermaid
 flowchart LR
@@ -20,13 +20,13 @@ flowchart LR
     UI --> Human["Separate reviewer decision"]
 ```
 
-The proposed adapters use independent model selections and record runtime, model identity, and settings per stage. For this laptop, sequential execution with GPU memory release is recommended. Local Ollama is installed; speech-to-text runtime setup and inference remain unimplemented. Read-only diagnostic integration is described below. See [local model options](LOCAL_MODEL_OPTIONS.md).
+The adapters use independent model selections and record runtime, model identity, and settings per stage. Text classification is implemented through Ollama; speech-to-text remains unimplemented. The classifier requests unloading after each run. Sequential audio-to-text resource handoff remains a later integration check. See [local model options](LOCAL_MODEL_OPTIONS.md).
 
 The callback evaluator receives the transcript version selected for the decision. Evidence must point to that version. Original text, a corrected version, the model recommendation, and the reviewer decision remain distinguishable.
 
 Golden labels are part of a separate [evaluation flow](EVALUATION.md). They do not enter classifier inputs.
 
-The [F-004 specification](../features/active/F-004-local-model-pipeline/02_TECHNICAL_SPEC.md) now proposes a Python core, local Ollama classifier, faster-whisper transcription, Streamlit dashboard, and local run artifacts. Classifier selection remains deferred under D-003 in the [brief](../intake/PROJECT_BRIEF.md). Dependency verification and actual GPU behavior remain implementation checks; deployment is outside this feature.
+The [F-004 specification](../features/active/F-004-local-model-pipeline/02_TECHNICAL_SPEC.md) separates the implemented Python/Ollama classifier from proposed faster-whisper transcription and Streamlit dashboard. The owner selected qwen3.5:4b-q4_K_M under D-003 in the [brief](../intake/PROJECT_BRIEF.md). Audio dependencies and GPU handoff remain implementation checks; deployment is outside this feature.
 
 Update this diagram when the implemented structure changes. Keep proposed components labeled until they exist.
 
@@ -58,6 +58,25 @@ flowchart LR
     Version --> JSON
 ```
 
-The package lives under src/voice_callback. domain.py defines transcript versions, stage-specific model configuration, immutable settings, three policy outcomes, run provenance, and distinct success/failure variants. models.py validates the registry and joins exact Ollama tags with observed digests. ollama.py restricts bounded, read-only HTTP requests to loopback; cli.py renders diagnostics and exit codes. Business contracts do not depend on a UI or provider SDK.
+The package lives under src/voice_callback. domain.py defines transcript versions, stage-specific model configuration, immutable settings, three policy outcomes, run provenance, and distinct success/failure variants. models.py validates the registry and joins exact Ollama tags with observed digests. ollama.py restricts bounded HTTP requests to loopback; diagnostic commands remain read-only. cli.py renders JSON and exit codes. Business contracts do not depend on a UI or provider SDK.
 
 Configured capabilities do not prove installation or inference. Faster-whisper availability is explicitly unverified. No classifier default is configured. See [local setup](LOCAL_SETUP.md) for executable commands, state meanings, and limits.
+
+## Implemented batch 2 text classification
+
+```mermaid
+flowchart LR
+    CLI["classify CLI with explicit model ID"] --> Input["Input-only JSONL or exact UTF-8 text"]
+    Input --> Version["Transcript version and hash"]
+    Policy["Hash-pinned accepted policy"] --> Prompt["Policy prompt and response schema"]
+    Version --> Prompt
+    CLI --> Verify["Local inventory, version, and model metadata"]
+    Verify --> Chat["POST /api/chat, no truncation or retries"]
+    Prompt --> Chat
+    Chat --> Validate["Outcome, rules, reason, exact transcript evidence"]
+    Validate --> Record["RunSuccess or RunFailure with provenance"]
+    Record --> Store["Exclusive runtime/classifications JSON file"]
+    Record --> Output["JSON stdout and process exit"]
+```
+
+classify.py owns prompt construction and validation. The transcript is data in a separate user message. Expected answers are rejected by the JSONL reader. storage.py serializes immutable domain values and creates each record exclusively. Model identity is checked before and after a successful inference. A malformed response, context overflow, timeout, or resource error cannot contain a successful policy label. Semantic correctness of otherwise valid reasons remains an evaluation question.

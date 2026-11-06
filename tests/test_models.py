@@ -46,10 +46,14 @@ class ModelRegistryBehavior(unittest.TestCase):
         self.path.write_text(json.dumps({"schema_version": 1, "models": rows}), encoding="utf-8")
         return load_registry(self.path)
 
-    def test_shipped_registry_has_only_planned_transcription_candidates(self):
+    def test_shipped_registry_has_owner_selected_classifier_and_planned_transcription(self):
         configs = load_registry(ROOT / "config/models.json")
-        self.assertEqual({c.model_id for c in configs}, {"large-v3-turbo", "small"})
-        self.assertEqual(list_models(configs, (), Stage.CLASSIFICATION), ())
+        self.assertEqual(
+            {c.model_id for c in configs}, {"qwen3.5:4b-q4_K_M", "large-v3-turbo", "small"}
+        )
+        choices = list_models(configs, (), Stage.CLASSIFICATION)
+        self.assertEqual(len(choices), 1)
+        self.assertEqual(choices[0].status, "not_installed")
         self.assertTrue(all(not choice.selectable for choice in list_models(configs, ())))
 
     def test_configured_and_installed_must_both_match_exact_identity(self):
@@ -82,7 +86,9 @@ class ModelRegistryBehavior(unittest.TestCase):
 
     def test_ollama_installation_never_proves_whisper_installation(self):
         configs = load_registry(ROOT / "config/models.json")
-        choices = list_models(configs, (InstalledModel("small", "ollama-digest"),))
+        choices = list_models(
+            configs, (InstalledModel("small", "ollama-digest"),), Stage.TRANSCRIPTION
+        )
         self.assertTrue(
             all(c.status == "runtime_not_verified" and c.digest is None for c in choices)
         )

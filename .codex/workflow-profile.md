@@ -1,6 +1,6 @@
 # Voice Callback Review workflow profile
 
-Stage: owner-approved golden set v1.0 is frozen. F-004 is active with batch 1 diagnostics and contracts implemented. Inference, evaluation, audio, and UI remain planned.
+Stage: owner-approved golden set v1.0 is frozen. F-004 is active with batches 1 and 2 diagnostics, contracts, and local text classification implemented. Evaluation, audio, and UI remain planned.
 
 ## Source of truth
 
@@ -55,7 +55,7 @@ Diagnostic exit 1 indicates a request failure and unknown inventory is null. Exi
 
 ## Later application verification
 
-Classify, evaluate, transcribe, and dashboard commands remain proposed in the [F-004 plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md). Only batch 1 is verified. Keep later batches unchecked and F-004 active. The owner must choose the classifier before batch 2 provisioning/inference. Optional audio/UI dependencies are deferred until their versions and hardware behavior can be verified.
+The classify command is implemented and the owner selected qwen3.5:4b-q4_K_M under SRC-018. See the [F-004 plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) for batch 2 offline and development-only live evidence. Evaluate, transcribe, and dashboard commands remain proposed. Keep batches 3 through 6 unchecked and F-004 active. Optional audio/UI dependencies are deferred until their versions and hardware behavior can be verified.
 
 ## Project invariants
 
@@ -90,3 +90,11 @@ The template now requires explicit baseline configuration when the language is s
 The owner requires a dedicated branch for every new feature or implementation batch before more code is pushed. Check git status and git branch --show-current before edits or publication. Use feature/<feature-id>-<short-name>; do not push feature work directly to main. Preserve existing unpublished commits instead of resetting them. Publish only the feature branch when authorized and use a pull request for review before merge. GitHub Free's private-repo protection limits do not waive this workflow.
 
 The current F-004 batch 2 branch is feature/f-004-text-classifier. It starts from local c5cfdcd, which records F-005 completion and is not yet on origin/main. The remote baseline 8ab41a8 has four passing CI jobs. This branch carries the completion record and branch-policy handoff; no new push is performed by this setup. Classifier choice is still the owner's D-003 decision.
+
+## F-004 batch 2 workflow and limits
+
+Reassessed house planning-workflows, pstack Feature, and architect. House planning remains the lead for the existing classifier specification, with one implementation owner. Technical-writing/unslop, code-quality, error-handling, self-review, verification-before-completion, branch-finish, and the configured preflight support the batch. Systematic-debugging supports the observed context-error mapping correction. No full pstack playbook or delegated run is claimed.
+
+The classifier uses exact input-only JSONL or UTF-8 text, a frozen policy hash, structured output validation, provenance, and exclusive runtime/classifications records. Model selection is explicit on every CLI request. Initial limits are 12000 transcript UTF-8 bytes, a 1 MiB input file, 8192 context tokens, 768 output tokens, and a 180-second inference deadline. Truncate and shift are disabled. Requires Ollama 0.40.15 or later for the inspected contract. Diagnostics retain their separate short deadlines.
+
+Run the full shared baseline and matching snapshot gate for classifier changes, plus focused development-only live integration when model/runtime behavior changes. No live model or GPU run occurs in CI. Held-out scoring remains batch 3 after configuration freeze. No peak VRAM or production-quality result is inferred from successful local responses.
