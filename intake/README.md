@@ -6,6 +6,7 @@ No recordings, transcripts, statement of work, or external PRD have been supplie
 
 | Source ID | Date and title | Location | Authority |
 | --- | --- | --- | --- |
+| SRC-018 | 2026-11-06: batch 2 classifier selection | Owner selected qwen3.5:4b-q4_K_M in the model-choice question, which explicitly authorized downloading that model and development-only inference checks | Provision the selected local tag and implement F-004 batch 2. No evaluation, audio, dashboard, cloud, or publication scope added. |
 | SRC-016 | 2026-11-05: local inference enters build scope | User requests a workflow plan and PRD update and says this is part of the build now | Include local runtime setup, selectable models, text classification, and transcription in the build plan. Classifier selection remains deferred. |
 | SRC-017 | 2026-11-05: next implementation chat | User requests another GPT-6.1 Sol high thread for the next batch | Start a separate chat with those model settings and a bounded implementation handoff. |
 | SRC-012 | 2026-11-05: local model development | User reports no OpenAI or Claude key and asks about local runners | Explore local inference without provisioning cloud credentials. |

@@ -1,6 +1,6 @@
 # F-005: Development quality baseline
 
-Status: selected for implementation. Owner: project owner.
+Status: implemented and verified locally and in GitHub Actions on 2026-11-06. Owner: project owner.
 
 Establish the quality gates requested on 2026-11-06 before F-004 batch 2. Model selection and inference remain outside this feature.
 

@@ -1,6 +1,6 @@
 # Workflow and skill selection
 
-Stage: accepted policy, frozen owner-approved gold v1.0, and active F-004 batch 1 diagnostics; no model inference or evaluation has run. This project has its own local Git repository under projects.
+Stage: accepted policy, frozen owner-approved gold v1.0, and active F-004 with diagnostics and text classification. Focused development inference has run; formal evaluation remains planned. This project has its own local Git repository under projects.
 
 ## Orchestrator and timing
 
@@ -30,11 +30,12 @@ The two bundled skills travel with the repository. Other names describe the curr
 | Initial product definition | Project-intake; pstack in-your-own-words, sharpen, technical-writing, and unslop | Use intake plus pstack writing skills. Intake produces the requested artifacts; prompt rewriting alone does not replace a PRD. | Draft source register, brief, PRD, diagrams, and backlog proposal created. No product acceptance claimed. |
 | F-004 local model pipeline planning | House planning-workflows and pstack Feature; architect inspected as an architecture candidate | House planning leads the requested plan and bounded first batch. Pstack writing supports requirements and diagrams. Full Feature mandates design exploration and delegated implementation beyond this planning task. | Three planning documents and PRD build sequence created. No full pstack Feature or architect playbook executed; no application built at that planning checkpoint. |
 | F-004 batch 1 implementation | House planning-workflows; pstack Feature and architect; workflow-skill-manager routing | House planning remains the lead. Shared contracts, registry, HTTP, and CLI form one coupled slice with an agreed spec; full design exploration and delegated implementation add no required outcome here. | One owner activated F-004 after verifying paths, implemented the standard-library package, and verified offline and live diagnostics. Pstack writing guidance supports docs; code-review-workflow and verification-before-completion support self-review and evidence. No full pstack playbook ran. |
+| F-004 batch 2 selection and classifier | House planning-workflows; pstack Feature and architect; workflow-skill-manager routing | House planning remains the lead for the existing bounded classifier spec. Selection research resolves the material model choice; competing module prototypes and delegated implementation are unnecessary for this slice. | Re-read all candidates, compared official model tags/cards, obtained explicit owner selection, provisioned only Qwen, and implemented one local classifier with offline/live development checks. Writing, code-quality, error-handling, self-review, verification, and snapshot gates support the lead workflow. Systematic-debugging traced the live context-error wording before its mapping was corrected. No full pstack Feature, architect, or delegated run is claimed. |
 | Later uncertain architecture | Relevant house design skills and pstack architect | Compare when there is a concrete design question. | Not executed. |
 
 For each substantial task, read the relevant pstack candidate and our candidate before choosing. Record the reason, unavailable prerequisites, and actual results in the feature plan or this record. Full playbooks and adaptations remain distinguishable.
 
-No application-specific preflight runner exists. F-004 proposes Python, Ollama, faster-whisper, and Streamlit for local delivery. Classifier selection remains deferred; hosting is outside its scope.
+F-005 supplies scripts/check_project.py and scripts/codex_preflight.py. F-004 implements the Python core and selected Ollama text classifier; faster-whisper and Streamlit remain planned. Hosting is outside its scope.
 
 ## Read-only routing trial
 

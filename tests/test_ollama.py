@@ -17,10 +17,16 @@ from voice_callback.ollama import OllamaClient, OllamaError, doctor
 
 
 @contextmanager
-def server(routes):
+def server(routes, bodies=None):
     requests = []
 
     class Handler(BaseHTTPRequestHandler):
+        def do_POST(self):
+            body = self.rfile.read(int(self.headers.get("Content-Length", "0")))
+            if bodies is not None:
+                bodies.append(json.loads(body))
+            self.do_GET()
+
         def do_GET(self):
             requests.append((self.command, self.path))
             status, payload, delay, *body_options = routes.get(self.path, (404, {}, 0))
@@ -200,7 +206,10 @@ class DiagnosticCLI(unittest.TestCase):
         self.assertEqual(len(requests), 2)
 
     def test_classification_selector_has_no_invented_default(self):
-        with server(routes()) as (url, _):
+        with (
+            server(routes()) as (url, _),
+            patch("voice_callback.cli.load_registry", return_value=()),
+        ):
             code, result = self.invoke(["models", "--stage", "classification", "--url", url])
         self.assertEqual(code, 0)
         self.assertEqual(result["configured_models"], [])

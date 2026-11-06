@@ -4,7 +4,7 @@ Owner and acceptance owner: project owner.
 Product requirements: PRD-R001 through PRD-R010.
 Sources: SRC-012 through SRC-016 in the [source register](../../../intake/README.md).
 Dependencies: completed F-001 through F-003; frozen gold v1.0.
-Status: active. Batch 1 implements diagnostics and contracts; the remaining application scope is planned.
+Status: active. Batches 1 and 2 implement diagnostics, contracts, and selected text classification. Evaluation, audio, and UI remain planned.
 
 ## Problem, users, and outcome
 
@@ -16,7 +16,7 @@ SRC-016 places local runtime setup, model selection, transcription, and classifi
 
 Deliver local runtime diagnostics, an explicit compatible-model registry, a text-classification baseline, reproducible scoring, speech-to-text, and a small review dashboard. Evaluate callback behavior on text before adding audio. Use the existing accepted policy and frozen gold.
 
-Plan Whisper large-v3-turbo through faster-whisper as the first transcription candidate, with small as a selectable fallback. Confirm its actual GPU fit on a fictional recording. Callback model selection remains the owner's deferred decision.
+Plan Whisper large-v3-turbo through faster-whisper as the first transcription candidate, with small as a selectable fallback. Confirm its actual GPU fit on a fictional recording. The owner selected qwen3.5:4b-q4_K_M for callback classification under SRC-018.
 
 The initial system processes one job at a time on this laptop. It releases stage-specific GPU resources before loading the next stage when necessary. Downloads happen only through an explicit setup action, never as a side effect of classification or transcription.
 
@@ -39,7 +39,7 @@ Live calls, speech synthesis, automatic callbacks, CRM writes, cloud inference, 
 
 ## Open decisions
 
-D-003 is narrowed in the [brief](../../../intake/PROJECT_BRIEF.md). The first batch can implement diagnostics and model-independent contracts now. The owner selects a classifier before model download or live classifier evaluation. The transcription candidate and dashboard stack are planned recommendations, subject to dependency and hardware verification.
+D-003 is narrowed in the [brief](../../../intake/PROJECT_BRIEF.md). The first batch can implement diagnostics and model-independent contracts now. SRC-018 resolves the classifier choice and authorizes explicit provisioning plus development-only inference. Batch 3 owns formal scoring and held-out configuration freeze. The transcription candidate and dashboard stack are planned recommendations, subject to dependency and hardware verification.
 
 D-004 remains open for numeric quality and latency targets. Functional acceptance requires the behaviors above; it does not establish production suitability. D-005 hosting is outside this local feature.
 

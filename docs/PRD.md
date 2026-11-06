@@ -3,7 +3,7 @@
 Status: draft for discussion.
 Product and acceptance owner: the user.
 Sources: SRC-001, SRC-004, SRC-009, SRC-010, SRC-011, and SRC-012 through SRC-017 in the [source register](../intake/README.md).
-Last updated: 2026-11-05.
+Last updated: 2026-11-06.
 Acceptance record: input modes and callback policy v1.0 accepted. Dataset preparation defaults and application design remain distinct decisions.
 
 ## Purpose
@@ -24,7 +24,7 @@ The demo accepts uploaded prerecorded audio and existing text transcripts. Callb
 
 ## First-demo build scope
 
-Local inference setup and independent model choices are part of the build (SRC-016). The planned speech-to-text candidate is Whisper large-v3-turbo through faster-whisper, with small as a fallback; actual GPU fit must be verified. Callback-classifier choice remains deferred. The scope is specified in [F-004 requirements](../features/active/F-004-local-model-pipeline/01_REQUIREMENTS.md).
+Local inference setup and independent model choices are part of the build (SRC-016). The planned speech-to-text candidate is Whisper large-v3-turbo through faster-whisper, with small as a fallback; actual GPU fit must be verified. SRC-018 selects qwen3.5:4b-q4_K_M for callback classification. The scope is specified in [F-004 requirements](../features/active/F-004-local-model-pipeline/01_REQUIREMENTS.md).
 
 1. Supply a text transcript or upload a prerecorded call.
 2. For audio, create a transcript and display transcription success or failure separately from decision status.
@@ -64,7 +64,7 @@ A separate outstanding callback request or promise still requires a callback aft
 | PRD-R009 | Select transcription and callback models independently. | Text skips transcription. Each selector shows compatible configured models and reports an unavailable choice before execution. Each run records stage-specific runtime, model identity, settings, and transcript version. There is no silent model download or cloud fallback. |
 | PRD-R010 | Make the local inference environment reproducible on the owner's laptop. | Runtime diagnostics distinguish installation, server availability, installed compatible models, and successful inference. Setup uses explicit local model provisioning without paid API credentials; failures and GPU limits are visible. |
 
-The user wants local open-model development and deferred the initial classifier choice. See [local model options](LOCAL_MODEL_OPTIONS.md) for observed hardware, recommendations, and remaining setup. Provider choices are not inferred from those recommendations.
+The user wants local open-model development and selected qwen3.5:4b-q4_K_M under SRC-018. See [local model options](LOCAL_MODEL_OPTIONS.md) for observed hardware, recommendations, and remaining setup. Provider choices are not inferred from those recommendations.
 
 ## Build sequence
 
@@ -87,9 +87,9 @@ A person reviews candidate labels using the rubric before the collection is call
 
 Report a three-outcome confusion matrix, strict callback recall, callback precision, needs-review rate, and concrete mistakes. Strict recall counts a needs-review output as not automatically detecting a required callback. Also report unsafe misses where a gold callback-required case is predicted no callback. Show small-sample counts beside percentages.
 
-Do not silently discard needs-review cases or change expected labels to improve a run. Changes to labels create a new dataset version with a recorded reason. Model choice and numeric quality thresholds remain open until a baseline exists and the acceptance owner selects them.
+Do not silently discard needs-review cases or change expected labels to improve a run. Changes to labels create a new dataset version with a recorded reason. The initial classifier is selected under SRC-018. Later model changes and numeric quality thresholds require development evidence and the acceptance owner's decision.
 
-For the audio extension, use paired recordings and reviewed reference transcripts. Compare decisions from reference text with decisions from transcribed audio. This separates transcription errors from decision errors. No transcription or callback quality results exist yet.
+For the audio extension, use paired recordings and reviewed reference transcripts. Compare decisions from reference text with decisions from transcribed audio. This separates transcription errors from decision errors. Focused callback development checks exist, but no formal callback-quality evaluation or transcription result exists yet.
 
 ## Exclusions
 
@@ -101,4 +101,4 @@ A reviewer supplies a text example, inspects a recommendation and excerpt, compa
 
 Functional implementation, decision quality, and audio quality are separate acceptance areas. No product-quality threshold or acceptance result is approved by this draft.
 
-Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). F-001 accepted the rubric and F-002 prepared the candidate set. F-003 completed human approval and gold freeze. F-004 now plans the local inference build. Its first batch is runtime diagnostics and model selection infrastructure; classifier choice remains deferred under D-003.
+Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). F-001 accepted the rubric and F-002 prepared the candidate set. F-003 completed human approval and gold freeze. F-004 now plans the local inference build. Its first two batches implement diagnostics and the selected local text classifier. Evaluation, audio, and UI remain later work; D-004 quality targets are open.

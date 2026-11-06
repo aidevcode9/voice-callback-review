@@ -1,4 +1,4 @@
-"""Read-only loopback Ollama diagnostics, with no SDK, credentials, or inference."""
+"""Bounded loopback diagnostics and explicit local inference, without provisioning."""
 
 import http.client
 import json
@@ -40,6 +40,7 @@ class OllamaClient:
         timeout: float = 3.0,
         connect_timeout: float = 1.0,
         max_response_bytes: int = 1024 * 1024,
+        inference_timeout: float = 180.0,
     ):
         try:
             url = urlsplit(base_url)
@@ -68,15 +69,26 @@ class OllamaClient:
             raise ValueError("Timeouts must be finite, greater than zero, and at most 30 seconds.")
         if not 1 <= max_response_bytes <= 16 * 1024 * 1024:
             raise ValueError("Response limit must be between 1 byte and 16 MiB.")
+        if not math.isfinite(inference_timeout) or not 0 < inference_timeout <= 600:
+            raise ValueError("Inference timeout must be finite and between 0 and 600 seconds.")
         self.host = "127.0.0.1" if url.hostname == "localhost" else url.hostname
         self.port = port
         self.timeout = timeout
         self.connect_timeout = min(connect_timeout, timeout)
         self.max_response_bytes = max_response_bytes
+        self.inference_timeout = inference_timeout
+        self.base_url = f"http://{'[' + self.host + ']' if ':' in self.host else self.host}:{port}"
 
     def _get(self, path: str) -> dict[str, JsonValue]:
-        connection = http.client.HTTPConnection(self.host, self.port, timeout=self.connect_timeout)
-        deadline = time.monotonic() + self.timeout
+        return self._request("GET", path, None, self.timeout)
+
+    def _request(
+        self, method: str, path: str, payload: dict[str, JsonValue] | None, timeout: float
+    ) -> dict[str, JsonValue]:
+        connection = http.client.HTTPConnection(
+            self.host, self.port, timeout=min(self.connect_timeout, timeout)
+        )
+        deadline = time.monotonic() + timeout
         timer = None
         response = None
         try:
@@ -93,12 +105,18 @@ class OllamaClient:
             timer.daemon = True
             timer.start()
             transport.settimeout(max(0.001, deadline - time.monotonic()))
-            connection.request("GET", path, headers={"Accept": "application/json"})
+            data = None if payload is None else json.dumps(payload, allow_nan=False).encode("utf-8")
+            connection.request(
+                method,
+                path,
+                body=data,
+                headers={"Accept": "application/json", "Content-Type": "application/json"},
+            )
             response = connection.getresponse()
-            if response.status != 200:
+            if 300 <= response.status < 400:
                 raise OllamaError(
                     FailureCode.HTTP_ERROR,
-                    f"Ollama returned HTTP {response.status} for {path}; check the local server.",
+                    "Ollama redirect refused; use the local server directly.",
                 )
             body = bytearray()
             while not response.isclosed():
@@ -121,20 +139,24 @@ class OllamaClient:
                     FailureCode.INVALID_RESPONSE,
                     "Ollama response ended before its declared length.",
                 )
+            if response.status != 200:
+                self._raise_http_error(response.status, path, body)
             value: JsonValue = json.loads(body.decode("utf-8"))
-            if not isinstance(value, dict) or "error" in value:
+            if not isinstance(value, dict):
                 raise ValueError
+            if "error" in value:
+                self._raise_http_error(200, path, body)
             return value
         except TimeoutError:
             raise OllamaError(
                 FailureCode.TIMEOUT,
-                "Ollama timed out; check the local server and retry diagnostics.",
+                "Ollama timed out; check local resources and retry explicitly.",
             ) from None
         except (OSError, http.client.HTTPException):
             if time.monotonic() >= deadline:
                 raise OllamaError(
                     FailureCode.TIMEOUT,
-                    "Ollama timed out; check the local server and retry diagnostics.",
+                    "Ollama timed out; check local resources and retry explicitly.",
                 ) from None
             raise OllamaError(
                 FailureCode.UNAVAILABLE,
@@ -151,6 +173,40 @@ class OllamaClient:
             if response is not None:
                 response.close()
             connection.close()
+
+    @staticmethod
+    def _raise_http_error(status: int, path: str, body: bytearray) -> None:
+        message = body.decode("utf-8", errors="replace").lower()
+        if path == "/api/chat" and any(
+            term in message
+            for term in ("out of memory", "insufficient memory", "not enough memory")
+        ):
+            raise OllamaError(
+                FailureCode.GPU_MEMORY,
+                "Ollama lacks memory; release other models or reduce context.",
+            )
+        if path == "/api/chat" and any(
+            term in message
+            for term in ("context length", "context window", "context size", "input length")
+        ):
+            raise OllamaError(
+                FailureCode.INVALID_INPUT,
+                "Input exceeds the context budget; no truncation is allowed.",
+            )
+        if status == 404 and path in {"/api/show", "/api/chat"}:
+            raise OllamaError(
+                FailureCode.MODEL_MISSING, "Selected model is missing; provision it explicitly."
+            )
+        code = FailureCode.INVALID_RESPONSE if status == 200 else FailureCode.HTTP_ERROR
+        raise OllamaError(
+            code, f"Ollama returned an error for {path} (HTTP {status}); check the server."
+        )
+
+    def show(self, model_id: str) -> dict[str, JsonValue]:
+        return self._request("POST", "/api/show", {"model": model_id}, self.timeout)
+
+    def chat(self, request: dict[str, JsonValue]) -> dict[str, JsonValue]:
+        return self._request("POST", "/api/chat", request, self.inference_timeout)
 
     def version(self) -> str:
         value = self._get("/api/version").get("version")

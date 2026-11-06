@@ -41,6 +41,7 @@ class FailureCode(str, Enum):
     INVALID_RESPONSE = "invalid_response"
     MODEL_MISSING = "model_missing"
     INVALID_OUTPUT = "invalid_output"
+    INVALID_INPUT = "invalid_input"
     AUDIO_ERROR = "audio_error"
     GPU_MEMORY = "gpu_memory"
 
@@ -99,6 +100,10 @@ class RunProvenance:
     policy_sha256: str | None
     started_at: str
     elapsed_seconds: float
+    case_id: str = ""
+    runtime_url: str | None = None
+    model_metadata_sha256: str | None = None
+    request_sha256: str | None = None
 
 
 @dataclass(frozen=True)

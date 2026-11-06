@@ -2,6 +2,20 @@
   "schema_version": 1,
   "models": [
     {
+      "id": "qwen35-4b",
+      "runtime": "ollama",
+      "model_id": "qwen3.5:4b-q4_K_M",
+      "stages": ["classification"],
+      "settings": {
+        "num_ctx": 8192,
+        "num_predict": 768,
+        "temperature": 0,
+        "seed": 42,
+        "think": false,
+        "keep_alive": 0
+      }
+    },
+    {
       "id": "whisper-large-v3-turbo",
       "runtime": "faster-whisper",
       "model_id": "large-v3-turbo",
