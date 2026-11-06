@@ -53,7 +53,13 @@ def main(argv: list[str] | None = None) -> int:
                 raise ValueError(
                     "Selected tree has no quality runner; stage or commit the baseline first"
                 )
-            env = {**os.environ, "PYTHONPATH": str(snapshot / "src")}
+            env = {
+                **os.environ,
+                "PYTHONPATH": str(snapshot / "src"),
+                "VOICE_CALLBACK_WHEELHOUSE": os.environ.get(
+                    "VOICE_CALLBACK_WHEELHOUSE", str(ROOT / ".test-work/runtime-wheels")
+                ),
+            }
             print(f"Validating {args.mode} snapshot, not the working directory.", flush=True)
             subprocess.run(
                 [sys.executable, str(checker)], cwd=snapshot, env=env, check=True, timeout=900

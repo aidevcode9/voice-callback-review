@@ -10,6 +10,7 @@ from pathlib import Path
 from .classify import classify, load_transcript
 from .domain import JsonValue, ModelConfig, RunSuccess, Stage
 from .evaluate import evaluate, freeze_run, read_document, score_run
+from .evaluation_contracts import EvaluationReport
 from .models import list_models, load_registry
 from .ollama import OllamaClient, OllamaError, doctor
 from .storage import render_run, save_run
@@ -75,7 +76,7 @@ def _evaluation_command(
         frozen_path=args.frozen_config,
         allow_held_out=args.allow_held_out,
     )
-    return _print_evaluation(read_document(directory / "report.json"), directory)
+    return _print_evaluation(read_document(directory / "report.json", EvaluationReport), directory)
 
 
 def _artifact_command(args: argparse.Namespace) -> int:

@@ -1,6 +1,6 @@
 # Voice Callback Review workflow profile
 
-Stage: owner-approved golden set v1.0 is frozen. F-004 is active with batches 1 and 2 diagnostics, contracts, and local text classification implemented. Batch 3 evaluation commands are implemented with offline verification; live development evidence is pending. Audio and UI remain planned.
+Stage: owner-approved golden set v1.0 is frozen. F-004 is active with batches 1 and 2 diagnostics, contracts, and local text classification implemented. Batch 3 evaluation commands have offline verification and a preserved 20/20 development baseline. Strict Pydantic boundary models are implemented with offline verification; a fresh development baseline precedes candidate freeze. Audio and UI remain planned.
 
 ## Source of truth
 
@@ -74,7 +74,7 @@ Product acceptance and model quality remain open. Preparing this PRD does not cl
 
 Use [quality-gates.json](../quality-gates.json) as the explicit configuration record and [quality checks](../docs/QUALITY_CHECKS.md) for installation, execution, CI, and cost details. This section supersedes batch 1's earlier lack of static checks. The immutable-data and no-inference-in-CI invariants remain in force.
 
-- Install hash-pinned development tools with `.venv\Scripts\python.exe -m pip install --require-hashes -r requirements-dev.txt`, then install the project with `--no-deps --no-build-isolation -e .`. Runtime dependencies remain empty.
+- Install hash-pinned development tools with `.venv\Scripts\python.exe -m pip install --require-hashes -r requirements-dev.txt`, then install the project with `--no-deps --no-build-isolation -e .`. Install requirements-runtime.txt with --require-hashes before the project; Pydantic and its runtime closure are now pinned separately. Prepare package-check wheels explicitly with python -m pip download --require-hashes -r requirements-runtime.txt --dest .test-work/runtime-wheels. Clean-wheel checks and snapshot preflight verify these wheels offline against the selected tree's lock.
 - Shared working-tree command: `.venv\Scripts\python.exe scripts/check_project.py`. It must pass lint, format, Pyright, behavior/coverage reporting, data, docs/lifecycle/workflow configuration, and clean-wheel installation. Named --suite options select the identical implementation used by CI.
 - Before a commit: `.venv\Scripts\python.exe scripts/codex_preflight.py --mode pre-commit` validates the staged index. Stage the intended complete changes first. Untracked or unstaged files cannot satisfy the snapshot gate.
 - Before push or committed review: `.venv\Scripts\python.exe scripts/codex_preflight.py --mode pre-push` or `--mode review` validates HEAD. Base branch is origin/main. The runner exports the exact selected tree and uses its source for subprocess imports. No separate preflight configuration file is required.
@@ -106,3 +106,11 @@ House planning-workflows leads after reassessing pstack Feature, architect, and 
 The development runner closes and hashes all predictions before opening answers. Pure metrics keep processing failures in recall/coverage denominators; zero denominators are null. Frozen manifest/split hashes, unique exact case coverage, per-run provenance, immutable reports, interrupted-run rejection, and configuration drift have offline tests. Shared JSON parsing preserves Unicode separators, rejects duplicate/non-finite data, and reports excessive nesting as validation errors. Local source bytes, clean state, revision, model/prompt/policy/runtime/settings, and data/prediction hashes identify each baseline.
 
 Run the full shared baseline and staged/committed snapshot gates for evaluation changes. Run real development inference only, from a clean committed implementation, then verify offline rescore and explicit candidate freeze. Actual held-out inference requires a matching freeze, unchanged clean revision/source and runtime configuration, --allow-held-out, and separate owner authorization. No actual held-out labels enter development prompts or tuning. No audio/UI dependencies or cloud/API credentials are added. D-004 quality acceptance remains separate from functional verification.
+
+## Batch 3 contract migration
+
+The owner approved strict Pydantic boundary contracts before configuration freeze, held-out evaluation, audio, or UI. House planning-workflows remains the lead after reassessing pstack Feature and architect. One owner implements the coupled contracts and callers; an independent code-review-workflow subagent checks dependency/package/CI and contract regressions without editing shared files or running inference. No full pstack playbook is claimed.
+
+Preserve development evaluation 7f31782d-c234-4937-85fe-252add830d39 from clean commit 1f94357 and callback-text-v1. It matched 20/20 fictional development labels in one trial; this does not establish acceptance, repeatability, or held-out quality. Pydantic validates strict shapes, not semantic truth or deterministic inference. The generated response schema advances the prompt to callback-text-v2. Keep bounded strict JSON/LF parsing, rule consistency, and exact evidence validation. Configuration snapshots include contract and Pydantic/core versions. Prior reports require their original source for offline rescore and remain unchanged.
+
+Run the full shared baseline with hash-pinned runtime dependencies, offline clean-wheel checks, and matching snapshot preflight. After a clean implementation commit, the owner runs the fresh development baseline before freeze. Actual held-out inference still requires separate owner authorization and a matching frozen system. Audio/UI remain unimplemented. Current verification and remaining steps live in the F-004 plan.

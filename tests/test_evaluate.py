@@ -15,6 +15,7 @@ from voice_callback.cli import main
 from voice_callback.datasets import load_answers, load_split, object_value
 from voice_callback.domain import CallbackDecision, Failure, FailureCode, JsonValue, Outcome
 from voice_callback.evaluate import evaluate, freeze_run, read_document, score_run
+from voice_callback.evaluation_contracts import EvaluationReport, InferenceComplete
 from voice_callback.json_io import parse_json, parse_jsonl
 from voice_callback.models import load_registry
 from voice_callback.ollama import InstalledModel, OllamaClient, OllamaError
@@ -249,7 +250,7 @@ class EvaluationArtifacts(unittest.TestCase):
         ):
             client.on_chat = lambda: self.assertEqual(answers.call_count, 0)
             directory = self.run_evaluation(client)
-        report = read_document(directory / "report.json")
+        report = read_document(directory / "report.json", EvaluationReport)
         scored = object_value(report["score"])
         self.assertEqual(scored["total"], 2)
         self.assertEqual(scored["correct_outputs"], 2)
@@ -271,7 +272,7 @@ class EvaluationArtifacts(unittest.TestCase):
 
     def test_processing_failure_is_in_denominators_and_not_a_policy_prediction(self):
         directory = self.run_evaluation(FakeOllama([FailureCode.TIMEOUT, Outcome.NO_CALLBACK]))
-        report = object_value(read_document(directory / "report.json")["score"])
+        report = object_value(read_document(directory / "report.json", EvaluationReport)["score"])
         metrics = object_value(report["metrics"])
         self.assertEqual(report["total"], 2)
         self.assertEqual(report["valid_outputs"], 1)
@@ -335,7 +336,7 @@ class EvaluationArtifacts(unittest.TestCase):
         path = directory / "predictions.jsonl"
         rows = parse_jsonl(path.read_bytes())
         path.write_text(json.dumps(rows[0]) + "\n", encoding="utf-8")
-        ready = read_document(directory / "inference-complete.json")
+        ready = read_document(directory / "inference-complete.json", InferenceComplete)
         ready["predictions_sha256"] = sha256(path.read_bytes()).hexdigest()
         (directory / "inference-complete.json").write_text(json.dumps(ready), encoding="utf-8")
         with self.assertRaises(ValueError):
@@ -359,7 +360,7 @@ class EvaluationArtifacts(unittest.TestCase):
             del row["output"]
             row["failure"] = {"code": "timeout", "message": "Synthetic failure."}
             path.write_text("\n".join(json.dumps(value) for value in rows) + "\n", encoding="utf-8")
-            ready = read_document(directory / "inference-complete.json")
+            ready = read_document(directory / "inference-complete.json", InferenceComplete)
             ready["predictions_sha256"] = sha256(path.read_bytes()).hexdigest()
             (directory / "inference-complete.json").write_text(json.dumps(ready), encoding="utf-8")
             with self.assertRaises(ValueError):
@@ -418,7 +419,9 @@ class EvaluationArtifacts(unittest.TestCase):
                 allow_held_out=True,
                 frozen_path=frozen,
             )
-            self.assertEqual(read_document(result / "report.json")["split"], "evaluation")
+            self.assertEqual(
+                read_document(result / "report.json", EvaluationReport)["split"], "evaluation"
+            )
             changed = FakeOllama()
             changed.digest = "changed"
             with self.assertRaises(ValueError):

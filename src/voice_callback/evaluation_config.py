@@ -5,14 +5,19 @@ import subprocess
 from hashlib import sha256
 from pathlib import Path
 
+import pydantic
+import pydantic_core
+
 from .classify import (
     POLICY_SHA256,
     PROMPT_VERSION,
     build_classification_request,
     verify_classifier_runtime,
 )
+from .contracts import validate_contract
 from .datasets import DatasetSplit, object_value
 from .domain import FailureCode, JsonValue, ModelConfig, RunFailure, RunResult
+from .evaluation_contracts import FrozenConfiguration, SystemConfiguration
 from .json_io import parse_json, read_bounded
 from .models import list_models
 from .ollama import OllamaClient
@@ -60,7 +65,7 @@ def prepare_system(
     metadata = client.show(model.model_id)
     verify_classifier_runtime(version, metadata, model.settings["num_ctx"])
     metadata_digest = sha256(json.dumps(metadata, sort_keys=True).encode()).hexdigest()
-    return {
+    system: dict[str, JsonValue] = {
         "schema_version": 1,
         "model": object_value(parse_json(render_json(model))),
         "model_digest": choice.digest,
@@ -74,7 +79,14 @@ def prepare_system(
         "policy_version": "1.0",
         "policy_sha256": POLICY_SHA256,
         "code": source_identity(),
+        "validation": {
+            "contract_version": "callback-contract-v1",
+            "pydantic_version": pydantic.__version__,
+            "pydantic_core_version": pydantic_core.__version__,
+        },
     }
+    validate_contract(SystemConfiguration, system)
+    return system
 
 
 def verify_run_system(result: RunResult, system: dict[str, JsonValue]) -> None:
@@ -105,6 +117,8 @@ def verify_run_system(result: RunResult, system: dict[str, JsonValue]) -> None:
 def verify_frozen(
     frozen: dict[str, JsonValue], system: dict[str, JsonValue], dataset: DatasetSplit
 ) -> None:
+    validate_contract(FrozenConfiguration, frozen)
+    validate_contract(SystemConfiguration, system)
     code = object_value(system.get("code"))
     original = object_value(frozen.get("system"))
     comparable = {key: value for key, value in system.items() if key != "code"}

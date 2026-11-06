@@ -26,6 +26,22 @@ The callback evaluator receives the transcript version selected for the decision
 
 Golden labels are part of a separate [evaluation flow](EVALUATION.md). They do not enter classifier inputs.
 
+## Strict external contracts
+
+contracts.py defines strict Pydantic registry, classifier settings, input, response, saved-run, and prediction models. evaluation_contracts.py defines configuration, completion, report, and freeze artifacts. Extra fields and scalar coercion are rejected. The existing bounded JSON decoder rejects duplicate keys and non-finite values before strict Pydantic JSON validation; LF-only JSONL parsing preserves Unicode transcript separators. Validators preserve exact text, accepted policy-rule combinations, and verbatim transcript evidence.
+
+```mermaid
+flowchart LR
+    JSON["External JSON or JSONL"] --> Decode["Bounded strict JSON decoding"]
+    Decode --> Contracts["Strict Pydantic boundary models"]
+    Contracts --> Domain["Immutable internal values and pure scoring"]
+    Response["CallbackOutput model"] --> Schema["Generated Ollama response schema"]
+    Response --> Contracts
+    Domain --> Records["Validated exclusive run and evaluation artifacts"]
+```
+
+Internal dataclasses and the pure scorer remain independent of the UI and provider SDKs. CallbackOutput is the authoritative response contract used for both validation and schema generation. Rule consistency and exact evidence checks remain application validation after generation; a valid schema does not establish semantic truth or deterministic inference. callback-text-v2 records the generated schema's prompt change. System snapshots include the contract and Pydantic/core versions, and prior artifacts retain their original hashes and source identity.
+
 The [F-004 specification](../features/active/F-004-local-model-pipeline/02_TECHNICAL_SPEC.md) separates the implemented Python/Ollama classifier from proposed faster-whisper transcription and Streamlit dashboard. The owner selected qwen3.5:4b-q4_K_M under D-003 in the [brief](../intake/PROJECT_BRIEF.md). Audio dependencies and GPU handoff remain implementation checks; deployment is outside this feature.
 
 Update this diagram when the implemented structure changes. Keep proposed components labeled until they exist.

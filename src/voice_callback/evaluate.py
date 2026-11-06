@@ -7,6 +7,7 @@ from pathlib import Path
 from uuid import UUID, uuid4
 
 from .classify import classify, validate_decision
+from .contracts import PREDICTION_RECORD, RUN_RECORD, Contract, validate_contract, validate_record
 from .datasets import DatasetSplit, load_answers, load_split, object_value, string_value
 from .domain import (
     CallbackDecision,
@@ -24,25 +25,36 @@ from .evaluation_config import (
     verify_frozen,
     verify_run_system,
 )
+from .evaluation_contracts import (
+    AbortedEvaluation,
+    EvaluationDeclaration,
+    EvaluationReport,
+    FrozenConfiguration,
+    InferenceComplete,
+    SystemConfiguration,
+)
 from .json_io import parse_json, parse_jsonl, read_bounded
 from .ollama import OllamaClient
 from .scoring import Prediction, score
 from .storage import render_json, save_run, write_json
 
 
-def read_document(path: Path) -> dict[str, JsonValue]:
-    return object_value(parse_json(read_bounded(path).decode("utf-8")))
+def read_document(path: Path, contract: type[Contract]) -> dict[str, JsonValue]:
+    document = object_value(parse_json(read_bounded(path).decode("utf-8")))
+    validate_contract(contract, document)
+    return document
 
 
-def _write_or_verify(path: Path, value: object) -> None:
+def _write_or_verify(path: Path, value: object, contract: type[Contract]) -> None:
     content = render_json(value).encode("utf-8")
+    validate_contract(contract, parse_json(content.decode("utf-8")))
     if path.exists():
         if read_bounded(path) != content:
             raise ValueError(
                 "Existing artifact differs; preserve it and use a new run or output path."
             )
         return
-    write_json(path, value)
+    write_json(path, value, contract)
 
 
 def _prediction_document(result: RunResult, run_path: Path) -> dict[str, JsonValue]:
@@ -66,6 +78,7 @@ def _prediction_document(result: RunResult, run_path: Path) -> dict[str, JsonVal
                 "failure": object_value(parse_json(render_json(result.failure))),
             }
         )
+    validate_record(PREDICTION_RECORD, document)
     return document
 
 
@@ -76,22 +89,9 @@ def _read_predictions(raw: bytes, dataset: DatasetSplit, directory: Path) -> tup
     runs: set[str] = set()
     for value in parse_jsonl(raw):
         row = object_value(value)
+        validate_record(PREDICTION_RECORD, row)
         status = row.get("status")
         field = "output" if status == "success" else "failure"
-        if (
-            not isinstance(status, str)
-            or set(row)
-            != {
-                "case_id",
-                "transcript_sha256",
-                "run_id",
-                "run_sha256",
-                "status",
-                field,
-            }
-            or status not in {"success", "processing_error"}
-        ):
-            raise ValueError("Prediction schema is invalid.")
         case_id, run_id = string_value(row["case_id"]), string_value(row["run_id"])
         if (
             case_id not in transcripts
@@ -107,6 +107,7 @@ def _read_predictions(raw: bytes, dataset: DatasetSplit, directory: Path) -> tup
             raise ValueError("Prediction is bound to a different transcript.")
         run_bytes = read_bounded(directory / "runs" / f"{run_id}.json")
         run_record = object_value(parse_json(run_bytes.decode("utf-8")))
+        validate_record(RUN_RECORD, run_record)
         run = object_value(run_record.get("run"))
         provenance = object_value(run.get("provenance"))
         if (
@@ -124,11 +125,7 @@ def _read_predictions(raw: bytes, dataset: DatasetSplit, directory: Path) -> tup
             )
         else:
             failure = object_value(row[field])
-            if set(failure) != {"code", "message"}:
-                raise ValueError("Processing failure schema is invalid.")
             message = string_value(failure["message"])
-            if len(message) > 1200:
-                raise ValueError("Processing failure message exceeds its limit.")
             result = Failure(FailureCode(failure["code"]), message)
         predictions.append(Prediction(case_id, transcript.text_sha256, run_id, result))
     if ids != set(transcripts):
@@ -137,9 +134,9 @@ def _read_predictions(raw: bytes, dataset: DatasetSplit, directory: Path) -> tup
 
 
 def score_run(directory: Path, dataset_root: Path) -> dict[str, JsonValue]:
-    job = read_document(directory / "evaluation.json")
-    ready = read_document(directory / "inference-complete.json")
-    system = read_document(directory / "configuration.json")
+    job = read_document(directory / "evaluation.json", EvaluationDeclaration)
+    ready = read_document(directory / "inference-complete.json", InferenceComplete)
+    system = read_document(directory / "configuration.json", SystemConfiguration)
     if (
         job.get("schema_version") != 1
         or ready.get("schema_version") != 1
@@ -192,7 +189,7 @@ def score_run(directory: Path, dataset_root: Path) -> dict[str, JsonValue]:
             "No repeatability spread, model comparison, performance claim, or quality threshold is established.",
         ],
     }
-    _write_or_verify(directory / "report.json", report)
+    _write_or_verify(directory / "report.json", report, EvaluationReport)
     return report
 
 
@@ -218,13 +215,13 @@ def evaluate(
     dataset = load_split(dataset_root, split)
     system = prepare_system(dataset, model, client, policy_path)
     if frozen_path is not None:
-        verify_frozen(read_document(frozen_path), system, dataset)
+        verify_frozen(read_document(frozen_path, FrozenConfiguration), system, dataset)
     evaluation_id = str(uuid4())
     directory = output_root / evaluation_id
     directory.mkdir(parents=True)
     completed = 0
     try:
-        write_json(directory / "configuration.json", system)
+        write_json(directory / "configuration.json", system, SystemConfiguration)
         write_json(
             directory / "evaluation.json",
             {
@@ -236,6 +233,7 @@ def evaluate(
                 "inputs_sha256": dataset.inputs_sha256,
                 "started_at": datetime.now(timezone.utc).isoformat(),
             },
+            EvaluationDeclaration,
         )
         with (directory / "inputs.jsonl").open("xb") as stream:
             stream.write(dataset.input_bytes)
@@ -273,12 +271,14 @@ def evaluate(
                     read_bounded(directory / "predictions.jsonl", 16 * 1024 * 1024)
                 ).hexdigest(),
             },
+            InferenceComplete,
         )
     except BaseException:
         try:
             write_json(
                 directory / "aborted.json",
                 {"status": "incomplete", "completed_predictions": completed},
+                AbortedEvaluation,
             )
         except OSError:
             pass
@@ -290,7 +290,7 @@ def evaluate(
 def freeze_run(directory: Path, dataset_root: Path, output: Path | None = None) -> Path:
     report = score_run(directory, dataset_root)
     scored = object_value(report["score"])
-    system = read_document(directory / "configuration.json")
+    system = read_document(directory / "configuration.json", SystemConfiguration)
     current = source_identity()
     original = object_value(system.get("code"))
     if (
@@ -319,5 +319,6 @@ def freeze_run(directory: Path, dataset_root: Path, output: Path | None = None) 
             ).hexdigest(),
             "frozen_revision": current["git_revision"],
         },
+        FrozenConfiguration,
     )
     return path

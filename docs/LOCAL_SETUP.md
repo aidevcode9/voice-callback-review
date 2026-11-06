@@ -6,11 +6,12 @@ Run these commands in the voice-callback-review repository. Python 3.10 or later
 
 ```powershell
 python -m venv .venv
+.venv\Scripts\python.exe -m pip install --require-hashes -r requirements-runtime.txt
 .venv\Scripts\python.exe -m pip install --disable-pip-version-check --no-deps -e .
 .venv\Scripts\python.exe -m pip check
 ```
 
-The editable install uses the pinned setuptools 80.9.0 build backend in pyproject.toml. Pip may fetch that build dependency from the package index. The application has no third-party runtime dependencies. The virtual environment and generated package metadata are ignored by Git. Activation is optional when commands use the environment's interpreter explicitly.
+The editable install uses the pinned setuptools 80.9.0 build backend in pyproject.toml. Pip may fetch that build dependency from the package index. Pydantic 2.14.3 validates external contracts; requirements-runtime.txt pins its full dependency set with release-wheel hashes. Install that lock before the project because --no-deps intentionally skips dependency resolution. The virtual environment and generated package metadata are ignored by Git. Activation is optional when commands use the environment's interpreter explicitly.
 
 Audio and dashboard dependencies are deferred to their implementation batches. Environment setup does not install faster-whisper or any model weights. The separately authorized Qwen provisioning step appears below. No provider SDK, API key, or sign-in is required.
 

@@ -2,7 +2,7 @@
 
 A learning prototype for reviewing recorded service calls and identifying which callers need a callback. The intended interface is a small browser dashboard.
 
-Project stage: 40 owner-approved fictional cases are frozen as golden set v1.0. F-004 is active. Batches 1 and 2 implement diagnostics, an explicit model registry, and local text classification with validated evidence and run provenance. Batch 3 implements development evaluation, offline scoring, and configuration freezing; live baseline evidence is pending. Audio and dashboard remain planned.
+Project stage: 40 owner-approved fictional cases are frozen as golden set v1.0. F-004 is active. Batches 1 and 2 implement diagnostics, an explicit model registry, and local text classification with validated evidence and run provenance. Batch 3 implements development evaluation, offline scoring, and configuration freezing. Its first development baseline matched all 20 labels; strict Pydantic boundaries are implemented and verified offline. A fresh development baseline is required before candidate freeze. Audio and dashboard remain planned.
 
 ## Start here
 

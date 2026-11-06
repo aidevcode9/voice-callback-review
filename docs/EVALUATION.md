@@ -1,6 +1,12 @@
 # Text evaluation
 
-Status: batch 3 implements a development runner, immutable artifacts, deterministic offline scoring, and candidate configuration freezing. Offline checks pass; the first live development baseline is pending. The frozen release has 20 development and 20 held-out evaluation cases. The [PRD](PRD.md) owns the rubric and acceptance decisions.
+Status: batch 3 implements a development runner, immutable artifacts, deterministic offline scoring, and candidate configuration freezing. The first development baseline matched all 20 reference labels. Strict Pydantic boundary contracts are implemented and verified offline; a fresh development baseline now precedes candidate freeze. The frozen release has 20 development and 20 held-out evaluation cases. The [PRD](PRD.md) owns the rubric and acceptance decisions.
+
+## Development checkpoint before contract migration
+
+The owner ran evaluation 7f31782d-c234-4937-85fe-252add830d39 on clean commit 1f94357 with callback-text-v1 and the selected Qwen digest. Offline rescore reproduced 20/20 valid and correct outputs: callback recall 8/8, precision 8/8, needs-review rate 6/20, and no processing failures or unsafe misses. Original reports remain in the ignored reports/text directory; their hashes and full revision are recorded in the [implementation plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md). Copy that directory separately when preserving evidence across machines; ignored artifacts are not included in the Git commit.
+
+One fictional development trial establishes neither held-out quality nor repeatability. Preserve that evidence. The approved strict Pydantic contract migration has passed offline checks. Commit the verified implementation and run a fresh development baseline before configuration freeze. The generated response schema requires callback-text-v2 and a new prompt/source fingerprint. Existing reports are not rewritten or presented as migrated runs; offline rescoring uses the original matching source revision.
 
 ## Run development inference before scoring
 
