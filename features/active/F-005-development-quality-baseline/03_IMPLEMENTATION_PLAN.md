@@ -1,6 +1,6 @@
 # F-005: Quality baseline implementation
 
-Status: local implementation verified; staged-snapshot and hosted delivery checks remain to be recorded.
+Status: local implementation and both snapshot gates verified. Feature remains active pending explicit push approval and hosted CI results.
 
 Lead workflow: house planning-workflows, after re-reading project-workflow and inspecting pstack Feature. One owner handles coupled tool configuration, source typing, shared runner, and CI. Pstack Feature's delegated design/implementation is not selected or claimed. Build-the-lever supports the rerunnable checker; code-quality and verification-before-completion support implementation and handoff.
 
@@ -11,7 +11,8 @@ Lead workflow: house planning-workflows, after re-reading project-workflow and i
 - [x] Pin development tools and configure lint/format/type checks; resolve actual findings without blanket exclusions.
 - [x] Add shared suites, clean-wheel checks, snapshot preflight, and focused failure-path tests.
 - [x] Add bounded GitHub Actions workflow and canonical-template quality requirements with generated-project regression checks.
-- [ ] Run local checks, immutable-data verification, template validation, self-review, and document actual evidence and delivery state.
+- [x] Run local checks, immutable-data verification, template validation, self-review, and document actual evidence and delivery state.
+- [ ] Push the committed baseline after explicit owner approval, observe the Ubuntu/Windows matrix, and record actual hosted results before feature completion.
 
 Blocking steps: existing instructions/status and frozen invariants checked first. Independent workstreams: none delegated; template checks are separate commands after edits. Shared state: one owner writes the profile and runners. Smallest decomposition: one owner prevents config, type, and CI command drift.
 
@@ -28,3 +29,11 @@ No F-004 classifier decision is made. Later F-004 batches remain unchecked. Host
 - Frozen policy, candidates, approval, and gold compare unchanged with Git. No classifier selection, model download/inference, audio/UI dependency, API key, or billing/account change occurred.
 
 GitHub Free was supplied by the owner. Read-only APIs could not retrieve plan/usage or budget state with current scopes. Official current docs report $12/month included compute and standard Linux/Windows rates of $0.006/$0.010 per rounded job-minute. The four configured jobs have eight-minute limits, cancel superseded runs, and upload no artifacts. Private protected branches are unavailable on this plan. Hosted results cannot be inferred from local validation.
+
+## Snapshot, review, and delivery evidence
+
+The implementation was committed locally as c57a64a (Establish Python quality gates and CI baseline). Before that commit, scripts/codex_preflight.py --mode pre-commit exported the staged index and passed every suite, including all 55 tests and a clean installed-wheel smoke test. After commit, --mode pre-push exported HEAD and passed the same full baseline. Skill metadata validators passed for the portable intake and workflow skills in both repositories. The final working-document scan resolved 156 local links. Self-review checked the source diff, marker compatibility, exact CI suite calls, immutable action refs, temporary-path boundaries, and preservation of frozen artifacts.
+
+A push to the existing private origin was attempted as the final CI activation step. Automatic approval review rejected it because approval for the earlier commit did not explicitly cover this additional code/template payload and hosted Actions usage. No bypass or alternative upload was attempted. No new remote commit or hosted job was created. The owner must explicitly approve pushing this prepared quality baseline to aidevcode9/voice-callback-review and activating its four standard-runner jobs. Remaining Free allowance and a spending-stop budget are unverified; usage can incur charges beyond the included $12/month compute.
+
+Canonical project-template changes remain local and uncommitted in their own repository. The app commit includes the corresponding portable intake assets, not the template repository's Git history. No model or runtime feature beyond F-004 batch 1 was added. F-004 later batches remain unchecked.
