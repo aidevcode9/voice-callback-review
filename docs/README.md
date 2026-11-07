@@ -15,7 +15,7 @@
 | [Human approval](../data/reviews/v1.0.json) | Explicit owner acceptance bound to candidate and policy snapshots. |
 | [Candidate review packet](../data/candidates/v0.1/REVIEW.md) | Historical proposed-label snapshot before the separate human approval. |
 | [Candidate data](../data/candidates/v0.1/README.md) | Data format, provenance, reproduction commands, and limitations. |
-| [Evaluation](EVALUATION.md) | Proposed gold-label separation and audio evaluation flow. |
+| [Evaluation](EVALUATION.md) | Implemented text evaluation, artifact integrity, metrics, freeze controls, and proposed audio comparison. |
 | [Workflow selection](WORKFLOW_SELECTION.md) | Selected skills, orchestration role, and actual process stage. |
 | [Local model build plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) | Sequenced implementation batches, model-choice dependencies, and acceptance evidence. |
 | [Quality checks](QUALITY_CHECKS.md) | Shared static, behavior, data, documentation, package, and snapshot gates; CI costs and limits. |

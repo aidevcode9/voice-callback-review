@@ -6,10 +6,14 @@ Use the project virtual environment and Python 3.10 or later. Pyright also needs
 
 ```powershell
 .venv\Scripts\python.exe -m pip install --require-hashes -r requirements-dev.txt
+.venv\Scripts\python.exe -m pip install --require-hashes -r requirements-runtime.txt
 .venv\Scripts\python.exe -m pip install --no-deps --no-build-isolation -e .
+.venv\Scripts\python.exe -m pip download --require-hashes -r requirements-runtime.txt --dest .test-work/runtime-wheels
 ```
 
 The requirements pin Ruff, Pyright, build tools, coverage, YAML parsing, and transitive dependencies with release hashes. Python/OS markers include conditional build dependencies. Coverage 7.10.7 supports the declared Python 3.10 minimum; development tools remain separate from runtime dependencies. Update pins and their PyPI release hashes together and rerun the minimum-runtime CI job.
+
+The separate runtime lock pins Pydantic and its dependency closure for Python 3.10+. The explicit download prepares compatible wheels for package verification; it installs no model weights. Clean-wheel checks install runtime dependencies from that wheel directory with --no-index and --require-hashes, install the project wheel with --no-deps, and run pip check and both CLI entrypoints outside the source tree. The check does not fetch missing wheels. Refresh the directory after changing pins or Python/platform. Snapshot preflight shares this cache through VOICE_CALLBACK_WHEELHOUSE while using the selected snapshot's lock and wheel hashes; cached files cannot satisfy a changed lock without verification.
 
 ## Run the same checks as CI
 

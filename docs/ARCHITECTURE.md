@@ -1,6 +1,6 @@
 # Architecture
 
-Current state: policy documents, synthetic candidates, an explicit human-approval ledger, frozen gold v1.0, and offline validation/export tools. F-004 batches 1 and 2 add diagnostics, local text classification, and exclusive JSON run records. Evaluation, audio, dashboard, and deployment remain planned. The first diagram describes the proposed full application.
+Current state: policy documents, synthetic candidates, an explicit human-approval ledger, frozen gold v1.0, and offline validation/export tools. F-004 batches 1 and 2 add diagnostics, local text classification, and exclusive JSON run records. Batch 3 adds isolated evaluation artifacts and offline scoring. Audio, dashboard, and deployment remain planned. The first diagram describes the proposed full application.
 
 ```mermaid
 flowchart LR
@@ -25,6 +25,22 @@ The adapters use independent model selections and record runtime, model identity
 The callback evaluator receives the transcript version selected for the decision. Evidence must point to that version. Original text, a corrected version, the model recommendation, and the reviewer decision remain distinguishable.
 
 Golden labels are part of a separate [evaluation flow](EVALUATION.md). They do not enter classifier inputs.
+
+## Strict external contracts
+
+contracts.py defines strict Pydantic registry, classifier settings, input, response, saved-run, and prediction models. evaluation_contracts.py defines configuration, completion, report, and freeze artifacts. Extra fields and scalar coercion are rejected. The existing bounded JSON decoder rejects duplicate keys and non-finite values before strict Pydantic JSON validation; LF-only JSONL parsing preserves Unicode transcript separators. Validators preserve exact text, accepted policy-rule combinations, and verbatim transcript evidence.
+
+```mermaid
+flowchart LR
+    JSON["External JSON or JSONL"] --> Decode["Bounded strict JSON decoding"]
+    Decode --> Contracts["Strict Pydantic boundary models"]
+    Contracts --> Domain["Immutable internal values and pure scoring"]
+    Response["CallbackOutput model"] --> Schema["Generated Ollama response schema"]
+    Response --> Contracts
+    Domain --> Records["Validated exclusive run and evaluation artifacts"]
+```
+
+Internal dataclasses and the pure scorer remain independent of the UI and provider SDKs. CallbackOutput is the authoritative response contract used for both validation and schema generation. Rule consistency and exact evidence checks remain application validation after generation; a valid schema does not establish semantic truth or deterministic inference. callback-text-v2 records the generated schema's prompt change. System snapshots include the contract and Pydantic/core versions, and prior artifacts retain their original hashes and source identity.
 
 The [F-004 specification](../features/active/F-004-local-model-pipeline/02_TECHNICAL_SPEC.md) separates the implemented Python/Ollama classifier from proposed faster-whisper transcription and Streamlit dashboard. The owner selected qwen3.5:4b-q4_K_M under D-003 in the [brief](../intake/PROJECT_BRIEF.md). Audio dependencies and GPU handoff remain implementation checks; deployment is outside this feature.
 
@@ -80,3 +96,21 @@ flowchart LR
 ```
 
 classify.py owns prompt construction and validation. The transcript is data in a separate user message. Expected answers are rejected by the JSONL reader. storage.py serializes immutable domain values and creates each record exclusively. Model identity is checked before and after a successful inference. A malformed response, context overflow, timeout, or resource error cannot contain a successful policy label. Semantic correctness of otherwise valid reasons remains an evaluation question.
+
+## Implemented batch 3 evaluation
+
+```mermaid
+flowchart LR
+    CLI["evaluate CLI"] --> Split["datasets.py validates manifest and input-only split"]
+    Split --> Config["evaluation_config.py snapshots the exact local system"]
+    Config --> Runner["evaluate.py invokes existing classifier per case"]
+    Runner --> Records["Exclusive run records and closed predictions"]
+    Records --> Marker["Inference completion and integrity hashes"]
+    Marker --> Answers["Separate reference-answer read"]
+    Answers --> Scorer["scoring.py computes counts and explicit denominators"]
+    Records --> Scorer
+    Scorer --> Report["Immutable report and offline rescore"]
+    Report --> Freeze["Explicit candidate freeze for later held-out use"]
+```
+
+json_io.py supplies strict duplicate/non-finite rejection and LF-only JSONL parsing to both classification and evaluation. classify.py exposes pure request construction with prompt/request hashes so evaluation reuses the actual classifier configuration. There is no second classifier prompt. Scoring depends on typed predictions and reference answers, not on Ollama or a UI. Inference completion is persisted before the scorer can open answers. Configuration drift or incomplete inference leaves inspectable artifacts without a quality report. Held-out execution requires a matching frozen system and explicit opt-in.

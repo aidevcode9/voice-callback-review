@@ -4,7 +4,7 @@ Owner and acceptance owner: project owner.
 Product requirements: PRD-R001 through PRD-R010.
 Sources: SRC-012 through SRC-016 in the [source register](../../../intake/README.md).
 Dependencies: completed F-001 through F-003; frozen gold v1.0.
-Status: active. Batches 1 and 2 implement diagnostics, contracts, and selected text classification. Evaluation, audio, and UI remain planned.
+Status: active. Batches 1 and 2 implement diagnostics, contracts, and selected text classification. Batch 3 implements evaluation and has a preserved first development baseline; strict contract migration precedes final freeze. Audio and UI remain planned.
 
 ## Problem, users, and outcome
 

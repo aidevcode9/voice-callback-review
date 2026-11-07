@@ -6,11 +6,12 @@ Run these commands in the voice-callback-review repository. Python 3.10 or later
 
 ```powershell
 python -m venv .venv
+.venv\Scripts\python.exe -m pip install --require-hashes -r requirements-runtime.txt
 .venv\Scripts\python.exe -m pip install --disable-pip-version-check --no-deps -e .
 .venv\Scripts\python.exe -m pip check
 ```
 
-The editable install uses the pinned setuptools 80.9.0 build backend in pyproject.toml. Pip may fetch that build dependency from the package index. The application has no third-party runtime dependencies. The virtual environment and generated package metadata are ignored by Git. Activation is optional when commands use the environment's interpreter explicitly.
+The editable install uses the pinned setuptools 80.9.0 build backend in pyproject.toml. Pip may fetch that build dependency from the package index. Pydantic 2.14.3 validates external contracts; requirements-runtime.txt pins its full dependency set with release-wheel hashes. Install that lock before the project because --no-deps intentionally skips dependency resolution. The virtual environment and generated package metadata are ignored by Git. Activation is optional when commands use the environment's interpreter explicitly.
 
 Audio and dashboard dependencies are deferred to their implementation batches. Environment setup does not install faster-whisper or any model weights. The separately authorized Qwen provisioning step appears below. No provider SDK, API key, or sign-in is required.
 
@@ -68,7 +69,7 @@ The adapter follows the official [documentation index](https://docs.ollama.com/l
 git diff --check
 ```
 
-The behavior tests use controlled loopback HTTP servers and a controlled connection-refusal fixture. They need no running Ollama, downloaded models, or external network. Classification has offline tests and focused live development evidence. Transcription, evaluation, and UI execution remain planned in [F-004](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md).
+The behavior tests use controlled loopback HTTP servers and a controlled connection-refusal fixture. They need no running Ollama, downloaded models, or external network. Classification has offline tests and focused live development evidence. Evaluation now has offline behavior checks; transcription and UI execution remain planned in [F-004](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md).
 
 ## Development quality baseline
 
@@ -107,4 +108,23 @@ Classification prints one JSON record to stdout and its saved path to stderr. Ea
 
 The record includes the exact model tag/digest and settings, server version and URL, case/transcript version/hash, prompt/policy version/hash, metadata/request hashes, UTC start, elapsed time, and either a validated decision or a typed failure. Prior records remain separate when text or settings change. These files are ignored local runtime artifacts. Structure and exact evidence validation do not prove that every statement in a reason is semantically correct.
 
-Batch 2 development checks cover VC-001, VC-021, VC-025, VC-033, synthetic context overflow, and instruction-like transcript data. They are integration evidence, not a full development score or held-out result. No answer file is opened by classification. The [implementation plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) records observations. Evaluation, audio, and dashboard work remain separate.
+Batch 2 development checks cover VC-001, VC-021, VC-025, VC-033, synthetic context overflow, and instruction-like transcript data. They are integration evidence, not a full development score or held-out result. No answer file is opened by classification. The [implementation plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) records observations. Batch 3 adds the evaluation commands below; audio and dashboard remain later work.
+
+## Evaluate the development split
+
+```powershell
+.venv\Scripts\python.exe -m voice_callback.cli evaluate --split development --model qwen35-4b
+```
+
+This executes every development input using the explicit model, saves exclusive per-case runs and predictions, then opens the separate answers for scoring. The printed report path identifies reports/text/RUN_ID/report.json. The report includes confusion counts, strict callback recall, callback precision, needs-review rate, valid-output coverage, unsafe misses, failures, and disagreements. It states all denominators and uses null when a denominator is zero.
+
+After the run, replace RUN_ID in these offline commands with its printed directory:
+
+```powershell
+.venv\Scripts\python.exe -m voice_callback.cli score --run-dir reports/text/RUN_ID
+.venv\Scripts\python.exe -m voice_callback.cli freeze-evaluation --run-dir reports/text/RUN_ID
+```
+
+score verifies the saved artifacts and recomputes the same report without inference. freeze-evaluation requires a complete development baseline without processing failures and unchanged clean committed source. It binds a candidate snapshot to the current Git revision, model/prompt/policy/runtime/settings, dataset manifest, and development report. It does not accept a model-quality threshold.
+
+The default --dataset is data/gold/v1.0. --output-dir changes the evaluation artifact root. Diagnostic and inference timeout controls match classify. No credentials, new dependencies, or silent model downloads are involved. Held-out inference requires a compatible --frozen-config plus --allow-held-out and a separate owner decision. See [evaluation](EVALUATION.md) for the artifact lifecycle, exact metrics, and limitations. Audio/UI commands remain unimplemented.

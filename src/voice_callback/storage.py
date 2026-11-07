@@ -1,10 +1,12 @@
-"""Exclusive local classification records; evaluation reports belong to a later batch."""
+"""Exclusive local records with strict validation at the serialization boundary."""
 
 import json
 from dataclasses import fields, is_dataclass
 from pathlib import Path
 
+from .contracts import RUN_RECORD, Contract, validate_contract, validate_record
 from .domain import ModelConfig, RunResult, RunSuccess
+from .json_io import parse_json
 
 
 def _json_value(value: object) -> object:
@@ -21,13 +23,10 @@ def _json_value(value: object) -> object:
     raise TypeError("Unsupported run record value.")
 
 
-def render_run(result: RunResult) -> str:
+def render_json(value: object) -> str:
     return (
         json.dumps(
-            {
-                "status": "success" if isinstance(result, RunSuccess) else "processing_error",
-                "run": result,
-            },
+            value,
             default=_json_value,
             ensure_ascii=True,
             allow_nan=False,
@@ -35,6 +34,24 @@ def render_run(result: RunResult) -> str:
         )
         + "\n"
     )
+
+
+def render_run(result: RunResult) -> str:
+    content = render_json(
+        {
+            "status": "success" if isinstance(result, RunSuccess) else "processing_error",
+            "run": result,
+        }
+    )
+    validate_record(RUN_RECORD, parse_json(content))
+    return content
+
+
+def write_json(path: Path, value: object, contract: type[Contract]) -> None:
+    content = render_json(value)
+    validate_contract(contract, parse_json(content))
+    with path.open("x", encoding="utf-8", newline="\n") as stream:
+        stream.write(content)
 
 
 def save_run(result: RunResult, directory: Path) -> Path:

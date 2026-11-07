@@ -1,6 +1,6 @@
 # Voice Callback Review workflow profile
 
-Stage: owner-approved golden set v1.0 is frozen. F-004 is active with batches 1 and 2 diagnostics, contracts, and local text classification implemented. Evaluation, audio, and UI remain planned.
+Stage: owner-approved golden set v1.0 is frozen. F-004 is active with batches 1 and 2 diagnostics, contracts, and local text classification implemented. Batch 3 evaluation commands have offline verification and a preserved 20/20 development baseline. Strict Pydantic boundary models are implemented with offline verification; a fresh development baseline precedes candidate freeze. Audio and UI remain planned.
 
 ## Source of truth
 
@@ -22,7 +22,7 @@ The intake and project-workflow skills are bundled. For every substantial task, 
 
 For documentation changes, inspect relative links, source claims, and diagram consistency with the written behavior, then run `git diff --check` for tracked edits and `git diff --cached --check` before commit. Structural validation of the bundled skill uses the installed skill-creator validator when available.
 
-Batch 1 offline behavior and live runtime diagnostics are executable below. Model-quality, audio-quality, and UI checks remain unavailable until their owning batches. Do not treat a missing command or a successful diagnostic as successful inference.
+Batch 1 offline behavior and live runtime diagnostics are executable below. Batch 3 provides development quality measurement; audio-quality and UI checks remain unavailable until their owning batches. Do not treat a missing command or a successful diagnostic as successful inference.
 
 ## Data validation commands
 
@@ -55,7 +55,7 @@ Diagnostic exit 1 indicates a request failure and unknown inventory is null. Exi
 
 ## Later application verification
 
-The classify command is implemented and the owner selected qwen3.5:4b-q4_K_M under SRC-018. See the [F-004 plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) for batch 2 offline and development-only live evidence. Evaluate, transcribe, and dashboard commands remain proposed. Keep batches 3 through 6 unchecked and F-004 active. Optional audio/UI dependencies are deferred until their versions and hardware behavior can be verified.
+The classify command is implemented and the owner selected qwen3.5:4b-q4_K_M under SRC-018. See the [F-004 plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) for batch 2 offline and development-only live evidence. Evaluate, score, and freeze-evaluation are implemented in batch 3. Transcription and dashboard commands remain proposed. Keep F-004 active; batch 3 evidence is recorded in the plan, and batches 4 through 6 stay unchecked. Optional audio/UI dependencies are deferred until their versions and hardware behavior can be verified.
 
 ## Project invariants
 
@@ -72,9 +72,9 @@ Product acceptance and model quality remain open. Preparing this PRD does not cl
 
 ## Required engineering baseline (F-005)
 
-Use [quality-gates.json](../quality-gates.json) as the explicit configuration record and [quality checks](../docs/QUALITY_CHECKS.md) for installation, execution, CI, and cost details. This section supersedes batch 1's earlier lack of static checks. The immutable-data and no-inference invariants remain in force.
+Use [quality-gates.json](../quality-gates.json) as the explicit configuration record and [quality checks](../docs/QUALITY_CHECKS.md) for installation, execution, CI, and cost details. This section supersedes batch 1's earlier lack of static checks. The immutable-data and no-inference-in-CI invariants remain in force.
 
-- Install hash-pinned development tools with `.venv\Scripts\python.exe -m pip install --require-hashes -r requirements-dev.txt`, then install the project with `--no-deps --no-build-isolation -e .`. Runtime dependencies remain empty.
+- Install hash-pinned development tools with `.venv\Scripts\python.exe -m pip install --require-hashes -r requirements-dev.txt`, then install the project with `--no-deps --no-build-isolation -e .`. Install requirements-runtime.txt with --require-hashes before the project; Pydantic and its runtime closure are now pinned separately. Prepare package-check wheels explicitly with python -m pip download --require-hashes -r requirements-runtime.txt --dest .test-work/runtime-wheels. Clean-wheel checks and snapshot preflight verify these wheels offline against the selected tree's lock.
 - Shared working-tree command: `.venv\Scripts\python.exe scripts/check_project.py`. It must pass lint, format, Pyright, behavior/coverage reporting, data, docs/lifecycle/workflow configuration, and clean-wheel installation. Named --suite options select the identical implementation used by CI.
 - Before a commit: `.venv\Scripts\python.exe scripts/codex_preflight.py --mode pre-commit` validates the staged index. Stage the intended complete changes first. Untracked or unstaged files cannot satisfy the snapshot gate.
 - Before push or committed review: `.venv\Scripts\python.exe scripts/codex_preflight.py --mode pre-push` or `--mode review` validates HEAD. Base branch is origin/main. The runner exports the exact selected tree and uses its source for subprocess imports. No separate preflight configuration file is required.
@@ -89,7 +89,7 @@ The template now requires explicit baseline configuration when the language is s
 
 The owner requires a dedicated branch for every new feature or implementation batch before more code is pushed. Check git status and git branch --show-current before edits or publication. Use feature/<feature-id>-<short-name>; do not push feature work directly to main. Preserve existing unpublished commits instead of resetting them. Publish only the feature branch when authorized and use a pull request for review before merge. GitHub Free's private-repo protection limits do not waive this workflow.
 
-The current F-004 batch 2 branch is feature/f-004-text-classifier. It starts from local c5cfdcd, which records F-005 completion and is not yet on origin/main. The remote baseline 8ab41a8 has four passing CI jobs. This branch carries the completion record and branch-policy handoff; no new push is performed by this setup. Classifier choice is still the owner's D-003 decision.
+Batch 2, including the Unicode JSONL review fix, merged through PR #1 at 9abcb84. The current batch 3 branch is feature/f-004-text-evaluation, created from updated main before implementation. Preserve prior history and publish through a feature-branch PR only when authorized. SRC-018 selects the classifier; SRC-019 starts development evaluation through the orchestrator.
 
 ## F-004 batch 2 workflow and limits
 
@@ -98,3 +98,19 @@ Reassessed house planning-workflows, pstack Feature, and architect. House planni
 The classifier uses exact input-only JSONL or UTF-8 text, a frozen policy hash, structured output validation, provenance, and exclusive runtime/classifications records. Model selection is explicit on every CLI request. Initial limits are 12000 transcript UTF-8 bytes, a 1 MiB input file, 8192 context tokens, 768 output tokens, and a 180-second inference deadline. Truncate and shift are disabled. Requires Ollama 0.40.15 or later for the inspected contract. Diagnostics retain their separate short deadlines.
 
 Run the full shared baseline and matching snapshot gate for classifier changes, plus focused development-only live integration when model/runtime behavior changes. No live model or GPU run occurs in CI. Held-out scoring remains batch 3 after configuration freeze. No peak VRAM or production-quality result is inferred from successful local responses.
+
+## F-004 batch 3 workflow and verification
+
+House planning-workflows leads after reassessing pstack Feature, architect, and Eval. Explain-the-number supports counts and limitations. A code-review-workflow subagent independently reviewed pure scoring and artifact/freeze boundaries without editing shared files or performing real inference. No full pstack playbook or delegated implementation is claimed.
+
+The development runner closes and hashes all predictions before opening answers. Pure metrics keep processing failures in recall/coverage denominators; zero denominators are null. Frozen manifest/split hashes, unique exact case coverage, per-run provenance, immutable reports, interrupted-run rejection, and configuration drift have offline tests. Shared JSON parsing preserves Unicode separators, rejects duplicate/non-finite data, and reports excessive nesting as validation errors. Local source bytes, clean state, revision, model/prompt/policy/runtime/settings, and data/prediction hashes identify each baseline.
+
+Run the full shared baseline and staged/committed snapshot gates for evaluation changes. Run real development inference only, from a clean committed implementation, then verify offline rescore and explicit candidate freeze. Actual held-out inference requires a matching freeze, unchanged clean revision/source and runtime configuration, --allow-held-out, and separate owner authorization. No actual held-out labels enter development prompts or tuning. No audio/UI dependencies or cloud/API credentials are added. D-004 quality acceptance remains separate from functional verification.
+
+## Batch 3 contract migration
+
+The owner approved strict Pydantic boundary contracts before configuration freeze, held-out evaluation, audio, or UI. House planning-workflows remains the lead after reassessing pstack Feature and architect. One owner implements the coupled contracts and callers; an independent code-review-workflow subagent checks dependency/package/CI and contract regressions without editing shared files or running inference. No full pstack playbook is claimed.
+
+Preserve development evaluation 7f31782d-c234-4937-85fe-252add830d39 from clean commit 1f94357 and callback-text-v1. It matched 20/20 fictional development labels in one trial; this does not establish acceptance, repeatability, or held-out quality. Pydantic validates strict shapes, not semantic truth or deterministic inference. The generated response schema advances the prompt to callback-text-v2. Keep bounded strict JSON/LF parsing, rule consistency, and exact evidence validation. Configuration snapshots include contract and Pydantic/core versions. Prior reports require their original source for offline rescore and remain unchanged.
+
+Run the full shared baseline with hash-pinned runtime dependencies, offline clean-wheel checks, and matching snapshot preflight. After a clean implementation commit, the owner runs the fresh development baseline before freeze. Actual held-out inference still requires separate owner authorization and a matching frozen system. Audio/UI remain unimplemented. Current verification and remaining steps live in the F-004 plan.

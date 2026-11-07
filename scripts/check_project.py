@@ -18,7 +18,12 @@ SUITES = ("quality", "tests", "data", "docs", "package")
 
 
 def check_tool_versions() -> None:
-    for line in (ROOT / "requirements-dev.txt").read_text().splitlines():
+    for name in ("requirements-dev.txt", "requirements-runtime.txt"):
+        check_locked_versions(ROOT / name)
+
+
+def check_locked_versions(path: Path) -> None:
+    for line in path.read_text().splitlines():
         line = line.strip().removesuffix("\\").strip()
         if not line or line.startswith(("#", "--")):
             continue
@@ -28,7 +33,7 @@ def check_tool_versions() -> None:
         installed = importlib.metadata.version(requirement.name)
         if installed not in requirement.specifier:
             raise ValueError(
-                f"Install requirements-dev.txt: {requirement.name} is {installed}, expected {requirement.specifier}"
+                f"Install {path.name}: {requirement.name} is {installed}, expected {requirement.specifier}"
             )
 
 
@@ -98,6 +103,14 @@ def workflow_errors(root: Path) -> list[str]:
 
 
 def package_check() -> None:
+    wheelhouse = Path(
+        os.environ.get("VOICE_CALLBACK_WHEELHOUSE", ROOT / ".test-work/runtime-wheels")
+    ).resolve()
+    if not wheelhouse.is_dir():
+        raise ValueError(
+            "Prepare runtime wheels: python -m pip download --require-hashes "
+            "-r requirements-runtime.txt --dest .test-work/runtime-wheels"
+        )
     scratch = ROOT / ".test-work"
     scratch.mkdir(exist_ok=True)
     if not scratch.resolve().is_relative_to(ROOT):
@@ -117,6 +130,23 @@ def package_check() -> None:
             for key, value in os.environ.items()
             if key not in {"PYTHONPATH", "PYTHONHOME"}
         }
+        run(
+            [
+                str(python),
+                "-m",
+                "pip",
+                "install",
+                "--disable-pip-version-check",
+                "--no-index",
+                "--find-links",
+                str(wheelhouse),
+                "--require-hashes",
+                "-r",
+                str(ROOT / "requirements-runtime.txt"),
+            ],
+            cwd=work,
+            env=env,
+        )
         run(
             [
                 str(python),

@@ -27,7 +27,7 @@ Primary prototype user: the project owner demonstrating and evaluating the workf
 
 ## Stack and system context
 
-F-004 provides local diagnostics and a text-classification CLI. Ollama 0.40.15 serves the selected qwen3.5:4b-q4_K_M model. [Local model options](../docs/LOCAL_MODEL_OPTIONS.md) records the comparison, selection, and hardware limits. Each classification saves an exclusive local run record. Evaluation, transcription, and dashboard work remain planned. No cloud credentials are needed or provisioned.
+F-004 provides local diagnostics and a text-classification CLI. Ollama 0.40.15 serves the selected qwen3.5:4b-q4_K_M model. [Local model options](../docs/LOCAL_MODEL_OPTIONS.md) records the comparison, selection, and hardware limits. Each classification saves an exclusive local run record. Batch 3 implements evaluation/scoring/freeze commands with live development verification pending. Transcription and dashboard remain planned. No cloud credentials are needed or provisioned.
 
 The active feature documents own implementation and verification. D-004 quality targets and D-005 hosting remain owner decisions.
 
