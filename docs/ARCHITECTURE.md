@@ -26,6 +26,8 @@ The callback evaluator receives the transcript version selected for the decision
 
 Golden labels are part of a separate [evaluation flow](EVALUATION.md). They do not enter classifier inputs.
 
+Optional [Langfuse tracing](LANGFUSE.md) records operational metadata from the shared classifier for CLI and review-desk runs. Only local Ollama receives the transcript and prompt; the Langfuse exporter receives no transcript, prompt, case identifier, evidence, or model output. Evaluation runs do not export traces. Telemetry is disabled by default and does not replace local provenance.
+
 ## Strict external contracts
 
 Classifier instructions are a version-selected package resource under src/voice_callback/prompts. classify.py assembles them with the separate accepted policy and generated response schema; the transcript stays a separate JSON user message. The package and evaluation source fingerprint include prompt text assets. [Classifier prompts](CLASSIFIER_PROMPTS.md) documents version changes and compatibility checks. Mechanical v2 extraction preserves its rendered prompt hash while changing source identity.
