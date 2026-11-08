@@ -12,6 +12,9 @@ ajv.addSchema(schema, "api");
 const validSubmission = ajv.compile<components["schemas"]["SubmitJob"]>({
   $ref: "api#/components/schemas/SubmitJob",
 });
+const validSession = ajv.compile<components["schemas"]["Session"]>({
+  $ref: "api#/components/schemas/Session",
+});
 const shots = path.resolve("../docs/evidence/F-006");
 fs.mkdirSync(shots, { recursive: true });
 async function control(request: APIRequestContext, body: object) {
@@ -209,12 +212,14 @@ test("explicit review workflow, preserved history, real proxy, reconnect and fai
   await expect
     .poll(async () => {
       try {
-        return (await request.get("/api/v1/session", { timeout: 1000 })).status();
+        const response = await request.get("/api/v1/session", { timeout: 1000 });
+        const value: unknown = await response.json();
+        return response.ok() && validSession(value) && value.nonce !== session.nonce;
       } catch {
-        return 0;
+        return false;
       }
     })
-    .toBe(200);
+    .toBe(true);
   await page.reload();
   await expect(page.locator(".history .run")).toHaveCount(5);
   await page.locator(".history .run").last().click();
