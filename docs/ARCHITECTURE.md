@@ -1,18 +1,14 @@
 # Architecture
 
-Current state: policy documents, synthetic candidates, an explicit human-approval ledger, frozen gold v1.0, and offline validation/export tools. F-004 batches 1 and 2 add diagnostics, local text classification, and exclusive JSON run records. Batch 3 adds isolated evaluation artifacts and offline scoring. F-006 adds the Next.js Review desk, FastAPI/SQLite persistence and Nginx single-origin routing. Audio and deployment remain planned. The first diagram describes the proposed full application.
+Current state: policy documents, synthetic candidates, an explicit human-approval ledger, frozen gold v1.0, and offline validation/export tools. F-004 batches 1 and 2 add diagnostics, local text classification, and exclusive JSON run records. Batch 3 adds isolated evaluation artifacts and offline scoring. F-006 adds the Next.js Review desk, FastAPI/SQLite persistence and Nginx single-origin routing. Audio is a future roadmap enhancement; hosting remains undecided. The first diagram describes the current text workflow.
 
 ```mermaid
 flowchart LR
     Reviewer["Service reviewer"] --> UI["Review dashboard"]
     UI --> Input["Input handling"]
     UI --> Models["Compatible configured model choices"]
-    Models -->|Speech-to-text choice| STT
     Models -->|Classifier choice| Evaluate
-    Input -->|Recorded audio| STT["Transcription adapter"]
     Input -->|Supplied text| Transcript["Versioned transcript"]
-    STT -->|Successful text| Transcript
-    STT -->|Processing error| UI
     Transcript --> Evaluate["Callback evaluator"]
     Evaluate -->|Processing error| UI
     Evaluate --> Prediction["Model recommendation, reason, and evidence"]
@@ -20,13 +16,13 @@ flowchart LR
     UI --> Human["Separate reviewer decision"]
 ```
 
-The adapters use independent model selections and record runtime, model identity, and settings per stage. Text classification is implemented through Ollama; speech-to-text remains unimplemented and follows F-006 text workspace acceptance as the final stage. The classifier requests unloading after each run. Sequential audio-to-text resource handoff remains a later integration check. See [local model options](LOCAL_MODEL_OPTIONS.md).
+Text classification uses Ollama and records runtime, model identity, and settings. The classifier requests unloading after each run. Speech-to-text is unimplemented and deferred to the [roadmap](ROADMAP.md). See [local model options](LOCAL_MODEL_OPTIONS.md).
 
 The callback evaluator receives the transcript version selected for the decision. Evidence must point to that version. Original text, a corrected version, the model recommendation, and the reviewer decision remain distinguishable.
 
 Golden labels are part of a separate [evaluation flow](EVALUATION.md). They do not enter classifier inputs.
 
-Optional [Langfuse tracing](LANGFUSE.md) records operational metadata from the shared classifier for CLI and review-desk runs. Only local Ollama receives the transcript and prompt; the Langfuse exporter receives no transcript, prompt, case identifier, evidence, or model output. Evaluation runs do not export traces. Telemetry is disabled by default and does not replace local provenance.
+Optional [Langfuse tracing](LANGFUSE.md) records the submitted transcript, validated decision, and operational metadata from the shared classifier for CLI and review-desk runs. An environment setting restricts traces to metadata. The system prompt, case identifier, and raw model response are not exported. Evaluation runs do not export traces. Telemetry is disabled by default and does not replace local provenance.
 
 ## Strict external contracts
 
@@ -46,7 +42,7 @@ flowchart LR
 
 Internal dataclasses and the pure scorer remain independent of the UI and provider SDKs. CallbackOutput is the authoritative response contract used for both validation and schema generation. Rule consistency and exact evidence checks remain application validation after generation; a valid schema does not establish semantic truth or deterministic inference. callback-text-v2 records the generated schema's prompt change. System snapshots include the contract and Pydantic/core versions, and prior artifacts retain their original hashes and source identity.
 
-The [F-004 specification](../features/active/F-004-local-model-pipeline/02_TECHNICAL_SPEC.md) separates the implemented Python/Ollama classifier from proposed final-stage faster-whisper transcription; [F-006](../features/completed/F-006-text-review-workspace/02_TECHNICAL_SPEC.md) owns the proposed Next.js frontend, thin FastAPI API and Nginx one-origin routing. The owner selected qwen3.5:4b-q4_K_M under D-003 in the [brief](../intake/PROJECT_BRIEF.md). Audio dependencies and GPU handoff remain implementation checks; deployment is outside this feature.
+The [F-004 specification](../features/active/F-004-local-model-pipeline/02_TECHNICAL_SPEC.md) owns the Python/Ollama classifier; [F-006](../features/completed/F-006-text-review-workspace/02_TECHNICAL_SPEC.md) owns the implemented Next.js frontend, FastAPI API and Nginx routing. The owner selected qwen3.5:4b-q4_K_M under D-003 in the [brief](../intake/PROJECT_BRIEF.md). Audio and GPU handoff are future concerns; deployment is outside this feature.
 
 Update this diagram when the implemented structure changes. Keep proposed components labeled until they exist.
 
@@ -62,7 +58,7 @@ flowchart LR
     Export --> Audit["Frozen manifest and audit snapshots"]
 ```
 
-The application diagram above remains proposed. The implemented exporter validates approval against both the candidate and policy hashes and preserves an existing differing release.
+The implemented exporter validates approval against both the candidate and policy hashes and preserves an existing differing release.
 
 ## Implemented batch 1 diagnostics
 
@@ -129,7 +125,6 @@ flowchart LR
     API --> Jobs["Single-job admission and local workspace records"]
     Jobs --> Core["Existing Python classifier / contracts / run storage"]
     Core --> Ollama["Existing loopback Ollama"]
-    Final["Final stage: proposed audio/transcription"] -.-> API
 ```
 
 The API reuses the core rather than cloning prompts or scoring. [F-006 contracts](../features/completed/F-006-text-review-workspace/02_TECHNICAL_SPEC.md) define implemented asynchronous jobs, idempotency, limits, crash recovery and case/version/review storage. Selector changes do not run inference. Held-out inputs/answers and freeze operations are excluded from this workspace. Static prototypes remain historical simulations. Hosting is undecided and deployment is outside scope.

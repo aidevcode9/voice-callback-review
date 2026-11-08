@@ -8,10 +8,12 @@ House planning-workflows leads: the request spans integration, credentials, docu
 - [x] Add opt-in tracing and optional, reproducible dependency setup; verify behavior and privacy.
 - [x] Create and verify TCO workbook with editable assumptions.
 - [x] Run working-tree project checks and review the changed behavior.
-- [ ] Run the staged snapshot gate as part of a later branch handoff.
+- [x] Run staged and committed snapshot gates for the original tracing and worksheet handoff.
 
 ## Evidence and delivery
 
+2026-11-07 correction: the owner requested useful trace input and output. The original metadata-only default is replaced with transcript and validated decision capture when tracing is enabled; `VCR_LANGFUSE_CONTENT=0` retains metadata-only behavior. This deliberately sends potentially sensitive call content to the configured Langfuse instance. Focused tests passed for both modes. An authenticated fictional fixture trace was fetched from Langfuse: its parent and generation contained the transcript and validated label, rule, reason and evidence, with 100 input and 20 output tokens. No held-out data was used. The follow-up PR records its own snapshot and hosted checks.
+
 Baseline configuration passed `python scripts/check_quality_baseline.py`. Feature branch: `feature/f-009-langfuse-tco`. The user's credentials file remains local and is ignored. Langfuse authentication succeeded; a synthetic run's retrieved observation tree contained a parent span and nested generation with 100 input and 20 output tokens, with content omitted. No held-out data was used. The workbook was rendered and its formula results checked with a known input set and missing-input case; native Excel recalculation was not exercised.
 
-The shared runner passed Python quality, 122 behavior tests, data, docs, package, frontend lint, types, and build. Its browser step initially failed because the default Playwright Chromium was missing. The five browser tests passed separately using the existing Chromium via `CHROMIUM_EXECUTABLE`, with the same controlled stack. The docs suite passed again after the architecture update. Staged snapshot preflight, hosted CI, independent acceptance, merge, and deployment remain pending.
+The shared runner passed Python quality, 122 behavior tests, data, docs, package, frontend lint, types, and build. Its browser step initially failed because the default Playwright Chromium was missing. The five browser tests passed separately using the existing Chromium via `CHROMIUM_EXECUTABLE`, with the same controlled stack. Staged and committed snapshot gates subsequently passed with that browser. The original tracing and worksheet changes merged through PR #4. Product acceptance and deployment remain separate.

@@ -8,7 +8,7 @@ project-workflow selected house systematic-debugging for six reproduced failures
 
 Under SRC-023, project-workflow retains house planning-workflows as lead for the agreed bounded refactor. Compared architect; another design arena is unnecessary for the selected exact extraction. Code-quality and focused compatibility/source identity/package checks support implementation. A read-only code-review-workflow reviewer checks the independent package/provenance surface while the owner maintains documentation and runs gates. Preserve this branch, the rendered callback-text-v2 prompt/request and all stored runs/reviews. No real inference or new freeze is part of this batch. [F-007](../features/completed/F-007-versioned-classifier-prompt/FEATURE.md) records actual results.
 
-Stage: accepted policy, frozen owner-approved gold v1.0, and active F-004 with diagnostics and text classification. The evaluation/contracts implementation is merged; the historical text-v1 baseline is preserved and fresh text-v2 development verification/freeze remain pending. F-006 owns the proposed text workspace before final audio integration. This project has its own local Git repository under projects.
+Stage: accepted policy, frozen owner-approved gold v1.0, and active F-004 with diagnostics and text classification. The evaluation/contracts implementation is merged; the historical text-v1 baseline is preserved and fresh text-v2 development verification/freeze remain pending. F-006 implements the text workspace. SRC-024 defers audio to the roadmap. This project has its own local Git repository under projects.
 
 ## Orchestrator and timing
 
@@ -43,7 +43,7 @@ The two bundled skills travel with the repository. Other names describe the curr
 
 For each substantial task, read the relevant pstack candidate and our candidate before choosing. Record the reason, unavailable prerequisites, and actual results in the feature plan or this record. Full playbooks and adaptations remain distinguishable.
 
-F-005 supplies scripts/check_project.py and scripts/codex_preflight.py. F-004 implements the Python core and selected Ollama text classifier; final-stage faster-whisper remains planned. SRC-020 supersedes Streamlit with F-006 Next.js/Nginx/proposed FastAPI. Hosting is outside its scope.
+F-005 supplies scripts/check_project.py and scripts/codex_preflight.py. F-004 implements the Python core and selected Ollama text classifier; SRC-024 defers audio. SRC-020 supersedes Streamlit with F-006 Next.js/Nginx/FastAPI. Hosting is outside its scope.
 
 ## Read-only routing trial
 
@@ -68,9 +68,9 @@ flowchart LR
     Review --> Complete["Complete the agreed scope"]
 ```
 
-Current state: F-001 through F-003 are completed. Golden set v1.0 contains 40 owner-approved labels; the wider application PRD remains a draft. F-001 is a small documentation feature, so it uses one file. A substantial application feature will use three documents.
+Historical intake checkpoint: F-001 through F-003 were completed and golden set v1.0 contained 40 owner-approved labels. F-001 used one small-feature document; substantial features use three.
 
-The user selected audio and text inputs, text-first decision evaluation, diagrams, project orchestration during intake, and relevant pstack consideration. Callback policy is accepted. Dataset review/freeze is complete for v1.0. Stack and quality thresholds remain open.
+At intake, the user selected audio and text inputs, text-first decision evaluation, diagrams, project orchestration, and relevant pstack consideration. SRC-024 later deferred audio. Callback policy and the dataset freeze are accepted; quality thresholds remain open.
 
 ## Accepted policy and candidate preparation checkpoint
 

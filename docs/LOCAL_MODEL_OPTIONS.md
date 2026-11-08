@@ -8,7 +8,9 @@ Read-only hardware and API checks found an ASUS Zenbook UX6404VI, Intel Core i9-
 
 The 2026-11-05 check found Ollama 0.40.14 and zero models. On 2026-11-06, read-only diagnostics found 0.40.15 and zero models before provisioning. The selected model is now installed. The GPU recheck reported 8188 MiB total and 7596 MiB free before inference, with the same driver. The GPU meets [Ollama's documented NVIDIA requirements](https://docs.ollama.com/gpu). Restricted-shell loopback failed; broader socket access verified the actual server.
 
-## Recommendation for this laptop
+## Historical transcription candidates for this laptop
+
+SRC-024 defers audio and transcription to the [roadmap](ROADMAP.md). The following earlier recommendations are unverified options, not a selected implementation or current delivery commitment.
 
 Use Whisper large-v3-turbo as the first speech-to-text candidate, with faster-whisper as the proposed runtime. Keep Whisper small as a lightweight fallback. The [Whisper reference implementation](https://github.com/openai/whisper#available-models-and-languages) lists approximately 6 GB VRAM for turbo and 2 GB for small. Runtime, precision, audio length, and batching affect actual memory.
 
@@ -30,7 +32,7 @@ The earlier qwen3.5:4b and gemma4:e2b names are valid family tags. Their current
 
 [Qwen3.5's publisher card](https://huggingface.co/Qwen/Qwen3.5-4B) documents text input and thinking controls. Non-thinking mode is a reasonable initial development choice for short policy decisions. Its general benchmarks do not measure our callback policy. The card's large-context reasoning guidance is not evidence that this laptop should allocate 128K or 256K context. The [Qwen3 Instruct 2507 card](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507) explicitly describes a non-thinking model. Do not substitute qwen3:4b, which currently resolves to the thinking variant.
 
-[Google's Gemma 4 card](https://huggingface.co/google/gemma-4-E2B-it) explains that E2B means effective parameters, with larger embedding tables, and lists text, image, and audio capability. It does not mean a two-billion-weight memory footprint. Audio remains a separate unverified stage here.
+[Google's Gemma 4 card](https://huggingface.co/google/gemma-4-E2B-it) explains that E2B means effective parameters, with larger embedding tables, and lists text, image, and audio capability. It does not mean a two-billion-weight memory footprint. Audio remains unverified and deferred.
 
 Ollama supports [JSON-schema constrained output](https://docs.ollama.com/capabilities/structured-outputs). That makes all three plausible structured-decision candidates, subject to live integration. Schema compliance cannot establish the right policy outcome or faithful reasoning. The application separately validates labels, rule IDs and their outcome, bounded reasons, and verbatim transcript evidence. Final resolution, surviving promises or requests, ambiguity, and instruction-like transcript text need development checks.
 
@@ -42,10 +44,10 @@ SRC-018 records the owner's explicit Qwen selection after the comparison, author
 
 ## Selectable stages
 
-The requested app has separate speech-to-text and callback-classifier choices. Text input skips transcription. Audio becomes an inspectable, editable transcript before classification. Speech synthesis is outside the current scope.
+The current app offers an explicit callback-classifier choice for text. Independent speech-to-text selection and inspectable transcripts from audio are deferred roadmap ideas. Speech synthesis is outside the current scope.
 
 The future selectors show compatible, configured models and identify unavailable models before a run. They do not silently download a model or switch to cloud. A capable multimodal model could be chosen for both stages.
 
 Record each stage's runtime, exact model identifier or revision, relevant settings, and transcript version. Keep transcription quality separate from callback decision quality. Paired fictional recordings and reviewed reference transcripts are still needed to evaluate audio.
 
-These stages are sequenced in the [implementation plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md). The registry, diagnostics, and text classifier exist. UI selectors and audio remain planned. D-003's classifier choice is resolved; dependency and audio verification remain open in the [project brief](../intake/PROJECT_BRIEF.md).
+The registry, diagnostics, text classifier, and text UI selector exist. Audio and transcription have no current delivery commitment. D-003's classifier choice is resolved in the [project brief](../intake/PROJECT_BRIEF.md).

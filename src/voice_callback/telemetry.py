@@ -1,11 +1,11 @@
-"""Optional, content-free Langfuse observations for local inference."""
+"""Optional Langfuse observations for local inference."""
 
 import importlib
 import logging
 import os
 from typing import Any
 
-from .domain import JsonValue, RunFailure, RunResult
+from .domain import CallbackDecision, JsonValue, RunFailure, RunResult, RunSuccess
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +19,7 @@ class ClassificationTrace:
         self.client: Any = None
         self.root: Any = None
         self.generation: Any = None
+        self.include_content = os.environ.get("VCR_LANGFUSE_CONTENT", "1") == "1"
         if not enabled or os.environ.get("VCR_LANGFUSE_ENABLED") != "1":
             return
         if not all(
@@ -38,15 +39,19 @@ class ClassificationTrace:
         except Exception:
             logger.warning("Langfuse tracing could not be initialized.")
 
-    def begin_generation(self, model: str) -> None:
+    def begin_generation(self, model: str, transcript: str) -> None:
         if self.root is None:
             return
         try:
+            trace_input = (
+                {"transcript": transcript} if self.include_content else {"content": "omitted"}
+            )
+            self.root.update(input=trace_input)
             self.generation = self.root.start_observation(
                 name="ollama-classification",
                 as_type="generation",
                 model=model,
-                input={"content": "omitted"},
+                input=trace_input,
             )
         except Exception:
             logger.warning("Langfuse generation could not be initialized.")
@@ -60,23 +65,31 @@ class ClassificationTrace:
             if type(count) is int and count >= 0:
                 usage[target] = count
         try:
-            self.generation.update(usage_details=usage, output={"content": "omitted"})
-            self.generation.end()
-            self.generation = None
+            self.generation.update(usage_details=usage)
         except Exception:
             logger.warning("Langfuse generation update failed.")
 
     def finish(self, result: RunResult) -> None:
         try:
+            output: dict[str, Any] = {"status": "failure"}
+            if isinstance(result, RunSuccess):
+                output = {"status": "success"}
+                if self.include_content and isinstance(result.output, CallbackDecision):
+                    output.update(
+                        label=result.output.label.value,
+                        rule_ids=list(result.output.rule_ids),
+                        reason=result.output.reason,
+                        evidence=list(result.output.evidence),
+                    )
             if self.generation is not None:
                 if isinstance(result, RunFailure):
                     self.generation.update(level="ERROR", status_message=result.failure.code.value)
+                self.generation.update(output=output)
                 self.generation.end()
             if self.root is not None:
-                status = "failure" if isinstance(result, RunFailure) else "success"
                 if isinstance(result, RunFailure):
                     self.root.update(level="ERROR", status_message=result.failure.code.value)
-                self.root.update(output={"status": status})
+                self.root.update(output=output)
                 self.root.end()
             if self.client is not None:
                 self.client.flush()

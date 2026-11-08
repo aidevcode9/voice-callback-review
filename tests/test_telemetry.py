@@ -25,6 +25,7 @@ class TelemetryBehavior(unittest.TestCase):
         )
         environment = {
             "VCR_LANGFUSE_ENABLED": "1",
+            "VCR_LANGFUSE_CONTENT": "0",
             "LANGFUSE_PUBLIC_KEY": "public",
             "LANGFUSE_SECRET_KEY": "secret",
             "LANGFUSE_BASE_URL": "https://example.invalid",
@@ -41,15 +42,52 @@ class TelemetryBehavior(unittest.TestCase):
                 transcript, MODEL, OllamaClient(url), policy_path=ROOT / "docs/CALLBACK_POLICY.md"
             )
         self.assertIsInstance(result, RunSuccess)
-        generation.update.assert_called_once_with(
-            usage_details={"input": 100, "output": 20}, output={"content": "omitted"}
-        )
+        generation.update.assert_any_call(usage_details={"input": 100, "output": 20})
+        generation.update.assert_any_call(output={"status": "success"})
         exported = str(client.mock_calls) + str(root.mock_calls) + str(generation.mock_calls)
         self.assertNotIn(TEXT, exported)
         self.assertNotIn("private-case", exported)
         self.assertNotIn("private-version", exported)
         self.assertNotIn("secret", exported)
         client.flush.assert_called_once()
+
+    def test_content_mode_records_transcript_and_validated_answer(self):
+        client, root, generation = MagicMock(), MagicMock(), MagicMock()
+        client.start_observation.return_value = root
+        root.start_observation.return_value = generation
+        transcript = TranscriptVersion(
+            "private-case", "private-version", TEXT, TranscriptOrigin.TEXT
+        )
+        env = {
+            "VCR_LANGFUSE_ENABLED": "1",
+            "VCR_LANGFUSE_CONTENT": "1",
+            "LANGFUSE_PUBLIC_KEY": "public",
+            "LANGFUSE_SECRET_KEY": "secret",
+            "LANGFUSE_BASE_URL": "https://example.invalid",
+        }
+        with (
+            patch.dict("os.environ", env),
+            patch("voice_callback.telemetry._get_client", return_value=client),
+            server(fixtures(), []) as (url, _),
+        ):
+            result = classify(
+                transcript, MODEL, OllamaClient(url), policy_path=ROOT / "docs/CALLBACK_POLICY.md"
+            )
+        self.assertIsInstance(result, RunSuccess)
+        root.update.assert_any_call(input={"transcript": TEXT})
+        expected = {
+            "status": "success",
+            "label": "callback_required",
+            "rule_ids": ["CB-002"],
+            "reason": "The caller requests a callback.",
+            "evidence": ["Please call me back"],
+        }
+        root.update.assert_any_call(output=expected)
+        generation.update.assert_any_call(output=expected)
+        exported = str(client.mock_calls) + str(root.mock_calls) + str(generation.mock_calls)
+        self.assertNotIn("private-case", exported)
+        self.assertNotIn("private-version", exported)
+        self.assertNotIn("secret", exported)
 
     def test_disabled_and_unavailable_sdk_leave_classification_unchanged(self):
         test = test_classify.ClassificationBehavior()

@@ -124,7 +124,7 @@ The restrained hierarchy keeps readable transcript text and separate recommendat
 - Exact evidence tied to the selected run's original transcript version.
 - Explicit submission, separate human judgment, and visible runtime state.
 
-Sources: [product context](PRODUCT.md), [production direction contract](docs/REVIEW_DESK_SURFACE.md), [production surface record](.impeccable/surfaces/web-app-page-tsx.md), [production styles](web/app/globals.css), [page](web/app/page.tsx), and [components](web/app/components.tsx). Desktop and narrow production captures in [F-006 evidence](docs/evidence/F-006/browser-evidence.json) were inspected. Finish review passed after the stale processing notice was fixed; this is frontend implementation and controlled verification status, not deployment or live-model acceptance.
+Sources: [product context](PRODUCT.md), [production direction contract](docs/REVIEW_DESK_SURFACE.md), [production styles](web/app/globals.css), [page](web/app/page.tsx), and [components](web/app/components.tsx). Desktop and narrow production captures in [F-006 evidence](docs/evidence/F-006/browser-evidence.json) were inspected. Finish review passed after the stale processing notice was fixed; this is frontend implementation and controlled verification status, not deployment or live-model acceptance.
 
 ## Colors
 

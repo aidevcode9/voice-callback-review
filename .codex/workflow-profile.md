@@ -1,6 +1,6 @@
 # Voice Callback Review workflow profile
 
-Stage: owner-approved golden set v1.0 is frozen. F-004 is active with batches 1 and 2 diagnostics, contracts, and local text classification implemented. Batch 3 evaluation commands have offline verification and a preserved 20/20 development baseline. Strict Pydantic boundary models are implemented with offline verification; a fresh development baseline precedes candidate freeze. F-006 implements selected A in Next.js with FastAPI/SQLite and Nginx; controlled production-stack browser evidence covers text review. Final transcription and paired-audio verification remain F-004 work.
+Stage: owner-approved golden set v1.0 is frozen. F-004 is active with batches 1 and 2 diagnostics, contracts, and local text classification implemented. Batch 3 evaluation commands have offline verification and a preserved 20/20 development baseline. Strict Pydantic boundary models are implemented with offline verification; a fresh development baseline precedes candidate freeze. F-006 implements selected A in Next.js with FastAPI/SQLite and Nginx; controlled production-stack browser evidence covers text review. SRC-024 defers transcription and paired-audio verification to the roadmap; F-004 remains active for text evaluation and quality.
 
 ## Source of truth
 
@@ -22,7 +22,7 @@ The intake and project-workflow skills are bundled. For every substantial task, 
 
 For documentation changes, inspect relative links, source claims, and diagram consistency with the written behavior, then run `git diff --check` for tracked edits and `git diff --cached --check` before commit. Structural validation of the bundled skill uses the installed skill-creator validator when available.
 
-Batch 1 offline behavior and live runtime diagnostics are executable below. Batch 3 provides development quality measurement; audio-quality and UI checks remain unavailable until their owning batches. Do not treat a missing command or a successful diagnostic as successful inference.
+Batch 1 offline behavior and live runtime diagnostics are executable below. Batch 3 provides development quality measurement; audio-quality checks are deferred, and F-006 owns text UI checks. Do not treat a missing command or a successful diagnostic as successful inference.
 
 ## Data validation commands
 
@@ -55,7 +55,7 @@ Diagnostic exit 1 indicates a request failure and unknown inventory is null. Exi
 
 ## Later application verification
 
-The classify command is implemented and the owner selected qwen3.5:4b-q4_K_M under SRC-018. See the [F-004 plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) for batch 2 offline and development-only live evidence. Evaluate, score, and freeze-evaluation are implemented in batch 3. The Review desk starts with scripts/run_review_desk.py. Keep F-004 active for fresh text-v2 quality work and final audio; F-006 owns the verified text browser/API flow. Optional audio dependencies remain deferred.
+The classify command is implemented and the owner selected qwen3.5:4b-q4_K_M under SRC-018. See the [F-004 plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) for batch 2 offline and development-only live evidence. Evaluate, score, and freeze-evaluation are implemented in batch 3. The Review desk starts with scripts/run_review_desk.py. Keep F-004 active for fresh text-v2 quality work; F-006 owns the verified text browser/API flow. Audio is deferred to the roadmap.
 
 ## Project invariants
 
@@ -117,7 +117,7 @@ Run the full shared baseline with hash-pinned runtime dependencies, offline clea
 
 ## F-006 text workspace design and next implementation
 
-SRC-020 selects Next.js plus Nginx one-origin routing and a thin proposed FastAPI API. House planning-workflows leads; Impeccable supports two rendered code-first Operate prototypes and finish review. [F-006 plan](../features/completed/F-006-text-review-workspace/03_IMPLEMENTATION_PLAN.md) owns actual design checks and future browser/API acceptance. Production components are implemented; the completion section below owns current verification. F-004 final stage is transcription then paired-audio integration, after the text workspace. Both PR #1 and PR #2 are merged; UI branch includes main c82f0ed. Fresh text-v2 live baseline/freeze and model-quality acceptance remain pending.
+SRC-020 selects Next.js plus Nginx one-origin routing and a thin proposed FastAPI API. House planning-workflows leads; Impeccable supports two rendered code-first Operate prototypes and finish review. [F-006 plan](../features/completed/F-006-text-review-workspace/03_IMPLEMENTATION_PLAN.md) owns actual design checks and future browser/API acceptance. Production components are implemented; the completion section below owns current verification. SRC-024 defers the previously planned transcription and paired-audio stage to the roadmap. Both PR #1 and PR #2 are merged; UI branch includes main c82f0ed. Fresh text-v2 live baseline/freeze and model-quality acceptance remain pending.
 
 For static design changes run the shared docs suite, prototype browser checks, rendered desktop/narrow inspection, immutable-path comparison and git diff --check. Do not report Python suites or snapshot preflight as newly run unless they actually ran. Before production web implementation configure frontend lint, types and browser gates; before API implementation run the shared Python baseline and extend focused contract/worker tests. No held-out cases/answers in the workspace. Earlier batch ordering in historical records does not govern this revised sequence.
 
@@ -135,4 +135,4 @@ The shared check_project.py now defaults to quality/tests/data/docs/package/web.
 
 No live inference or semantic quality acceptance occurred in F-006. No held-out reads, audio, model provisioning, push, PR, merge or deployment. Frozen policy/candidates/approval/gold remain unchanged. Preserve unrelated .archify/. Feature completion requires the final matching staged gate recorded in its plan.
 
-Final backend review also found and verified correction of deferred orphan reconciliation after startup during CLI ownership. Reads/polls and submission/replay retry reconciliation once OS ownership becomes free. All 114 behavior tests and the full web gate pass locally; the exact staged snapshot repeats the complete configured baseline before commit. F-006 functional acceptance is complete; F-004's quality/audio work remains active.
+Final backend review also found and verified correction of deferred orphan reconciliation after startup during CLI ownership. Reads/polls and submission/replay retry reconciliation once OS ownership becomes free. All 114 behavior tests and the full web gate pass locally; the exact staged snapshot repeats the complete configured baseline before commit. F-006 functional acceptance is complete; F-004's text quality work remains active; audio is deferred.

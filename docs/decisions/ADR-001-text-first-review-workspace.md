@@ -1,7 +1,7 @@
 # ADR-001: Text-first review workspace and separate API
 
 Date: 2026-11-06.
-Status: architectural direction approved by owner under SRC-020; Review desk selected under SRC-021 and implemented/functionally verified under SRC-022. Model quality and deployment remain separate.
+Status: architectural direction approved by owner under SRC-020; Review desk selected under SRC-021 and implemented/functionally verified under SRC-022. [ADR-002](ADR-002-defer-audio.md) supersedes this record's audio scope and sequencing. Model quality and deployment remain separate.
 
 ## Context
 

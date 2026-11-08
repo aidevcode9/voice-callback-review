@@ -1,29 +1,19 @@
-# Explain the planned demo
+# Technology leadership demonstration
 
-Status: planned walkthrough. Gold v1.0, the Python classifier/evaluation core and one historical text-v1 development baseline exist. The text workspace is a static simulation; production application and audio remain unimplemented.
+Use fictional text to show a local callback review workflow and the engineering decisions behind it. Audio upload and voice-to-text are [future enhancements](ROADMAP.md), not part of the current demonstration.
 
-## Explain the product
+## Walk through the product
 
-The app reviews a completed service call and recommends whether a representative should call the person back. A reviewer can inspect the transcript and supporting excerpt. An uncertain conversation goes to review.
+1. Open the implemented Review desk and load a fictional development transcript or paste fictional text.
+2. Select the available local classifier and explicitly submit it. Explain that choosing a model or editing text does not run inference.
+3. Inspect the outcome, policy rules, reason, and exact supporting text. Record a separate human decision.
+4. Edit the transcript, save a new version, and inspect the earlier run and its provenance.
+5. Show an error or recovery state using the controlled fixture evidence, and explain that a processing failure is not a callback outcome.
 
-For audio input, transcription comes before the callback decision. We evaluate the decision on known text first, then compare reference text and transcribed audio to understand where errors enter.
+For a live classifier demonstration, check the local runtime first. The [browser evidence](evidence/F-006/README.md) uses a controlled Ollama HTTP fixture; it proves the browser/API workflow, not model quality. Static design prototypes are simulations. Do not use held-out cases or answers in the workspace.
 
-## Explain the workflow
+## Explain the engineering and limits
 
-1. Show the intake source register and the decisions the user actually made.
-2. Show the PRD and a specific acceptance requirement.
-3. Show the selected feature and explain why its document size fits the work.
-4. Show the reviewed label rubric and the provenance of the golden examples.
-5. Run the relevant checks and inspect an actual failure as well as a correct result.
-6. Show the change made in response and the evidence for its result.
-7. Explain what remains unverified and which decisions would be needed before broader use.
+Show the source register, accepted callback policy, feature requirements, and frozen human-approved gold set. Explain that evaluation separates inputs from expected answers and preserves processing failures in its metrics. The historical callback-text-v1 development run matched 20 of 20 fictional development labels once; it does not establish repeatability, production quality, or held-out performance.
 
-These steps describe the intended demonstration. Replace proposed steps with recorded evidence as features are implemented.
-
-## Explain what makes it a voice application
-
-The recording is an input with its own error modes. A good explanation distinguishes transcription quality, callback decision quality, and the reviewer's operational decision. The dashboard lets a person follow those stages rather than seeing only a final label.
-
-## Text-first walkthrough
-
-Show a fictional development transcript, select the model and explicitly classify. Read exact evidence, explain the accepted rule, edit into a new version, inspect an earlier result and record a separate human decision. The implemented Review desk supports this flow with local Ollama; saved outputs retain actual provenance. The static design prototypes and labeled controlled browser fixtures are simulations and must be presented as such. Keep held-out cases and answers out of this walkthrough. Show historical evaluation evidence separately, with source/prompt versions and limitations; callback-text-v2 live baseline and candidate freeze remain pending. Audio upload/transcription and paired comparison are the final future stage, after the text workflow is verified.
+The fresh callback-text-v2 development baseline, candidate freeze, numeric quality thresholds, and broader product acceptance remain open. Held-out inference requires a matching freeze and separate owner authorization. Hosting and deployment remain separate decisions. Present hardening as ongoing work and point to verified changes rather than claiming the system is production-ready.

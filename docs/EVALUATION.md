@@ -71,7 +71,7 @@ The held-out path requires both --frozen-config and --allow-held-out with --spli
 
 The planned first baseline is one trial of one selected model over 20 fictional development cases, with related conversations grouped together. Report counts alongside fractions. The run can reveal functional failures and development disagreements, but it cannot establish a repeatability spread, a model comparison, a population accuracy estimate, or a performance target. D-004 remains open for the owner's acceptance threshold. A successful small development run is not production approval.
 
-## Final stage: audio after text review/testing
+## Future enhancement: paired audio evaluation
 
 ```mermaid
 flowchart LR
@@ -84,7 +84,7 @@ flowchart LR
     AudioRun --> Compare
 ```
 
-SRC-020 places F-006 text workspace/API and review/testing before audio. Transcription and paired checks are the final F-004 stage. The iterative workspace excludes held-out cases and answers; it does not invoke freeze or held-out evaluation. A transcription failure remains a processing failure, and gold v1.0 remains unchanged.
+SRC-024 defers transcription and paired checks to the [roadmap](ROADMAP.md). This diagram is a future proposal, not a current F-004 acceptance gate. The iterative workspace excludes held-out cases and answers; it does not invoke freeze or held-out evaluation. Gold v1.0 remains unchanged.
 
 ## Transport uncertainty and admission
 

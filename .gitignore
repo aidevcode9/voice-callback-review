@@ -17,6 +17,7 @@ intake/sources/prd-drafts/*
 
 # Local diagram workspaces and code-analysis caches; publish curated artifacts in docs/.
 .archify/
+.impeccable/
 .ua/
 
 # Local package metadata, build products, and future run artifacts.
