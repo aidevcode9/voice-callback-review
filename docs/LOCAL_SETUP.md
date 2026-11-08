@@ -13,7 +13,7 @@ python -m venv .venv
 
 The editable install uses the pinned setuptools 80.9.0 build backend in pyproject.toml. Pip may fetch that build dependency from the package index. Pydantic 2.14.3 validates external contracts; requirements-runtime.txt pins its full dependency set with release-wheel hashes. Install that lock before the project because --no-deps intentionally skips dependency resolution. The virtual environment and generated package metadata are ignored by Git. Activation is optional when commands use the environment's interpreter explicitly.
 
-Audio and dashboard dependencies are deferred to their implementation batches. Environment setup does not install faster-whisper or any model weights. The separately authorized Qwen provisioning step appears below. No provider SDK, API key, or sign-in is required.
+Audio dependencies are outside the current scope. Environment setup does not install faster-whisper or any model weights. The separately authorized Qwen provisioning step appears below. Local classification requires no provider SDK, API key, or sign-in; optional Langfuse tracing has separate setup.
 
 ## Inspect the local server and configured choices
 
@@ -69,7 +69,7 @@ The adapter follows the official [documentation index](https://docs.ollama.com/l
 git diff --check
 ```
 
-The behavior tests use controlled loopback HTTP servers and a controlled connection-refusal fixture. They need no running Ollama, downloaded models, or external network. Classification has offline tests and focused live development evidence. Evaluation now has offline behavior checks; transcription and UI execution remain planned in [F-004](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md).
+The behavior tests use controlled loopback HTTP servers and a controlled connection-refusal fixture. They need no running Ollama, downloaded models, or external network. Classification has offline tests and focused live development evidence. Evaluation has offline behavior checks. F-006 implements and verifies the text UI with a controlled fixture; transcription is deferred to the [roadmap](ROADMAP.md).
 
 ## Development quality baseline
 

@@ -24,7 +24,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 ## Open decisions and constraints
 
-Owner chooses visual direction after rendered review; A is the agent recommendation. No production visual world is selected. Text before final audio, no gold/held-out editing or browsing, one explicit inference job, provenance on demand. Screenshot provenance is the local browser capture script; no generated artwork is used.
+At this historical design checkpoint, A was the agent recommendation and no production visual world was selected. The owner later selected A; SRC-024 later deferred audio to the roadmap. No gold/held-out editing or browsing, one explicit inference job, and provenance on demand remain design constraints. Screenshot provenance is the local browser capture script; no generated artwork is used.
 
 ## Owner selection, SRC-021
 

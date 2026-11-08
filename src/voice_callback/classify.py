@@ -258,7 +258,7 @@ def classify(
             model_metadata_sha256=sha256(json.dumps(metadata, sort_keys=True).encode()).hexdigest(),
         )
         verify_classifier_runtime(provenance.runtime_version, metadata, model.settings["num_ctx"])
-        trace.begin_generation(model.model_id)
+        trace.begin_generation(model.model_id, transcript.text)
         response = client.chat(request.body)
         trace.generated(response)
         message = response.get("message")

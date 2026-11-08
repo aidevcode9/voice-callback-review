@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Owner-approved direction: Next.js frontend, thin FastAPI boundary over the existing Python classifier/evaluation core, Nginx routing pages/assets and /api under one browser origin. The FastAPI/SQLite backend foundation is implemented; Next.js and Nginx remain pending. Static HTML/CSS/JavaScript serves this design exploration only. Hosting is undecided; deployment is outside scope.
+The local Review desk uses Next.js, a FastAPI/SQLite boundary over the Python classifier/evaluation core, and Nginx routing pages and /api under one browser origin. Static HTML/CSS/JavaScript prototypes are historical simulations. Hosting is undecided; deployment is outside scope.
 
 ## Users
 
@@ -20,15 +20,15 @@ Make a callback recommendation inspectable through the transcript, exact support
 
 ## Operating Context
 
-Local-first, one inference job at a time on the existing laptop. Text entry and fictional development cases come before audio integration. The classifier is explicitly selected; changing controls never invokes inference. Transcription and paired-audio verification are the final stage.
+Local-first, one inference job at a time on the existing laptop. The current workflow uses text entry and fictional development cases. The classifier is explicitly selected; changing controls never invokes inference. Audio and transcription are deferred to the [roadmap](docs/ROADMAP.md).
 
 ## Capabilities and Constraints
 
-The existing Python CLI provides diagnostics, classification, evaluation, scoring, and freeze preparation. The implemented backend supports versioned transcript edits, explicit submissions, preserved history, separate review decisions and case filters; its production browser workspace remains pending. Runtime failures are distinct from policy outcomes. Missing models never download automatically. Held-out cases and answers stay out of the iterative workspace. Frozen policy, candidates, approval, and gold are immutable.
+The existing Python CLI provides diagnostics, classification, evaluation, scoring, and freeze preparation. The implemented browser workspace and backend support versioned transcript edits, explicit submissions, preserved history, separate review decisions and case filters. Runtime failures are distinct from policy outcomes. Missing models never download automatically. Held-out cases and answers stay out of the iterative workspace. Frozen policy, candidates, approval, and gold are immutable.
 
 ## Evidence on Hand
 
-[PRD](docs/PRD.md), [accepted policy](docs/CALLBACK_POLICY.md), and [F-004 evidence](features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) own the detailed record. The historical callback-text-v1 baseline matched 20/20 fictional development labels once. callback-text-v2 live baseline, candidate freeze, numeric quality acceptance, audio, and application acceptance remain pending. PR #1 and PR #2 are merged; this branch includes origin/main c82f0ed. Prototype outputs are simulations, not model measurements.
+[PRD](docs/PRD.md), [accepted policy](docs/CALLBACK_POLICY.md), and [F-004 evidence](features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) own the detailed record. The historical callback-text-v1 baseline matched 20/20 fictional development labels once. The callback-text-v2 live baseline, candidate freeze and numeric quality acceptance remain pending. Prototype outputs are simulations, not model measurements.
 
 ## Product Principles
 
