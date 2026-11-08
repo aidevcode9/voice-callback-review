@@ -6,6 +6,9 @@ import Ajv2020 from "ajv/dist/2020";
 import schema from "../../docs/api/openapi.json";
 import type { components } from "../lib/api.generated";
 
+const controlSecret = process.env.VCR_FIXTURE_CONTROL_SECRET;
+if (!controlSecret) throw new Error("Fixture control secret is required");
+const controlHeaders = { "X-Fixture-Control": controlSecret };
 const controlURL = "http://127.0.0.1:18735/control";
 const ajv = new Ajv2020({ strict: false, validateFormats: false });
 ajv.addSchema(schema, "api");
@@ -18,11 +21,11 @@ const validSession = ajv.compile<components["schemas"]["Session"]>({
 const shots = path.resolve("../docs/evidence/F-006");
 fs.mkdirSync(shots, { recursive: true });
 async function control(request: APIRequestContext, body: object) {
-  const response = await request.post(controlURL, { data: body });
+  const response = await request.post(controlURL, { data: body, headers: controlHeaders });
   expect(response.ok()).toBeTruthy();
 }
 async function counts(request: APIRequestContext) {
-  const response = await request.get(controlURL);
+  const response = await request.get(controlURL, { headers: controlHeaders });
   const data: unknown = await response.json();
   if (
     !data ||
@@ -35,6 +38,40 @@ async function counts(request: APIRequestContext) {
     throw new Error("Invalid controlled runtime response");
   return { chats: data.chats, active: data.active };
 }
+
+test("desk rejects framing and the fixture rejects untrusted control", async ({
+  page,
+  request,
+}) => {
+  const response = await request.get("/");
+  expect(response.headers()["content-security-policy"]).toContain("frame-ancestors 'none'");
+  expect(response.headers()["x-frame-options"]).toBe("DENY");
+  const apiResponse = await request.get("/api/v1/session");
+  expect(apiResponse.headers()["content-security-policy"]).toContain("frame-ancestors 'none'");
+  expect(apiResponse.headers()["x-frame-options"]).toBe("DENY");
+  await control(request, { mode: "success" });
+  expect((await request.get(controlURL)).status()).toBe(403);
+  expect((await request.post(controlURL, { data: { mode: "unavailable" } })).status()).toBe(403);
+  await page.route("http://127.0.0.1:18999/", (route) =>
+    route.fulfill({
+      contentType: "text/html",
+      body: '<iframe src="http://127.0.0.1:18880/"></iframe>',
+    }),
+  );
+  await page.goto("http://127.0.0.1:18999/");
+  await expect(
+    page.frameLocator("iframe").getByRole("heading", { name: "Start with a conversation" }),
+  ).toHaveCount(0);
+  await page.evaluate(async () => {
+    await fetch("http://127.0.0.1:18735/control", {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({ mode: "unavailable" }),
+    }).catch(() => {});
+  });
+  const state = await request.get(controlURL, { headers: controlHeaders });
+  expect((await state.json()).mode).toBe("success");
+});
 
 test("explicit review workflow, preserved history, real proxy, reconnect and failure states", async ({
   page,

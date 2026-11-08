@@ -1,6 +1,8 @@
 """Browser-test-only Ollama HTTP fixture and API. No frozen cases, answers or real runtime."""
 
 import json
+import os
+import secrets
 import sys
 import threading
 import time
@@ -19,6 +21,9 @@ TAG = "qwen3.5:4b-q4_K_M"
 
 
 def main(directory: Path) -> None:
+    control_secret = os.environ["VCR_FIXTURE_CONTROL_SECRET"]
+    if not control_secret:
+        raise SystemExit("Fixture control secret is required.")
     runtime = OllamaClient("http://127.0.0.1:18735", inference_timeout=30)
     admission = InferenceAdmission(directory / "admission")
     state = {"mode": "success", "outcome": "callback_required", "chats": 0, "active": 0}
@@ -48,8 +53,15 @@ def main(directory: Path) -> None:
             except OSError:
                 pass
 
+        def authorized_control(self) -> bool:
+            supplied = self.headers.get("X-Fixture-Control", "")
+            return secrets.compare_digest(supplied.encode(), control_secret.encode())
+
         def do_GET(self) -> None:
             if self.path == "/control":
+                if not self.authorized_control():
+                    self.reply({"error": "Forbidden"}, 403)
+                    return
                 self.reply(state)
             elif state["mode"] == "unavailable":
                 self.reply({"error": "Controlled runtime unavailable"}, 503)
@@ -61,6 +73,9 @@ def main(directory: Path) -> None:
                 self.reply({}, 404)
 
         def do_POST(self) -> None:
+            if self.path == "/control" and not self.authorized_control():
+                self.reply({"error": "Forbidden"}, 403)
+                return
             body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", "0"))))
             if self.path == "/control":
                 action = body.get("action")

@@ -1,4 +1,7 @@
+import { randomBytes } from "node:crypto";
 import { defineConfig } from "@playwright/test";
+
+process.env.VCR_FIXTURE_CONTROL_SECRET ??= randomBytes(32).toString("hex");
 
 const python =
   process.env.VCR_PYTHON ??
