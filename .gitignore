@@ -4,6 +4,7 @@ __pycache__/
 .env
 .env.*
 !.env.example
+langfuse.txt
 
 # Raw intake material is local by default. Track a sanitized source index.
 intake/sources/transcripts/*

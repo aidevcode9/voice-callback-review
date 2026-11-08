@@ -35,6 +35,7 @@ from .domain import (
 from .json_io import parse_json, parse_jsonl, read_bounded
 from .models import list_models
 from .ollama import OllamaClient, OllamaError
+from .telemetry import ClassificationTrace
 
 PROMPT_VERSION = "callback-text-v2"
 POLICY_VERSION = "1.0"
@@ -197,6 +198,7 @@ def classify(
     client: OllamaClient,
     *,
     policy_path: Path = Path("docs/CALLBACK_POLICY.md"),
+    trace_enabled: bool = True,
 ) -> RunResult:
     started = time.monotonic()
     provenance = RunProvenance(
@@ -216,6 +218,7 @@ def classify(
         case_id=transcript.case_id,
         runtime_url=client.base_url,
     )
+    trace = ClassificationTrace(model.model_id, provenance.run_id, trace_enabled)
     try:
         if (
             not transcript.text.strip()
@@ -255,7 +258,9 @@ def classify(
             model_metadata_sha256=sha256(json.dumps(metadata, sort_keys=True).encode()).hexdigest(),
         )
         verify_classifier_runtime(provenance.runtime_version, metadata, model.settings["num_ctx"])
+        trace.begin_generation(model.model_id)
         response = client.chat(request.body)
+        trace.generated(response)
         message = response.get("message")
         if (
             response.get("done") is not True
@@ -281,7 +286,11 @@ def classify(
                 FailureCode.CONFIGURATION,
                 "Model identity changed during this run; retry with a stable local model.",
             )
-        return RunSuccess(replace(provenance, elapsed_seconds=time.monotonic() - started), decision)
+        result = RunSuccess(
+            replace(provenance, elapsed_seconds=time.monotonic() - started), decision
+        )
+        trace.finish(result)
+        return result
     except OllamaError as error:
         failure = error.failure
     except (OSError, UnicodeError):
@@ -292,4 +301,6 @@ def classify(
         )
     except ValueError as error:
         failure = Failure(FailureCode.CONFIGURATION, str(error))
-    return RunFailure(replace(provenance, elapsed_seconds=time.monotonic() - started), failure)
+    result = RunFailure(replace(provenance, elapsed_seconds=time.monotonic() - started), failure)
+    trace.finish(result)
+    return result

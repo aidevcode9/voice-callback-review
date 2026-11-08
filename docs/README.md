@@ -20,6 +20,7 @@
 | [Workflow selection](WORKFLOW_SELECTION.md) | Selected skills, orchestration role, and actual process stage. |
 | [Local model build plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) | Sequenced implementation batches, model-choice dependencies, and acceptance evidence. |
 | [Quality checks](QUALITY_CHECKS.md) | Shared static, behavior, data, documentation, package, and snapshot gates; CI costs and limits. |
+| [Langfuse tracing](LANGFUSE.md) | Optional metadata-only tracing, setup, and privacy boundaries. |
 | [Local setup](LOCAL_SETUP.md) | Reproducible project environment, runtime diagnostics, registry states, and offline checks. |
 | [Local model options](LOCAL_MODEL_OPTIONS.md) | Observed laptop/runtime, classifier comparison and selection, and selectable-stage requirements. |
 | [Architecture](ARCHITECTURE.md) | Current system structure and ownership. Proposed designs stay labeled. |

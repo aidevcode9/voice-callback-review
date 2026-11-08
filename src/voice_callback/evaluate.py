@@ -243,7 +243,9 @@ def evaluate(
             stream.write(dataset.input_bytes)
         with (directory / "predictions.jsonl").open("x", encoding="utf-8", newline="\n") as stream:
             for transcript in dataset.transcripts:
-                result = classify(transcript, model, client, policy_path=policy_path)
+                result = classify(
+                    transcript, model, client, policy_path=policy_path, trace_enabled=False
+                )
                 if observe_result is not None:
                     observe_result(result)
                 path = save_run(result, directory / "runs")
