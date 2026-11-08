@@ -18,6 +18,7 @@ from voice_callback.domain import CallbackDecision, Failure, FailureCode, JsonVa
 from voice_callback.evaluate import evaluate, freeze_run, read_document, score_run
 from voice_callback.evaluation_config import source_identity
 from voice_callback.evaluation_contracts import EvaluationReport, InferenceComplete
+from voice_callback.evaluation_worker import main as worker_main
 from voice_callback.json_io import parse_json, parse_jsonl
 from voice_callback.models import load_registry
 from voice_callback.ollama import InstalledModel, OllamaClient, OllamaError
@@ -311,6 +312,30 @@ class EvaluationArtifacts(unittest.TestCase):
             "\u2028", json.loads(client.requests[0]["messages"][1]["content"])["transcript"]
         )
 
+    def test_progress_reports_saved_predictions_and_incomplete_location(self):
+        events = []
+
+        def observe(event):
+            if event.phase == "persisted":
+                rows = (event.directory / "predictions.jsonl").read_text().splitlines()
+                self.assertEqual(len(rows), event.completed)
+                self.assertEqual(json.loads(rows[-1])["case_id"], event.case_id)
+            events.append(event)
+
+        directory = self.run_evaluation(progress=observe)
+        self.assertEqual(
+            [event.phase for event in events],
+            ["starting", "persisted", "persisted", "scoring", "completed"],
+        )
+        self.assertEqual(events[-1].directory, directory)
+        self.assertEqual(events[-1].completed, 2)
+        events.clear()
+        with self.assertRaises(WorkspaceError):
+            self.run_evaluation(FakeOllama([FailureCode.TIMEOUT]), progress=observe)
+        self.assertEqual(events[-1].phase, "incomplete")
+        self.assertTrue((events[-1].directory / "aborted.json").exists())
+        self.assertFalse((events[-1].directory / "report.json").exists())
+
     def test_evaluation_traces_each_case_without_exporting_reference_answers(self):
         client, root, generation = MagicMock(), MagicMock(), MagicMock()
         client.start_observation.return_value = root
@@ -431,7 +456,7 @@ class EvaluationArtifacts(unittest.TestCase):
             ),
             redirect_stdout(StringIO()),
         ):
-            code = main(
+            code = worker_main(
                 [
                     "evaluate",
                     "--split",
@@ -665,12 +690,15 @@ class EvaluationArtifacts(unittest.TestCase):
             MODEL.id,
             "--output-dir",
             str(self.output),
+            "--inference-lock-dir",
+            str(self.folder / "admission"),
+            "--json",
         ]
         with (
             patch("voice_callback.cli.OllamaClient", return_value=FakeOllama()),
             redirect_stdout(StringIO()) as stdout,
         ):
-            self.assertEqual(main(args), 0)
+            self.assertEqual(worker_main(args), 0)
         report = json.loads(stdout.getvalue())
         directory = Path(report["report_path"]).parent
         with (
@@ -705,7 +733,7 @@ class EvaluationArtifacts(unittest.TestCase):
             ),
             redirect_stdout(StringIO()),
         ):
-            self.assertEqual(main(args), 1)
+            self.assertEqual(worker_main(args), 1)
         with redirect_stdout(StringIO()):
             self.assertEqual(main(["score", "--run-dir", str(self.folder / "missing")]), 1)
         with redirect_stderr(StringIO()), self.assertRaises(SystemExit):

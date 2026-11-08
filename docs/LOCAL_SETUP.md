@@ -113,7 +113,7 @@ Batch 2 development checks cover VC-001, VC-021, VC-025, VC-033, synthetic conte
 ## Evaluate the development split
 
 ```powershell
-.venv\Scripts\python.exe -m voice_callback.cli evaluate --split development --model qwen35-4b
+.venv\Scripts\python.exe -m voice_callback.cli evaluate --model qwen35-4b
 ```
 
 This executes every development input using the explicit model, saves exclusive per-case runs and predictions, then opens the separate answers for scoring. The printed report path identifies reports/text/RUN_ID/report.json. The report includes confusion counts, strict callback recall, callback precision, needs-review rate, valid-output coverage, unsafe misses, failures, and disagreements. It states all denominators and uses null when a denominator is zero.
@@ -182,3 +182,18 @@ npm exec --prefix web -- playwright install chromium
 ```
 
 Alternatively set CHROMIUM_EXECUTABLE to an existing Chromium headless-shell executable. Browser installation is an explicit tooling download. The suite uses isolated ports 18880/18730/18700/18735, a temporary SQLite database and a controlled Ollama HTTP fixture. It drives the actual built Next.js, Nginx and FastAPI and exercises the existing classifier/validator without real model inference or frozen inputs. The test UI visibly labels this mode; normal startup does not. Playwright generates a per-run secret for the fixture control endpoint; this test-only control is not a production API. [Evidence](evidence/F-006/README.md) includes scope and captures. Tests stop their owned processes. Live-model semantic quality, audio, hosted CI and deployment are separate from these checks.
+
+## Development evaluation workspace
+
+From a committed implementation run `voice-callback evaluate --model qwen35-4b`
+(or `.venv\Scripts\python.exe -m voice_callback.cli` followed by the same arguments).
+It prepares the current commit, prints progress and creates a local `review.html`
+with metrics and case evidence. `voice-callback evaluations` lists saved runs;
+`voice-callback evaluations --run-dir reports/text/RUN_ID` reviews one offline.
+Add `--baseline reports/text/BASELINE_ID` to a run or saved review for comparison.
+
+Copy [.env.example](../.env.example) to root `.env` for optional tracing credentials.
+The evaluation workflow loads it; process values override it. Use `--trace` to
+opt in, `--no-trace` to force tracing off, and `--metadata-only` for content-free
+traces. No credentials or SDK are needed for untraced evaluation. The report path
+is printed; opening it starts no inference. See [evaluation](EVALUATION.md).

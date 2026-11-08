@@ -145,3 +145,36 @@ flowchart LR
 ```
 
 Source ownership and exact API deviations are recorded in F-006. Workspace results retain the existing strict run JSON inside append-only SQLite records; CLI artifacts/evaluation remain separate. Atomic transactions, immutable-history triggers and shared process admission protect explicit submissions. Production-stack browser checks cover explicit requests, editing/history/reviews, reconnect/restart, runtime failures and desktop/narrow accessibility. The Ollama endpoint is a controlled fixture; no model-quality result follows. The static prototypes remain simulations.
+
+## F-011 development evaluation workflow
+
+The canonical `evaluate --model MODEL_ID` development command uses
+`evaluation_workflow.py` to prepare and verify a committed checkout and launch the
+private `evaluation_worker` from that source. `evaluation_environment.py` owns
+allowlisted root `.env` loading with process precedence and optional tracing.
+The worker invokes the existing evaluator under the existing inference lease;
+progress is emitted after saved predictions. The evaluator remains the only
+inference/scoring artifact writer.
+
+`evaluation_review.py` validates saved development artifacts and exposes one typed
+read model for terminal summaries, case review and compatible baseline comparison.
+`evaluation_report.py` projects it into escaped self-contained HTML. Baseline
+inspection permits different source identities and validates saved v1 counts; it
+never claims original-source re-execution or weakens `score_run`'s source guard.
+The read path refuses held-out declarations before loading their cases or answers.
+
+```mermaid
+flowchart LR
+    Command[Canonical evaluate command] --> Prepare[Committed checkout and resolved environment]
+    Prepare --> Worker[Private worker in selected source]
+    Worker --> Engine[Existing evaluator and classifier]
+    Engine --> Artifacts[Immutable completed artifacts]
+    Artifacts --> Review[Saved development review]
+    Baseline[Compatible saved baseline] --> Review
+    Review --> Summary[Terminal summary and browser report]
+    History[Evaluations command] --> Review
+```
+
+Model settings remain in `config/models.json`. Local credentials are ignored `.env`
+or process values, not report configuration. No app API, job database, deployment
+or automatic held-out execution is added by this first slice.

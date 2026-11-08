@@ -383,6 +383,8 @@ class InputStorageCLI(unittest.TestCase):
             MODEL.id,
             "--output-dir",
             str(self.folder / "runs"),
+            "--inference-lock-dir",
+            str(self.folder / "admission"),
             *extra,
         ]
         with redirect_stdout(output), redirect_stderr(StringIO()):

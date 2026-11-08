@@ -32,7 +32,7 @@ Local inference and explicit classifier selection are part of the build. SRC-018
 4. Display fictional development cases and preserved recommendations in the review workspace.
 5. Compare model recommendations against a versioned golden set and inspect errors.
 
-The initial text interface needs compact case navigation, useful outcome/review filters, an editable versioned transcript with evidence highlights, a separate human decision, and inspectable run history. Formal evaluation remains a separate CLI flow; held-out inputs and answers do not enter the iterative workspace. A numeric confidence percentage is not required. The first design should favor evidence the reviewer can inspect.
+The initial text interface needs compact case navigation, useful outcome/review filters, an editable versioned transcript with evidence highlights, a separate human decision, and inspectable run history. Formal evaluation uses the dedicated F-011 CLI and readable report workflow; held-out inputs and answers do not enter the iterative workspace. A numeric confidence percentage is not required. The first design should favor evidence the reviewer can inspect.
 
 The [user flow](USER_FLOW.md), [architecture](ARCHITECTURE.md), and [evaluation flow](EVALUATION.md) show how these responsibilities connect.
 
@@ -98,7 +98,7 @@ Live phone handling, speaking agents, automatic dialing, CRM writes, legal guida
 
 ## Proposed acceptance flow
 
-A reviewer supplies text or a fictional development input, explicitly submits a selected model, inspects its recommendation and exact quote, and records a separate human decision. Expected answers are not exposed in this iterative flow. Formal evaluation remains separate and produces an inspectable report, including failures and review cases.
+A reviewer supplies text or a fictional development input, explicitly submits a selected model, inspects its recommendation and exact quote, and records a separate human decision. Expected answers are not exposed in this iterative flow. Formal evaluation remains separate from individual service-call review and uses the F-011 command and readable saved reports, including failures, review cases and explicit development baseline comparison.
 
 Functional implementation and decision quality are separate acceptance areas. No product-quality threshold or acceptance result is approved by this draft.
 
