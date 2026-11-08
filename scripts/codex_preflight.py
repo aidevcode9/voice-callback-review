@@ -59,7 +59,12 @@ def main(argv: list[str] | None = None) -> int:
                 "VOICE_CALLBACK_WHEELHOUSE": os.environ.get(
                     "VOICE_CALLBACK_WHEELHOUSE", str(ROOT / ".test-work/runtime-wheels")
                 ),
+                "npm_config_cache": str(ROOT / ".test-work/npm-cache"),
+                "npm_config_offline": "true",
             }
+            portable_nginx = ROOT / ".test-work/tools/nginx-1.31.8/nginx.exe"
+            if portable_nginx.is_file():
+                env.setdefault("NGINX_EXECUTABLE", str(portable_nginx))
             print(f"Validating {args.mode} snapshot, not the working directory.", flush=True)
             subprocess.run(
                 [sys.executable, str(checker)], cwd=snapshot, env=env, check=True, timeout=900

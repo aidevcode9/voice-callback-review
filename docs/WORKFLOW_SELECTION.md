@@ -1,6 +1,14 @@
 # Workflow and skill selection
 
-Stage: accepted policy, frozen owner-approved gold v1.0, and active F-004 with diagnostics and text classification. Focused development inference has run; formal evaluation remains planned. This project has its own local Git repository under projects.
+## F-008 committed-review corrections
+
+project-workflow selected house systematic-debugging for six reproduced failures, with focused TDD regressions and independent code-review-workflow checks. Wider blast-radius investigation was considered but the committed review already established concrete triggers. The owning boundaries were corrected without a new design: evaluation lease observation, worker recovery, private launcher PID paths and frontend save/reconnect/poll state. All six regressions failed on the old behavior and passed after correction; full gates and publication evidence live in [F-008](../features/completed/F-008-review-desk-reliability/FEATURE.md). The owner authorized commit/push/PR review and asked to exclude local analysis and generated screenshots. Earlier local commits are preserved; publication uses an equivalent clean-tree commit based on main so PNGs are absent from the remote history.
+
+## F-007 prompt asset extraction
+
+Under SRC-023, project-workflow retains house planning-workflows as lead for the agreed bounded refactor. Compared architect; another design arena is unnecessary for the selected exact extraction. Code-quality and focused compatibility/source identity/package checks support implementation. A read-only code-review-workflow reviewer checks the independent package/provenance surface while the owner maintains documentation and runs gates. Preserve this branch, the rendered callback-text-v2 prompt/request and all stored runs/reviews. No real inference or new freeze is part of this batch. [F-007](../features/completed/F-007-versioned-classifier-prompt/FEATURE.md) records actual results.
+
+Stage: accepted policy, frozen owner-approved gold v1.0, and active F-004 with diagnostics and text classification. The evaluation/contracts implementation is merged; the historical text-v1 baseline is preserved and fresh text-v2 development verification/freeze remain pending. F-006 owns the proposed text workspace before final audio integration. This project has its own local Git repository under projects.
 
 ## Orchestrator and timing
 
@@ -35,7 +43,7 @@ The two bundled skills travel with the repository. Other names describe the curr
 
 For each substantial task, read the relevant pstack candidate and our candidate before choosing. Record the reason, unavailable prerequisites, and actual results in the feature plan or this record. Full playbooks and adaptations remain distinguishable.
 
-F-005 supplies scripts/check_project.py and scripts/codex_preflight.py. F-004 implements the Python core and selected Ollama text classifier; faster-whisper and Streamlit remain planned. Hosting is outside its scope.
+F-005 supplies scripts/check_project.py and scripts/codex_preflight.py. F-004 implements the Python core and selected Ollama text classifier; final-stage faster-whisper remains planned. SRC-020 supersedes Streamlit with F-006 Next.js/Nginx/proposed FastAPI. Hosting is outside its scope.
 
 ## Read-only routing trial
 
@@ -101,3 +109,13 @@ Code-quality, error-handling, testability, self-review, verification-before-comp
 ## Batch 3 contract migration checkpoint
 
 The owner approved strict Pydantic boundary models after the first 20-case development baseline. project-workflow rechecked house planning-workflows, pstack Feature, and architect. House planning remains the lead for preserving existing classifier, scoring, and artifact behavior while replacing repeated shape validation and the hand-maintained response schema. One owner implements the coupled migration. Code-quality, focused behavior tests, review, and verification support it; no full pstack playbook is claimed. The baseline is preserved, and a fresh clean-commit development run must precede candidate freeze. Pydantic provides data-contract validation, not deterministic or semantically correct model inference.
+
+## F-006 design exploration, SRC-020
+
+project-workflow compared house planning-workflows and pstack architect. House planning leads cross-feature requirements, contracts and sequencing; architect's implementation arena is beyond the requested stop-before-production scope. Impeccable supports the visual exploration: Windows .cmd context launcher, init/shape/new-work/Operate/craft-floor references, concept seed, two code-first rendered alternatives, detector and independent finish review. The explicit detailed brief substitutes for routine product confirmation and moves visual choice after rendered alternatives. This is an adapted design exploration, not a claimed full shape/architect/Feature playbook. verification-before-completion supports checks. Actual results live in the F-006 plan; no inference, freeze, held-out evaluation, production stack, publication or deployment ran.
+
+SRC-021 selects A Review desk and authorizes implementation. Reassessed pstack architect against house planning-workflows; house planning remains lead for the already specified boundaries. service-layer-design, error-handling and eng-code-quality support implementation. Full architect/arena is not selected. API/workspace behavior gets synthetic tests and the shared Python quality baseline; no live inference or held-out data.
+
+## F-006 production completion run
+
+The owner's continuation to completion retains house planning-workflows as lead. Impeccable Operate supports the selected A extension, one detector pass, independent fresh-context finish review and design documentation. TypeScript best practices/schema-derived boundary validation support the Next.js client. Actual integration runs the built Next.js, Nginx and FastAPI with the existing classifier pointed at a controlled Ollama HTTP fixture. This is functional acceptance, not a live model-quality or hosted deployment result. The final feature plan records the reviewer disposition and snapshot gate.

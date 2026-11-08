@@ -1,7 +1,7 @@
 # F-004: Local model pipeline implementation plan
 
 Read [requirements](01_REQUIREMENTS.md) and [technical specification](02_TECHNICAL_SPEC.md).
-Status: active. Batches 1 and 2 are implemented and verified with offline and live development evidence. The staged snapshot gate is the final commit prerequisite. Batches 3 through 6 remain planned and unchecked.
+Status: active. Batches 1–3 and strict Pydantic contracts are implemented and merged through PR #2 at c82f0ed. The historical text-v1 development baseline is preserved; fresh text-v2 live baseline, candidate freeze and quality acceptance remain pending. F-006 owns text workspace/API before final transcription and paired-audio verification. Historical execution sections retain their original evidence.
 
 ## Workflow and ownership
 
@@ -20,10 +20,10 @@ The user requested this GPT-6.1 Sol high-reasoning chat for batch 1. The previou
 
 - [x] Batch 1: package, contracts, runtime health, and model registry. Create pyproject.toml, domain.py, models.py, ollama.py, cli.py, config/models.json, and focused tests. doctor reports the current server and empty-model status; models distinguishes configured from installed and compatible. No classifier default, model downloads, sign-in, inference, audio installation, or dashboard work. Update setup documentation and observed evidence.
 - [x] Batch 2: selected text classifier. Owner selected qwen3.5:4b-q4_K_M before explicit provisioning. Implemented the accepted-policy prompt, structured response validation, provenance, exclusive run records, and classify CLI. Offline checks and focused development inference verified outcomes, evidence, identity, and failure behavior. See the execution record below; formal evaluation remains batch 3.
-- [ ] Batch 3: text evaluation. Add development scoring and immutable prediction/report artifacts. Inspect mistakes on development only. Freeze a candidate system before an explicit held-out run; record the resulting limitations and D-004 decision separately.
-- [ ] Batch 4: local transcription. Verify faster-whisper and CUDA dependencies in the project environment. Explicitly provision the planned turbo candidate, test a short fictional recording and silence, then expose small as a selectable fallback. Record elapsed time, memory behavior, model identity, and failures.
-- [ ] Batch 5: dashboard. Add separate available-model selectors, text and audio forms, transcript editing, result details, reviewer decisions, case filters, and an evaluation summary. Bind locally. Demonstrate that widget reruns never trigger duplicate inference.
-- [ ] Batch 6: paired audio and handoff. Run reference-text and audio-derived paths with a fixed classifier, inspect differences, verify GPU resource handoff, and update setup, diagrams, demo story, profile, and this plan.
+- [ ] Batch 3 final verification/freeze: development scoring, immutable artifacts and strict contracts are implemented and merged; preserve the v1 baseline. Run the fresh text-v2 development baseline and inspect differences before explicit candidate freeze. Held-out inference remains separately authorized; D-004 quality acceptance remains open.
+- [x] Text workspace handoff (formerly batch 5): F-006 owns Next.js/API/Nginx, explicit text submissions, versioned editing, result/history, separate human decisions, case filters and browser acceptance. Complete this before audio. F-004 final audio integration later adds the independent transcription selector.
+- [ ] Final stage A (formerly batch 4), after F-006 text acceptance: local transcription. Verify faster-whisper and CUDA dependencies in the project environment. Explicitly provision the planned turbo candidate, test a short fictional recording and silence, then expose small as a selectable fallback. Record elapsed time, memory behavior, model identity, and failures.
+- [ ] Final stage B (formerly batch 6): paired audio and handoff. Run reference-text and audio-derived paths with a fixed classifier, inspect differences, verify GPU resource handoff, and update setup, diagrams, demo story, profile, and this plan.
 - [ ] Review every acceptance criterion, record unrun checks and quality limitations, then move the feature to completed only when its agreed delivery scope is satisfied.
 
 Each batch ends in a verified state before dependent work starts. If audio or UI grows substantially, split it into a separately numbered feature with explicit dependency and acceptance ownership.
@@ -40,13 +40,13 @@ Existing commands below are available now. Planned commands must be implemented 
 | F-004-AC02 | 1 | python -m voice_callback.cli models --stage classification | Configured choices with distinct availability; only installed compatible choices selectable; no download. | Batch 1: .venv\Scripts\python.exe -m voice_callback.cli models --stage classification exited 0 with no configured classifier or invented default. |
 | F-004-AC01 and AC02 | 1 | Stopped server, timeout, malformed HTTP response, incompatible and missing model fixtures | Useful status and appropriate process exit; no model selected implicitly. | Controlled offline behavior verified in test_ollama.py and test_models.py, including exact stage/tag joins, refusal, timeouts, malformed JSON/schema, redirects, HTTP errors, response caps, premature bodies, and no defaults. |
 | F-004-AC03 through AC05 | 2 | .venv\Scripts\python.exe -m voice_callback.cli classify --input data/gold/v1.0/inputs/development.jsonl --case-id VC-001 --model qwen35-4b | Valid result or explicit failure with provenance. | Implemented; VC-001 returned callback_required / UR-001 with exact transcript quotes and model/prompt/policy/transcript provenance. See batch 2 record below. |
-| F-004-AC06 | 3 | python -m voice_callback.cli evaluate --split development --model MODEL_ID | Complete counts, failures, denominators, and inspectable predictions and scoring report. | Planned command; not implemented. |
+| F-004-AC06 | 3 | python -m voice_callback.cli evaluate --split development --model MODEL_ID | Complete counts, failures, denominators, and inspectable predictions and scoring report. | Implemented and offline verified; historical v1 live baseline preserved; fresh callback-text-v2 live baseline pending. |
 | F-004-AC07 | 3 | Freeze candidate configuration, then run held-out evaluation once | Input-answer separation and configuration hash; tuning stops before run. | Not run. |
-| F-004-AC08 and AC10 | 4 | python -m voice_callback.cli transcribe --input runtime/fixtures/fictional-call.wav --model large-v3-turbo | Full transcription completes, identity and measured timing recorded. | Planned command; fixture and runtime not provisioned. |
-| F-004-AC04 and AC08 | 4 | Silent audio, corrupt file, oversized input, missing weights, and simulated GPU memory failure | Visible failure or established no-speech state; no fabricated callback decision. | Not run. |
-| F-004-AC02 and AC09 | 5 | python -m streamlit run app.py --server.address 127.0.0.1 | Local dashboard with independent selectors, versioned edits, and separate reviewer decisions. | Planned command; app absent. |
-| F-004-AC09 | 5 | Change a selector and unrelated widget, then explicitly submit twice | No automatic model run; each explicit submission has a distinct auditable result. | Not run. |
-| F-004-AC10 | 6 | Compare paired audio and reference text with one fixed classifier | Separate transcription differences and decision changes; recorded memory handoff. | Not run. |
+| F-004-AC08 and AC10 | Final stage A | python -m voice_callback.cli transcribe --input runtime/fixtures/fictional-call.wav --model large-v3-turbo | Full transcription completes, identity and measured timing recorded. | Planned command; fixture and runtime not provisioned. |
+| F-004-AC04 and AC08 | Final stage A | Silent audio, corrupt file, oversized input, missing weights, and simulated GPU memory failure | Visible failure or established no-speech state; no fabricated callback decision. | Not run. |
+| F-004-AC02 and former AC09 | F-006 before audio | F-006 browser/API acceptance plan (production commands not yet implemented) | Local dashboard with independent selectors, versioned edits, and separate reviewer decisions. | Planned command; app absent. |
+| Former F-004-AC09 -> F-006-AC03/05 | F-006 before audio | Change a selector and unrelated widget, then explicitly submit twice | No automatic model run; each explicit submission has a distinct auditable result. | Not run. |
+| F-004-AC10 | Final stage B | Compare paired audio and reference text with one fixed classifier | Separate transcription differences and decision changes; recorded memory handoff. | Not run. |
 | Documentation | Each batch | git diff --check and local Markdown link inspection | No whitespace errors or broken changed-document links. | Batch 1: git diff --check passed. 146 local Markdown targets in 38 working documents passed; whitespace in all 14 untracked files passed. Bundled template assets excluded; see execution record. |
 
 Use the project virtual environment. Batch 1 must document its editable installation command and supported Python version so package entrypoints are reproducible. Optional audio and dashboard dependencies remain separate from the first batch.
@@ -55,7 +55,7 @@ Use the project virtual environment. Batch 1 must document its editable installa
 
 SRC-018 resolves the classifier choice and authorizes provisioning and development inference. The selected Qwen model is installed and exercised; formal evaluation remains batch 3. No application credentials are needed for the local plan. Batch 4 requires fictional audio fixtures and actual dependency verification. D-004 quality targets remain open; report results without inventing a pass threshold.
 
-The proposed Streamlit UI, audio limits, and turbo setup are planning choices, not claims that they have passed hardware or product acceptance.
+SRC-020 rejects Streamlit. F-006 owns the proposed Next.js/API workspace before the final audio stage. Audio limits and turbo setup remain proposals without hardware or product acceptance.
 
 ## Batch 1 pause and handoff (historical)
 
@@ -65,7 +65,7 @@ Later batches remain unchecked. No audio/UI dependencies, model inference, model
 
 ## Completion and delivery
 
-No overall application or model quality is accepted by this plan. Batch 2 explicitly downloaded the selected local classifier and ran development checks. No credentials or deployment were used. Final completion requires evidence against all ten acceptance criteria and clear reporting of the remaining quality decision. Merge, release, and deployment status remain unperformed.
+No overall application or model quality is accepted by this plan. Batch 2 explicitly downloaded the selected local classifier and ran development checks. No credentials or deployment were used. Final completion requires evidence against the retained criteria, the explicit AC09 transfer to F-006, and clear reporting of the remaining quality decision. Core PR #1 and evaluation/contracts PR #2 are merged; F-006 application work, overall acceptance, release and deployment remain unperformed.
 
 ## Batch 1 execution record
 
@@ -237,3 +237,13 @@ Pinned Pydantic 2.14.3, core 2.50.4, and the resolved Python 3.10-compatible dep
 The shared scripts/check_project.py passed all suites with 101 tests, strict typing, lint/format, frozen 40-case integrity, 161 local documentation links/workflow checks, and clean-wheel dependency/import/CLI checks. Eight migration tests cover coercion/extra-field rejection, generated schema use, success/failure separation, Unicode preservation, completion-file rejection, Python whitespace behavior, and safe validation errors. Independent read-only review reproduced a Rust-regex/Python whitespace mismatch for U+001C through U+001F; preserving validators and regressions resolved it, and the reviewer independently passed all eight migration tests with no remaining blocker. Error wrappers also prevent Pydantic discriminator errors from echoing untrusted values.
 
 Read-only doctor rechecked Ollama 0.40.15 and the unchanged selected Qwen digest; it did not run inference. The final staged snapshot gate is required before the local migration commit. Hosted CI and the fresh real development baseline remain unverified. Next: from the clean migration commit, the owner runs .venv\Scripts\python.exe -m voice_callback.cli evaluate --split development --model qwen35-4b. Preserve its new directory, inspect results and offline rescore, then consider candidate freeze. Do not freeze the original v1-prompt baseline as the migrated system. No held-out inference, audio/UI work, push, PR, merge, or deployment is part of this checkpoint.
+
+## SRC-020 scope and sequence update, 2026-11-06
+
+F-006 is a separate active substantial frontend/API feature. It owns former AC09 through F-006-AC03/AC05 and UI selection through F-006-AC02/AC08. F-004 retains core registry/availability, classification/provenance, development/freeze/held-out controls, and final transcription/paired-audio acceptance (AC08/AC10). Text workspace implementation/testing precedes audio provisioning and integration. Prior numbered batch statements below/above are historical execution evidence where dated; this section and the current verifiable batches govern future sequence.
+
+PR #1 is merged at 9abcb84 and PR #2 is merged into main at c82f0ed. The dedicated UI branch fast-forwarded from 18f8677 to c82f0ed with no code-tree differences. The contract implementation is committed and merged; the remaining checkbox combining commit and live baseline is incomplete solely because callback-text-v2 live baseline/freeze remain pending. The original 20/20 callback-text-v1 development baseline remains historical, not acceptance. No live inference, held-out run, candidate freeze, audio provisioning or quality acceptance occurred in this design task.
+
+### Text workspace handoff completed, 2026-11-07
+
+F-006 completes selected A Next.js, FastAPI/SQLite and Nginx with controlled production-stack browser/API evidence, separate human decisions, immutable version/run provenance, keyboard/accessibility checks and shared gates. Its completed plan maps the former UI criteria. No new live model-quality baseline, candidate freeze, held-out action or audio provisioning occurred. This closes the transferred text UI responsibility; F-004 remains active for fresh text-v2 quality work and final transcription/paired-audio integration. Earlier dated pending-dashboard statements remain historical.

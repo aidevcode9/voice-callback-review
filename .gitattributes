@@ -1,1 +1,3 @@
 * text=auto eol=lf
+# The v2 instruction prefix includes two final LF bytes before the policy.
+src/voice_callback/prompts/callback-text-v2.txt whitespace=-blank-at-eof

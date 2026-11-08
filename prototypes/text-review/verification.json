@@ -1,0 +1,57 @@
+{
+  "scope": "Static browser simulation only; no inference or API",
+  "viewports": [
+    "1440x1000",
+    "390x844"
+  ],
+  "results": [
+    {
+      "direction": "desk",
+      "passed": true,
+      "checks": [
+        "explicit submit only",
+        "new transcript version",
+        "original text/highlight retained",
+        "separate review",
+        "reload history",
+        "loading",
+        "timeout",
+        "malformed",
+        "unavailable",
+        "empty",
+        "no filter results",
+        "390px overflow",
+        "long text",
+        "edited quote highlight",
+        "history visible while busy/unavailable",
+        "focus preserved",
+        "casebook DOM order",
+        "no JS exceptions"
+      ]
+    },
+    {
+      "direction": "casebook",
+      "passed": true,
+      "checks": [
+        "explicit submit only",
+        "new transcript version",
+        "original text/highlight retained",
+        "separate review",
+        "reload history",
+        "loading",
+        "timeout",
+        "malformed",
+        "unavailable",
+        "empty",
+        "no filter results",
+        "390px overflow",
+        "long text",
+        "edited quote highlight",
+        "history visible while busy/unavailable",
+        "focus preserved",
+        "casebook DOM order",
+        "no JS exceptions"
+      ]
+    }
+  ]
+}

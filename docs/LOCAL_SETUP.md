@@ -127,4 +127,58 @@ After the run, replace RUN_ID in these offline commands with its printed directo
 
 score verifies the saved artifacts and recomputes the same report without inference. freeze-evaluation requires a complete development baseline without processing failures and unchanged clean committed source. It binds a candidate snapshot to the current Git revision, model/prompt/policy/runtime/settings, dataset manifest, and development report. It does not accept a model-quality threshold.
 
-The default --dataset is data/gold/v1.0. --output-dir changes the evaluation artifact root. Diagnostic and inference timeout controls match classify. No credentials, new dependencies, or silent model downloads are involved. Held-out inference requires a compatible --frozen-config plus --allow-held-out and a separate owner decision. See [evaluation](EVALUATION.md) for the artifact lifecycle, exact metrics, and limitations. Audio/UI commands remain unimplemented.
+The default --dataset is data/gold/v1.0. --output-dir changes the evaluation artifact root. Diagnostic and inference timeout controls match classify. No credentials, new dependencies, or silent model downloads are involved. Held-out inference requires a compatible --frozen-config plus --allow-held-out and a separate owner decision. See [evaluation](EVALUATION.md) for the artifact lifecycle, exact metrics, and limitations. Audio commands remain unimplemented. F-006 provides the text Review desk below.
+
+## F-006 local backend API
+
+Run from the repository root after installing the updated hash-pinned runtime lock and editable package:
+
+```powershell
+.venv\Scripts\python.exe -m pip install --require-hashes -r requirements-runtime.txt
+.venv\Scripts\python.exe -m pip install --no-deps --no-build-isolation -e .
+.venv\Scripts\python.exe -m voice_callback.api
+```
+
+The single-worker server binds to 127.0.0.1:8000. Starting it performs no inference. GET /api/v1/session supplies a no-store nonce; writes require that X-Workspace-Nonce, application/json and an Origin exactly matching the allowed local Host. Current origins are http://127.0.0.1:8000 and the Nginx origin http://127.0.0.1:8080. API docs are available at /docs; the frontend/proxy starts through the Review desk launcher below. See the [generated API contract](api/openapi.json) and F-006 specification for actual payloads. Only an explicit POST /api/v1/jobs requests inference; missing models never download automatically.
+
+Workspace history lives in ignored runtime/workspace/workspace.sqlite3, schema version 1. Keep the file to preserve cases, exact transcript versions, immutable core JSON runs and append-only human review events. No automatic retention/deletion is implemented. This database is separate from frozen policy/candidates/approval/gold and CLI evaluation reports. Three newly authored development inputs have no expected labels and are loaded only by an explicit request.
+
+CLI classify/evaluate and the API share runtime/inference ownership. Always launch from this repository root, or configure the same absolute inference-lock directory across callers. A stopped/interrupted process can leave a recovery marker; it does not expire by time. Stop/restart the local Ollama runtime and ensure no inference is active, then explicitly acknowledge that step:
+
+```powershell
+.venv\Scripts\python.exe -m voice_callback.cli recover-inference --runtime-stopped
+```
+
+This only clears local admission after the operator's confirmation; it does not stop Ollama or delete history. A live API/CLI lock owner rejects recovery. Restarting the API reconciles orphan running jobs as interrupted while holding exclusive ownership. No worker silently resumes an interrupted job. Retry with a new explicit submission key; replaying the same key returns its original job.
+
+For offline verification run scripts/check_project.py; its docs suite checks generated OpenAPI and its package suite imports the API from a clean wheel. The new ASGI tests use a synthetic counted classifier, not local model inference. On restricted Windows sandboxes asyncio's internal socket pair and existing HTTP fixtures need local socket access. No live inference or model-quality acceptance is implied by these checks.
+
+## Run the Review desk
+
+Each launch gives Nginx its own PID/log workspace under runtime/stack-*/runtime. The launcher prints the error-log path. These directories are local artifacts; a second failed launch cannot use the first launch's PID file. Workspace SQLite data stays at runtime/workspace/workspace.sqlite3.
+
+Install Node.js 22.12 or later and the Python environment above. From the repository root:
+
+```powershell
+npm ci --ignore-scripts --prefix web
+$env:NEXT_TELEMETRY_DISABLED='1'
+npm run build --prefix web
+.venv\Scripts\python.exe scripts/provision_nginx.py
+.venv\Scripts\python.exe scripts/run_review_desk.py
+```
+
+The provision command explicitly downloads and SHA-256-verifies portable Nginx 1.31.8 on Windows under ignored .test-work/tools. It never runs automatically. On Linux use an installed Nginx, or set NGINX_EXECUTABLE to its absolute path. No model is downloaded. Open http://127.0.0.1:8080: Nginx routes pages/assets to Next.js on loopback 3000 and /api to FastAPI on loopback 8000. The launcher owns and stops only its children; Ctrl+C stops this stack. Keep these ports free. There is one API worker and one active local inference across API/CLI entrypoints.
+
+Start Ollama and install the owner-selected classifier through the earlier explicit provisioning instructions. The desk shows configured availability and requires a selection plus Classify. Startup, loading examples, editing, saving, filtering, review and reconnect never run inference. Each classification names the latest saved version; unsaved drafts cannot be submitted. Human reviews are separate events. All exact evidence occurrences are highlighted, with overlapping quotes sharing a highlight.
+
+For frontend development, npm run dev --prefix web replaces the built Next.js process while the API and Nginx are started separately with config/nginx.conf. Do not run both Next servers on port 3000. The production launcher expects a completed build.
+
+### Browser verification
+
+```powershell
+npm ci --ignore-scripts --prefix web
+npm exec --prefix web -- playwright install chromium
+.venv\Scripts\python.exe scripts/check_project.py --suite web
+```
+
+Alternatively set CHROMIUM_EXECUTABLE to an existing Chromium headless-shell executable. Browser installation is an explicit tooling download. The suite uses isolated ports 18880/18730/18700/18735, a temporary SQLite database and a controlled Ollama HTTP fixture. It drives the actual built Next.js, Nginx and FastAPI and exercises the existing classifier/validator without real model inference or frozen inputs. The test UI visibly labels this mode; normal startup does not. [Evidence](evidence/F-006/README.md) includes scope and captures. Tests stop their owned processes. Live-model semantic quality, audio, hosted CI and deployment are separate from these checks.

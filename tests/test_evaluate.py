@@ -11,15 +11,18 @@ from pathlib import Path
 from unittest.mock import patch
 from uuid import uuid4
 
+from voice_callback.admission import InferenceAdmission
 from voice_callback.cli import main
 from voice_callback.datasets import load_answers, load_split, object_value
 from voice_callback.domain import CallbackDecision, Failure, FailureCode, JsonValue, Outcome
 from voice_callback.evaluate import evaluate, freeze_run, read_document, score_run
+from voice_callback.evaluation_config import source_identity
 from voice_callback.evaluation_contracts import EvaluationReport, InferenceComplete
 from voice_callback.json_io import parse_json, parse_jsonl
 from voice_callback.models import load_registry
 from voice_callback.ollama import InstalledModel, OllamaClient, OllamaError
 from voice_callback.scoring import Prediction, ReferenceAnswer, score
+from voice_callback.workspace import WorkspaceError
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL = next(row for row in load_registry(ROOT / "config/models.json") if row.id == "qwen35-4b")
@@ -162,6 +165,32 @@ class ScoringBehavior(unittest.TestCase):
                 score(predictions, answers)
 
 
+class PromptSourceIdentity(unittest.TestCase):
+    def test_prompt_asset_change_alters_source_fingerprint_without_code_change(self):
+        with tempfile.TemporaryDirectory(dir=ROOT / ".test-work") as folder:
+            package = Path(folder)
+            module = package / "evaluation_config.py"
+            module.write_text("# unchanged code\n", encoding="utf-8")
+            (package / "prompts").mkdir()
+            prompt = package / "prompts/callback-text-v2.txt"
+            prompt.write_text("Original instructions.\n", encoding="utf-8")
+            with (
+                patch("voice_callback.evaluation_config.__file__", str(module)),
+                patch(
+                    "voice_callback.evaluation_config.subprocess.check_output",
+                    side_effect=["same-revision", "", "same-revision", ""],
+                ),
+            ):
+                before = source_identity()
+                prompt.write_text("Changed instructions.\n", encoding="utf-8")
+                after = source_identity()
+            self.assertNotEqual(before["source_sha256"], after["source_sha256"])
+            self.assertEqual(before["git_revision"], after["git_revision"])
+            self.assertTrue(before["working_tree_clean"])
+            self.assertTrue(after["working_tree_clean"])
+            self.assertEqual(module.read_text(encoding="utf-8"), "# unchanged code\n")
+
+
 class EvaluationArtifacts(unittest.TestCase):
     def setUp(self):
         scratch = ROOT / ".test-work"
@@ -271,7 +300,9 @@ class EvaluationArtifacts(unittest.TestCase):
         self.assertEqual(len(client.requests), 2)
 
     def test_processing_failure_is_in_denominators_and_not_a_policy_prediction(self):
-        directory = self.run_evaluation(FakeOllama([FailureCode.TIMEOUT, Outcome.NO_CALLBACK]))
+        directory = self.run_evaluation(
+            FakeOllama([FailureCode.INVALID_OUTPUT, Outcome.NO_CALLBACK])
+        )
         report = object_value(read_document(directory / "report.json", EvaluationReport)["score"])
         metrics = object_value(report["metrics"])
         self.assertEqual(report["total"], 2)
@@ -282,6 +313,66 @@ class EvaluationArtifacts(unittest.TestCase):
         self.assertNotIn("output", failure)
         with self.assertRaises(ValueError):
             freeze_run(directory, self.dataset)
+
+    def test_cli_retains_timeout_admission_when_model_provenance_drifts(self):
+        class DriftTimeout(FakeOllama):
+            inventory_calls = 0
+
+            def installed_models(self):
+                self.inventory_calls += 1
+                if self.inventory_calls > 1:
+                    self.digest = "changed-digest"
+                return super().installed_models()
+
+        client = DriftTimeout([FailureCode.TIMEOUT, Outcome.NO_CALLBACK])
+        admission = InferenceAdmission(self.folder / "admission")
+        with (
+            patch("voice_callback.cli.OllamaClient", return_value=client),
+            patch(
+                "voice_callback.evaluate.load_answers", side_effect=AssertionError("Answers opened")
+            ),
+            redirect_stdout(StringIO()),
+        ):
+            code = main(
+                [
+                    "evaluate",
+                    "--split",
+                    "development",
+                    "--model",
+                    MODEL.id,
+                    "--dataset",
+                    str(self.dataset),
+                    "--output-dir",
+                    str(self.output),
+                    "--inference-lock-dir",
+                    str(admission.directory),
+                ]
+            )
+        self.assertEqual(code, 2)
+        self.assertEqual(len(client.requests), 1)
+        self.assertEqual(admission.status(), "recovery_required")
+        directory = next(self.output.iterdir())
+        saved = next((directory / "runs").glob("*.json"))
+        self.assertEqual(
+            json.loads(saved.read_text(encoding="utf-8"))["run"]["failure"]["code"], "timeout"
+        )
+        self.assertTrue((directory / "aborted.json").exists())
+        self.assertFalse((directory / "report.json").exists())
+
+    def test_uncertain_transport_stops_before_another_request_or_answer_read(self):
+        client = FakeOllama([FailureCode.TIMEOUT, Outcome.NO_CALLBACK])
+        with patch(
+            "voice_callback.evaluate.load_answers", side_effect=AssertionError("Answers opened")
+        ):
+            with self.assertRaises(WorkspaceError):
+                self.run_evaluation(client)
+        self.assertEqual(len(client.requests), 1)
+        directory = next(self.output.iterdir())
+        self.assertTrue((directory / "aborted.json").is_file())
+        self.assertFalse((directory / "report.json").exists())
+        rows = parse_jsonl((directory / "predictions.jsonl").read_bytes())
+        self.assertEqual(len(rows), 1)
+        self.assertNotIn("output", object_value(rows[0]))
 
     def test_interrupted_run_retains_partial_artifacts_without_opening_answers(self):
         with (
@@ -512,7 +603,7 @@ class EvaluationArtifacts(unittest.TestCase):
         with (
             patch(
                 "voice_callback.cli.OllamaClient",
-                return_value=FakeOllama([FailureCode.TIMEOUT, Outcome.NO_CALLBACK]),
+                return_value=FakeOllama([FailureCode.INVALID_OUTPUT, Outcome.NO_CALLBACK]),
             ),
             redirect_stdout(StringIO()),
         ):

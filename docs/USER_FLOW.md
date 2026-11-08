@@ -1,35 +1,26 @@
-# Proposed user flow
+# Reviewer flow
 
-Status: product proposal. No screen or interaction has been implemented.
+Status: F-006 implements the local production text workspace and verifies its browser/API flow with a controlled Ollama HTTP fixture. Final audio remains proposed. SRC-020 supersedes audio-first screen planning.
 
 ```mermaid
 flowchart TD
-    Start["Open the review dashboard"] --> Input{"Choose an input"}
-    Input -->|Text| Text["Paste or upload a transcript"]
-    Input -->|Audio| Audio["Upload a recorded call"]
-    Audio --> STTChoice["Choose an available speech-to-text model"]
-    STTChoice --> Transcribe["Create a transcript"]
-    Transcribe -->|Failure| Error["Show the transcription error"]
-    Error --> Audio
-    Transcribe -->|Success| Inspect["Inspect the transcript"]
-    Text --> Inspect
-    Inspect --> Correct{"Correct the text?"}
-    Correct -->|Yes| Version["Save a new transcript version"]
-    Correct -->|No| ClassifierChoice["Choose an available callback model"]
-    Version --> ClassifierChoice
-    ClassifierChoice --> Analyze["Request a callback recommendation"]
-    Analyze -->|Failure| DecisionError["Show a decision error"]
-    DecisionError --> Analyze
-    Analyze -->|Success| Result["Show outcome, reason, and evidence"]
-    Result --> Review{"Reviewer agrees?"}
-    Review -->|Yes| Keep["Keep the model recommendation"]
-    Review -->|No| Override["Record a separate reviewer decision"]
-    Keep --> List["Return to the case list"]
-    Override --> List
+    Start["Open text review workspace"] --> Input["Paste transcript or explicitly load fictional development input"]
+    Input --> Save["Save immutable transcript version"]
+    Save --> Select["Choose available classifier"]
+    Select --> Submit["Explicitly submit classification"]
+    Submit --> Job["One active job; poll and reconnect without resubmitting"]
+    Job -->|Failure| Error["Show typed processing failure, no policy outcome"]
+    Error --> Retry["Explicit retry only; retain earlier history"]
+    Retry --> Submit
+    Job -->|Success| Read["Read recommendation, policy rule, reason and exact highlights"]
+    Read --> Review["Append separate human decision for this run"]
+    Read --> Edit["Edit text and save a new version"]
+    Edit --> Select
+    Read --> History["Inspect previous run with its original transcript and provenance"]
+    Review --> History
+    Final["Final stage after text acceptance: upload fictional audio and explicitly transcribe"] -.-> Save
 ```
 
-The model choices are independent; a compatible multimodal model may serve both stages. Unavailable choices are reported before execution. Text input does not require a speech-to-text model. Each run records both the transcript version and the model configuration used.
+Changing a selector/filter/case, saving text, inspecting history or recording human review never starts inference. The displayed evidence belongs to the selected run's original transcript, even after a newer edit. A human decision never replaces the model output or modifies gold. Empty, running, timeout, malformed-output and unavailable-runtime states have explicit recovery; processing errors are not needs_review policy outcomes.
 
-The outcome can be callback required, no callback required, or needs review. Transcription and decision failures are processing errors, not no-callback results. A reviewer decision does not silently change the expected label of a golden case.
-
-The [PRD](PRD.md) owns the behavior and acceptance requirements. [Architecture](ARCHITECTURE.md) shows the proposed logical components.
+Development examples are input-only; the iterative UI excludes held-out cases and answers. Formal evaluation remains separate. Final audio integration retains independent transcription/classification choices and never classifies failed transcription. The [PRD](PRD.md) owns product intent; [F-006](../features/completed/F-006-text-review-workspace/01_REQUIREMENTS.md) owns browser/API acceptance; [F-004](../features/active/F-004-local-model-pipeline/01_REQUIREMENTS.md) owns core evaluation and final audio acceptance.

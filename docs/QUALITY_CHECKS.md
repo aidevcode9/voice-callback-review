@@ -21,7 +21,7 @@ The separate runtime lock pins Pydantic and its dependency closure for Python 3.
 .venv\Scripts\python.exe scripts/check_project.py
 ```
 
-The default runs quality, tests, data, docs, and package suites. Use --suite with one of those names for a focused check. Every nonzero result blocks the selected suite.
+The default runs quality, tests, data, docs, package and web suites. Use --suite with one of those names for a focused check. Every nonzero result blocks the selected suite.
 
 Quality includes Ruff correctness/import rules, formatting checks, and Pyright. Application source uses strict types; scripts and tests use standard checking. Tests retain unittest and report application branch coverage without an invented percentage threshold. The coverage report covers the parent test process; child CLI processes are verified by their tests but are not added to that report.
 
@@ -41,7 +41,7 @@ Pre-commit exports the staged index. Review and pre-push export HEAD. Stage or c
 
 ## GitHub Actions and cost
 
-[ci.yml](../.github/workflows/ci.yml) runs on pull requests, pushes to main, and manual dispatch. It has one Ubuntu quality/data/docs job and tests/package jobs on Ubuntu Python 3.10/3.13 and Windows Python 3.13. Jobs have eight-minute timeouts, read-only contents permission, immutable action pins, and cancellation of superseded runs. Branch pushes do not duplicate pull-request workflows. Build artifacts are not uploaded or retained. No GPU or model provisioning job exists.
+[ci.yml](../.github/workflows/ci.yml) runs on pull requests, pushes to main, and manual dispatch. It has one Ubuntu quality/data/docs job and tests/package jobs on Ubuntu Python 3.10/3.13 and Windows Python 3.13. Python jobs have eight-minute timeouts; the browser job has a ten-minute timeout. All jobs have read-only contents permission, immutable action pins, and cancellation of superseded runs. Branch pushes do not duplicate pull-request workflows. Build artifacts are not uploaded or retained. No GPU or model provisioning job exists.
 
 The owner reports GitHub Free. As checked on 2026-11-06, Free includes $12/month of compute shared across eligible account usage, plus 500 MB artifact storage. Standard Linux x64 is $0.006/minute and Windows x64 $0.010/minute, rounded up per job. Usage beyond the included amount can be billed. Local checks have no GitHub Actions charge. Remaining allowance, payment method, and a spending-stop budget were not accessible through the current GitHub credentials. Do not infer that all CI usage will be free.
 
@@ -50,3 +50,15 @@ Check [GitHub billing](https://github.com/settings/billing) for account usage an
 GitHub Free supports these workflows, but protected branches for this private repository require an eligible paid plan. The local/snapshot gates and CI status can be used on Free; server-side mandatory merge checks are not claimed or configured.
 
 Official references: [included usage](https://docs.github.com/en/billing/reference/product-usage-included), [runner rates](https://docs.github.com/en/billing/reference/actions-runner-pricing), [Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions), and [protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches).
+
+## F-006 API verification
+
+The runtime lock now pins FastAPI/Uvicorn and their minimal closure; AnyIO's exceptiongroup dependency is conditional for Python 3.10. The existing Python CI matrix and suites include the new API code/tests. The docs suite runs scripts/export_workspace_openapi.py --check, and clean-wheel smoke verification imports voice_callback.api. The web suite additionally checks the locked TypeScript/Next.js frontend and real local proxy flow. Synthetic ASGI tests exercise actual routes, SQLite storage and CLI/API contention without calling a model. CI installs no optional FastAPI standard/cloud or telemetry-exporter extras.
+
+## F-006 frontend gate
+
+Generated PNG captures under docs/evidence and prototypes/text-review/screenshots are ignored, along with .archify and .ua tool workspaces. Keep test scripts, written findings and assertion summaries in Git. Regenerate screenshots locally when reviewing a visual change; the comparison page links to the runnable prototypes without requiring committed raster captures.
+
+The shared web suite installs web/package-lock.json with npm ci --ignore-scripts, compares OpenAPI-generated TypeScript types, runs Biome lint/format, strict tsc, a production Next.js build and Playwright browser acceptance. Node.js 22.12+, Nginx and an explicitly installed Chromium are required; see [local setup](LOCAL_SETUP.md#browser-verification). Snapshot preflight uses the existing verified runtime wheelhouse and npm cache offline, plus the configured browser/Nginx binaries. Dependency provisioning is explicit and happens before snapshot verification. Do not treat unavailable socket/tooling access as a pass.
+
+The separate Linux web Actions job installs Nginx and Chromium, then invokes the same suite. It has no weights, credentials, GPU, live inference or retained artifacts. Hosted Actions has not been run for this local branch. Existing Python jobs remain intact. New UI screenshots and a JSON assertion summary live in docs/evidence/F-006; timestamps/IDs are controlled test artifacts, not performance or semantic quality claims.
