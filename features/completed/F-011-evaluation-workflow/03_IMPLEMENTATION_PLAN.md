@@ -12,8 +12,10 @@ Read [requirements](01_REQUIREMENTS.md) and [technical specification](02_TECHNIC
 - Available models do not include pstack's default Claude/Grok seats or a
   cross-family judge. Two independent parent-model sketches are used; root owns
   synthesis. No full architect/arena run is claimed.
-- Branch: `codex/f-011-evaluation-workflow`, created and verified on 2026-11-08.
-  It starts at 884168c, preserving all unpublished commits and working-tree edits.
+- Branch: `feature/f-011-evaluation-workflow`, renamed at the owner's request on
+  2026-11-08 from `codex/f-011-evaluation-workflow`. It was created at 884168c,
+  preserving all unpublished commits and working-tree edits. Implementation is
+  committed locally as 5f4ac9a; no source change accompanies the branch rename.
 - Prior edits: evaluation/Langfuse docs, F-009 plan, development launcher/tests and
   an unrelated local reviewer HTML. Preserve unrelated HTML. The related launcher
   work is carried into this feature rather than silently discarded.
@@ -41,7 +43,7 @@ reports their outcome and exact committed revision.
 | Acceptance ID or project check | Command or scenario | Observed result, 2026-11-08 |
 | --- | --- | --- |
 | Engineering configuration | `.venv\Scripts\python.exe scripts/check_quality_baseline.py` | Passed. |
-| Feature branch | `git branch --show-current` | `codex/f-011-evaluation-workflow`, preserving starting history. |
+| Feature branch | `git branch --show-current` | `feature/f-011-evaluation-workflow`, preserving starting history and implementation commit 5f4ac9a. |
 | F-011-AC01 | `test_evaluation_integration.py` actual subprocess and `test_evaluation_workflow.py` disposable Git tests | Committed checkout/revision/source identity, shared lock/output routing, dirty-source refusal and checkout reuse verified. |
 | F-011-AC02 | `test_evaluation_environment.py` and integration import sentinel | 14 environment cases passed; explicit --no-trace prevents SDK import despite inherited enabled settings. No credentials in output/model/config artifacts. |
 | F-011-AC03 | `test_evaluate.py` persisted progress, interruption and timeout/admission scenarios | 26 evaluator cases passed as part of full suite. Progress observes flushed predictions; incomplete directory/marker retained without answers/report. |
@@ -96,3 +98,16 @@ F-004 model-quality baseline/thresholds/freeze remain open. No real model-qualit
 run, held-out inference, remote tracing request, push, PR, merge or deployment was
 performed. The unrelated pre-existing `outputs/reviewer-workflow.html` is preserved
 outside the commit. Completion date: 2026-11-08.
+
+## Local branch rename and code review
+
+The owner requested branch rename, local commit and code review on 2026-11-08.
+Project-workflow selects code-review-workflow as lead after comparing the pstack
+blast-radius candidate; focused executable reproductions support the review.
+Branch-finish guides the local-only handoff. The rename record is a documentation
+commit, checked with the docs suite and whitespace checks; source remains the
+previously verified implementation at 5f4ac9a. Its staged and committed preflight
+receipts both passed all suites, including 165 Python and six browser tests.
+Independent read-only reviewers cover runner lifecycle and report/baseline
+integrity; final findings and limits accompany the review handoff. The unrelated
+reviewer HTML and local credentials remain outside commits.
