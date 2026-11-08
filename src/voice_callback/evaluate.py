@@ -39,6 +39,7 @@ from .json_io import parse_json, parse_jsonl, read_bounded
 from .ollama import OllamaClient
 from .scoring import Prediction, score
 from .storage import render_json, save_run, write_json
+from .telemetry import EvaluationTraceContext
 from .workspace import WorkspaceError
 
 
@@ -244,7 +245,13 @@ def evaluate(
         with (directory / "predictions.jsonl").open("x", encoding="utf-8", newline="\n") as stream:
             for transcript in dataset.transcripts:
                 result = classify(
-                    transcript, model, client, policy_path=policy_path, trace_enabled=False
+                    transcript,
+                    model,
+                    client,
+                    policy_path=policy_path,
+                    evaluation_trace=EvaluationTraceContext(
+                        evaluation_id, split, dataset.version, transcript.case_id
+                    ),
                 )
                 if observe_result is not None:
                     observe_result(result)

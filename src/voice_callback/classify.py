@@ -35,7 +35,7 @@ from .domain import (
 from .json_io import parse_json, parse_jsonl, read_bounded
 from .models import list_models
 from .ollama import OllamaClient, OllamaError
-from .telemetry import ClassificationTrace
+from .telemetry import ClassificationTrace, EvaluationTraceContext
 
 PROMPT_VERSION = "callback-text-v2"
 POLICY_VERSION = "1.0"
@@ -198,7 +198,7 @@ def classify(
     client: OllamaClient,
     *,
     policy_path: Path = Path("docs/CALLBACK_POLICY.md"),
-    trace_enabled: bool = True,
+    evaluation_trace: EvaluationTraceContext | None = None,
 ) -> RunResult:
     started = time.monotonic()
     provenance = RunProvenance(
@@ -218,7 +218,7 @@ def classify(
         case_id=transcript.case_id,
         runtime_url=client.base_url,
     )
-    trace = ClassificationTrace(model.model_id, provenance.run_id, trace_enabled)
+    trace = ClassificationTrace(model.model_id, provenance.run_id, evaluation_trace)
     try:
         if (
             not transcript.text.strip()

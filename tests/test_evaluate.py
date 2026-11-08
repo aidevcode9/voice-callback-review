@@ -8,7 +8,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from hashlib import sha256
 from io import StringIO
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
 from voice_callback.admission import InferenceAdmission
@@ -71,6 +71,18 @@ class FakeOllama(OllamaClient):
         if isinstance(result, FailureCode):
             raise OllamaError(result, "Synthetic processing failure.")
         output = decision(result)
+        messages = request["messages"]
+        assert isinstance(messages, list) and isinstance(messages[1], dict)
+        content = messages[1]["content"]
+        assert isinstance(content, str)
+        transcript = json.loads(content)["transcript"]
+        if result == Outcome.NO_CALLBACK and "No callback is needed" in transcript:
+            output = CallbackDecision(
+                result,
+                (RULE[result],),
+                "The caller withdrew the request and confirmed the issue was resolved.",
+                ("No callback is needed",),
+            )
         return {
             "model": MODEL.model_id,
             "done": True,
@@ -213,10 +225,16 @@ class EvaluationArtifacts(unittest.TestCase):
             manifest["splits"][split] = ids
             rows = [
                 {
-                    "case_id": case_id,
-                    "transcript": f"Caller: Synthetic {case_id}.\u2028Please call me back.",
-                }
-                for case_id in ids
+                    "case_id": ids[0],
+                    "transcript": f"Caller: Synthetic {ids[0]}.\u2028Please call me back.",
+                },
+                {
+                    "case_id": ids[1],
+                    "transcript": (
+                        f"Caller: Synthetic {ids[1]}.\u2028Earlier I said, 'Please call me back.' "
+                        "I withdraw that request; everything is resolved. No callback is needed."
+                    ),
+                },
             ]
             answers = [
                 {
@@ -224,7 +242,11 @@ class EvaluationArtifacts(unittest.TestCase):
                     "expected_label": label.value,
                     "rationale": "ANSWER_ONLY_DEV",
                     "rule_ids": [RULE[label]],
-                    "evidence": ["Please call me back"],
+                    "evidence": [
+                        "Please call me back"
+                        if label == Outcome.CALLBACK_REQUIRED
+                        else "No callback is needed"
+                    ],
                 }
                 for case_id, label in zip(
                     ids, (Outcome.CALLBACK_REQUIRED, Outcome.NO_CALLBACK), strict=True
@@ -288,6 +310,82 @@ class EvaluationArtifacts(unittest.TestCase):
         self.assertIn(
             "\u2028", json.loads(client.requests[0]["messages"][1]["content"])["transcript"]
         )
+
+    def test_evaluation_traces_each_case_without_exporting_reference_answers(self):
+        client, root, generation = MagicMock(), MagicMock(), MagicMock()
+        client.start_observation.return_value = root
+        root.start_observation.return_value = generation
+        environment = {
+            "VCR_LANGFUSE_ENABLED": "1",
+            "VCR_LANGFUSE_CONTENT": "1",
+            "LANGFUSE_PUBLIC_KEY": "public",
+            "LANGFUSE_SECRET_KEY": "secret",
+            "LANGFUSE_BASE_URL": "https://example.invalid",
+        }
+        with (
+            patch.dict("os.environ", environment),
+            patch("voice_callback.telemetry._get_client", return_value=client),
+        ):
+            directory = self.run_evaluation()
+        self.assertEqual(client.start_observation.call_count, 2)
+        metadata = [call.kwargs["metadata"] for call in client.start_observation.call_args_list]
+        self.assertEqual({item["case_id"] for item in metadata}, {"D1", "D2"})
+        self.assertEqual({item["evaluation_id"] for item in metadata}, {directory.name})
+        self.assertEqual({item["split"] for item in metadata}, {"development"})
+        self.assertEqual({item["dataset_version"] for item in metadata}, {"synthetic-v1"})
+        exported = str(client.mock_calls) + str(root.mock_calls) + str(generation.mock_calls)
+        self.assertIn("Synthetic D1", exported)
+        self.assertIn("Synthetic decision", exported)
+        root.update.assert_any_call(
+            output={
+                "status": "success",
+                "label": "no_callback",
+                "rule_ids": ["NC-001"],
+                "reason": "The caller withdrew the request and confirmed the issue was resolved.",
+                "evidence": ["No callback is needed"],
+            }
+        )
+        self.assertNotIn("ANSWER_ONLY_DEV", exported)
+        self.assertNotIn("expected_label", exported)
+        self.assertNotIn("secret", exported)
+        self.assertTrue((directory / "report.json").is_file())
+
+    def test_evaluation_does_not_depend_on_langfuse_availability(self):
+        environment = {
+            "VCR_LANGFUSE_ENABLED": "1",
+            "LANGFUSE_PUBLIC_KEY": "public",
+            "LANGFUSE_SECRET_KEY": "secret",
+            "LANGFUSE_BASE_URL": "https://example.invalid",
+        }
+        with (
+            patch.dict("os.environ", environment),
+            patch("voice_callback.telemetry._get_client", side_effect=ImportError),
+        ):
+            directory = self.run_evaluation()
+        self.assertTrue((directory / "report.json").is_file())
+
+    def test_evaluation_metadata_only_excludes_transcripts_and_predictions(self):
+        client, root, generation = MagicMock(), MagicMock(), MagicMock()
+        client.start_observation.return_value = root
+        root.start_observation.return_value = generation
+        environment = {
+            "VCR_LANGFUSE_ENABLED": "1",
+            "VCR_LANGFUSE_CONTENT": "0",
+            "LANGFUSE_PUBLIC_KEY": "public",
+            "LANGFUSE_SECRET_KEY": "secret",
+            "LANGFUSE_BASE_URL": "https://example.invalid",
+        }
+        with (
+            patch.dict("os.environ", environment),
+            patch("voice_callback.telemetry._get_client", return_value=client),
+        ):
+            self.run_evaluation()
+        exported = str(client.mock_calls) + str(root.mock_calls) + str(generation.mock_calls)
+        self.assertIn("evaluation_id", exported)
+        self.assertIn("case_id", exported)
+        self.assertNotIn("Synthetic D1", exported)
+        self.assertNotIn("Synthetic decision", exported)
+        self.assertNotIn("ANSWER_ONLY_DEV", exported)
 
     def test_offline_rescoring_is_identical_without_inference_or_rewriting(self):
         client = FakeOllama()

@@ -22,7 +22,7 @@ The callback evaluator receives the transcript version selected for the decision
 
 Golden labels are part of a separate [evaluation flow](EVALUATION.md). They do not enter classifier inputs.
 
-Optional [Langfuse tracing](LANGFUSE.md) records the submitted transcript, validated decision, and operational metadata from the shared classifier for CLI and review-desk runs. An environment setting restricts traces to metadata. The system prompt, case identifier, and raw model response are not exported. Evaluation runs do not export traces. Telemetry is disabled by default and does not replace local provenance.
+Optional [Langfuse tracing](LANGFUSE.md) records the submitted transcript, validated decision, and operational metadata from the shared classifier for CLI, review-desk, and evaluation runs. An environment setting restricts traces to metadata. Evaluation traces include their run ID, split, dataset version, and case ID for correlation; expected answers remain local. The system prompt and raw model response are not exported. Telemetry is disabled by default and does not replace local provenance.
 
 ## Strict external contracts
 

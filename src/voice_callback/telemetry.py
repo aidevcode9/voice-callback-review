@@ -3,6 +3,7 @@
 import importlib
 import logging
 import os
+from dataclasses import dataclass
 from typing import Any
 
 from .domain import CallbackDecision, JsonValue, RunFailure, RunResult, RunSuccess
@@ -10,17 +11,25 @@ from .domain import CallbackDecision, JsonValue, RunFailure, RunResult, RunSucce
 logger = logging.getLogger(__name__)
 
 
+@dataclass(frozen=True)
+class EvaluationTraceContext:
+    evaluation_id: str
+    split: str
+    dataset_version: str
+    case_id: str
+
+
 def _get_client() -> Any:
     return importlib.import_module("langfuse").get_client()
 
 
 class ClassificationTrace:
-    def __init__(self, model: str, run_id: str, enabled: bool = True):
+    def __init__(self, model: str, run_id: str, evaluation: EvaluationTraceContext | None = None):
         self.client: Any = None
         self.root: Any = None
         self.generation: Any = None
         self.include_content = os.environ.get("VCR_LANGFUSE_CONTENT", "1") == "1"
-        if not enabled or os.environ.get("VCR_LANGFUSE_ENABLED") != "1":
+        if os.environ.get("VCR_LANGFUSE_ENABLED") != "1":
             return
         if not all(
             os.environ.get(key)
@@ -30,11 +39,19 @@ class ClassificationTrace:
             return
         try:
             self.client = _get_client()
+            metadata = {"run_id": run_id}
+            if evaluation is not None:
+                metadata.update(
+                    evaluation_id=evaluation.evaluation_id,
+                    split=evaluation.split,
+                    dataset_version=evaluation.dataset_version,
+                    case_id=evaluation.case_id,
+                )
             self.root = self.client.start_observation(
                 name="callback-classification",
                 as_type="span",
                 input={"stage": "classification"},
-                metadata={"run_id": run_id},
+                metadata=metadata,
             )
         except Exception:
             logger.warning("Langfuse tracing could not be initialized.")

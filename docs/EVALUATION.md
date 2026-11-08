@@ -16,6 +16,8 @@ One fictional development trial establishes neither held-out quality nor repeata
 
 The runner validates the frozen manifest, exact split IDs, and input-file hash. It reads only ID/transcript records before inference. Each case gets a classification run with its original input version/hash, the selected model identity/settings, and prompt/policy provenance. No answer, rationale, or expected label enters the model request.
 
+When [Langfuse tracing](LANGFUSE.md) is enabled, each case also produces a trace labeled with the evaluation ID, split, dataset version, and case ID. The normal content setting controls whether the input transcript and model decision are sent. Expected answers and scoring reports remain local. The held-out split still requires a frozen configuration and separate owner authorization; tracing an authorized held-out run can send its inputs and predictions to the configured Langfuse service.
+
 ```mermaid
 flowchart TD
     Manifest["Frozen manifest and input hashes"] --> Inputs["Input-only split snapshot"]
