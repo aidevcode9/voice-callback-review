@@ -29,9 +29,10 @@ def digest_json(value: object) -> str:
 
 
 def source_identity() -> dict[str, JsonValue]:
+    package = Path(__file__).parent
     sources = {
-        path.name: sha256(path.read_bytes()).hexdigest()
-        for path in sorted(Path(__file__).parent.glob("*.py"))
+        path.relative_to(package).as_posix(): sha256(path.read_bytes()).hexdigest()
+        for path in sorted([*package.glob("*.py"), *package.glob("prompts/*.txt")])
     }
     revision = None
     clean = False

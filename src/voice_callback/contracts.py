@@ -181,7 +181,7 @@ class RunFailureRecord(Contract):
     run: FailedRun
 
 
-RUN_RECORD = TypeAdapter(
+RUN_RECORD: TypeAdapter[RunSuccessRecord | RunFailureRecord] = TypeAdapter(
     Annotated[RunSuccessRecord | RunFailureRecord, Field(discriminator="status")]
 )
 
@@ -203,7 +203,7 @@ class FailedPrediction(PredictionIdentity):
     failure: FailureOutput
 
 
-PREDICTION_RECORD = TypeAdapter(
+PREDICTION_RECORD: TypeAdapter[SuccessfulPrediction | FailedPrediction] = TypeAdapter(
     Annotated[SuccessfulPrediction | FailedPrediction, Field(discriminator="status")]
 )
 

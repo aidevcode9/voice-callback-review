@@ -7,13 +7,17 @@ name = "voice-callback-review"
 version = "0.1.0"
 description = "Local callback review diagnostics and model-independent contracts"
 requires-python = ">=3.10"
-dependencies = ["pydantic==2.14.3"]
+dependencies = ["pydantic==2.14.3", "fastapi==0.162.0", "uvicorn==0.54.0"]
 
 [project.scripts]
 voice-callback = "voice_callback.cli:main"
+voice-callback-api = "voice_callback.api:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+voice_callback = ["prompts/*.txt"]
 
 [tool.ruff]
 target-version = "py310"

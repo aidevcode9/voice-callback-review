@@ -1,11 +1,13 @@
 """Persist input-only inference before opening answers for deterministic scoring."""
 
 import json
+from collections.abc import Callable
 from datetime import datetime, timezone
 from hashlib import sha256
 from pathlib import Path
 from uuid import UUID, uuid4
 
+from .admission import provider_quiescent
 from .classify import classify, validate_decision
 from .contracts import PREDICTION_RECORD, RUN_RECORD, Contract, validate_contract, validate_record
 from .datasets import DatasetSplit, load_answers, load_split, object_value, string_value
@@ -37,6 +39,7 @@ from .json_io import parse_json, parse_jsonl, read_bounded
 from .ollama import OllamaClient
 from .scoring import Prediction, score
 from .storage import render_json, save_run, write_json
+from .workspace import WorkspaceError
 
 
 def read_document(path: Path, contract: type[Contract]) -> dict[str, JsonValue]:
@@ -203,6 +206,7 @@ def evaluate(
     policy_path: Path = Path("docs/CALLBACK_POLICY.md"),
     frozen_path: Path | None = None,
     allow_held_out: bool = False,
+    observe_result: Callable[[RunResult], None] | None = None,
 ) -> Path:
     if split == "evaluation" and (not allow_held_out or frozen_path is None):
         raise ValueError(
@@ -240,6 +244,8 @@ def evaluate(
         with (directory / "predictions.jsonl").open("x", encoding="utf-8", newline="\n") as stream:
             for transcript in dataset.transcripts:
                 result = classify(transcript, model, client, policy_path=policy_path)
+                if observe_result is not None:
+                    observe_result(result)
                 path = save_run(result, directory / "runs")
                 if (
                     result.provenance.case_id != transcript.case_id
@@ -255,6 +261,12 @@ def evaluate(
                 )
                 stream.flush()
                 completed += 1
+                if not provider_quiescent(result):
+                    raise WorkspaceError(
+                        "recovery_required",
+                        503,
+                        "Runtime completion is unknown; stop/restart it and explicitly recover inference before another submission.",
+                    )
         if (
             source_identity() != system["code"]
             or sha256(read_bounded(policy_path)).hexdigest() != system["policy_sha256"]

@@ -14,9 +14,24 @@ intake/sources/prd-drafts/*
 !intake/sources/prd-drafts/.gitkeep
 .test-work/
 
+# Local diagram workspaces and code-analysis caches; publish curated artifacts in docs/.
+.archify/
+.ua/
+
 # Local package metadata, build products, and future run artifacts.
 *.egg-info/
 build/
 dist/
 runtime/
 reports/
+
+# Frontend dependencies/builds and generated local browser evidence.
+web/node_modules/
+web/.next/
+web/tsconfig.tsbuildinfo
+web/test-results/
+web/playwright-report/
+
+# Reproducible local verification captures; keep scripts and written evidence.
+docs/evidence/**/*.png
+prototypes/text-review/screenshots/*.png

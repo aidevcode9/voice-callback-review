@@ -7,6 +7,7 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
+from .admission import InferenceAdmission
 from .classify import classify, load_transcript
 from .domain import JsonValue, ModelConfig, RunSuccess, Stage
 from .evaluate import evaluate, freeze_run, read_document, score_run
@@ -14,6 +15,7 @@ from .evaluation_contracts import EvaluationReport
 from .models import list_models, load_registry
 from .ollama import OllamaClient, OllamaError, doctor
 from .storage import render_run, save_run
+from .workspace import WorkspaceError
 
 
 def _classify_command(
@@ -23,7 +25,9 @@ def _classify_command(
     if len(matches) != 1:
         raise ValueError("Choose a model configuration ID listed by models --stage classification.")
     transcript = load_transcript(args.input, args.case_id, args.transcript_version)
-    result = classify(transcript, matches[0], client, policy_path=args.policy)
+    with InferenceAdmission(args.inference_lock_dir).operation() as lease:
+        result = classify(transcript, matches[0], client, policy_path=args.policy)
+        lease.observe(result)
     try:
         path = save_run(result, args.output_dir)
     except OSError:
@@ -66,16 +70,18 @@ def _evaluation_command(
     matches = [config for config in configs if config.id == args.model]
     if len(matches) != 1:
         raise ValueError("Choose an explicit configured classifier ID.")
-    directory = evaluate(
-        args.dataset,
-        args.split,
-        matches[0],
-        client,
-        output_root=args.output_dir,
-        policy_path=args.policy,
-        frozen_path=args.frozen_config,
-        allow_held_out=args.allow_held_out,
-    )
+    with InferenceAdmission(args.inference_lock_dir).operation() as lease:
+        directory = evaluate(
+            args.dataset,
+            args.split,
+            matches[0],
+            client,
+            output_root=args.output_dir,
+            policy_path=args.policy,
+            frozen_path=args.frozen_config,
+            allow_held_out=args.allow_held_out,
+            observe_result=lease.observe,
+        )
     return _print_evaluation(read_document(directory / "report.json", EvaluationReport), directory)
 
 
@@ -99,6 +105,9 @@ def main(argv: list[str] | None = None) -> int:
             command.add_argument("--stage", choices=[stage.value for stage in Stage])
         if name in {"classify", "evaluate"}:
             command.add_argument(
+                "--inference-lock-dir", type=Path, default=Path("runtime/inference")
+            )
+            command.add_argument(
                 "--model", required=True, help="Explicit configuration ID; no default."
             )
             command.add_argument("--policy", type=Path, default=Path("docs/CALLBACK_POLICY.md"))
@@ -120,8 +129,24 @@ def main(argv: list[str] | None = None) -> int:
         command.add_argument("--dataset", type=Path, default=Path("data/gold/v1.0"))
         if name == "freeze-evaluation":
             command.add_argument("--output", type=Path)
+    recover = subparsers.add_parser("recover-inference")
+    recover.add_argument(
+        "--runtime-stopped",
+        action="store_true",
+        required=True,
+        help="Confirm you stopped/restarted Ollama after an interrupted operation.",
+    )
+    recover.add_argument("--inference-lock-dir", type=Path, default=Path("runtime/inference"))
     args = parser.parse_args(argv)
     try:
+        if args.command == "recover-inference":
+            InferenceAdmission(args.inference_lock_dir).recover()
+            print(
+                json.dumps(
+                    {"status": "recovered", "message": "Local inference admission recovered."}
+                )
+            )
+            return 0
         if args.command in {"score", "freeze-evaluation"}:
             return _artifact_command(args)
         client = OllamaClient(
@@ -136,6 +161,16 @@ def main(argv: list[str] | None = None) -> int:
             return _classify_command(args, client, configs)
         if args.command == "evaluate":
             return _evaluation_command(args, client, configs)
+    except WorkspaceError as error:
+        print(
+            json.dumps(
+                {
+                    "status": "processing_error",
+                    "failure": {"code": error.code, "message": error.message},
+                }
+            )
+        )
+        return 1
     except ValueError as error:
         print(json.dumps({"status": "configuration_error", "message": str(error)}))
         return 2

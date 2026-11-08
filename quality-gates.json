@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "language": "python",
+  "language": "python and typescript",
   "gates": {
     "lint": {
       "command": "python -m ruff check src scripts tests",
@@ -20,5 +20,14 @@
     }
   },
   "local_check_command": "python scripts/check_project.py",
-  "ci_workflow": ".github/workflows/ci.yml"
+  "ci_workflow": ".github/workflows/ci.yml",
+  "frontend": {
+    "root": "web",
+    "lint": "npm run lint --prefix web",
+    "format": "npm run lint --prefix web",
+    "type_check": "npm run typecheck --prefix web",
+    "build": "npm run build --prefix web",
+    "tests": "npm run test:browser --prefix web",
+    "shared_suite": "python scripts/check_project.py --suite web"
+  }
 }

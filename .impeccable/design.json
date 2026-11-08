@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-07T18:09:19.952334Z",
+  "title": "Design System: Voice Callback Review",
+  "extensions": {
+    "colorMeta": {
+      "desk-accent": {
+        "role": "primary",
+        "displayName": "Review desk forest action"
+      },
+      "desk-rail": {
+        "role": "neutral",
+        "displayName": "Review desk sage rail"
+      },
+      "casebook-accent": {
+        "role": "primary",
+        "displayName": "Casebook indigo action"
+      },
+      "casebook-header": {
+        "role": "neutral",
+        "displayName": "Casebook dark blue header"
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Shared white surface"
+      },
+      "required": {
+        "role": "semantic",
+        "displayName": "Callback required text"
+      },
+      "clear": {
+        "role": "semantic",
+        "displayName": "No callback text"
+      },
+      "review": {
+        "role": "semantic",
+        "displayName": "Needs review text"
+      },
+      "evidence-bg": {
+        "role": "semantic",
+        "displayName": "Exact evidence highlight"
+      },
+      "focus": {
+        "role": "semantic",
+        "displayName": "Keyboard focus outline"
+      }
+    },
+    "typographyMeta": {
+      "title": {
+        "displayName": "Case title",
+        "purpose": "Shared desktop case heading; reduced at the narrow breakpoint."
+      },
+      "section": {
+        "displayName": "Section heading",
+        "purpose": "Transcript, recommendation, human review, and history headings."
+      },
+      "transcript": {
+        "displayName": "Transcript utterance",
+        "purpose": "Readable service-call text in both prototype variants."
+      },
+      "label": {
+        "displayName": "Control label",
+        "purpose": "Labels on native controls."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "button-background",
+        "value": "background .16s ease-out",
+        "purpose": "Prototype button hover/press feedback; disabled by prefers-reduced-motion."
+      },
+      {
+        "name": "simulated-progress",
+        "value": "progress 1.6s ease-in-out infinite",
+        "purpose": "A 40%-wide progress segment translates from -100% to 350%; simulated job status only. Disabled by prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "(min-width:1650px)"
+      },
+      {
+        "name": "intermediate",
+        "value": "(max-width:1120px)"
+      },
+      {
+        "name": "narrow",
+        "value": "(max-width:700px)"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "A Review desk primary button",
+      "kind": "button",
+      "refersTo": "button-desk-primary",
+      "description": "Review desk submission styling; this preview does not run inference.",
+      "html": "<button class=\"ds-desk-primary\" type=\"button\">Classify transcript v1</button>",
+      "css": ".ds-desk-primary{--accent:#245e4b;font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:600;background:var(--accent);color:#fff;border:1px solid var(--accent);border-radius:6px;padding:9px 13px;cursor:pointer;transition:background .16s ease-out}.ds-desk-primary:hover,.ds-desk-primary:active{background:#183f34}.ds-desk-primary:focus-visible{outline:3px solid var(--focus,#176b94);outline-offset:3px}.ds-desk-primary:disabled{cursor:not-allowed;opacity:.55}@media(prefers-reduced-motion:reduce){.ds-desk-primary{transition:none}}"
+    },
+    {
+      "name": "B Casebook primary button",
+      "kind": "button",
+      "refersTo": "button-casebook-primary",
+      "description": "Casebook submission styling; an unselected alternative to Review desk.",
+      "html": "<button class=\"ds-casebook-primary\" type=\"button\">Classify transcript v1</button>",
+      "css": ".ds-casebook-primary{--accent:#354d85;font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:600;background:var(--accent);color:#fff;border:1px solid var(--accent);border-radius:6px;padding:9px 13px;cursor:pointer;transition:background .16s ease-out}.ds-casebook-primary:hover,.ds-casebook-primary:active{background:#263651}.ds-casebook-primary:focus-visible{outline:3px solid var(--focus,#176b94);outline-offset:3px}.ds-casebook-primary:disabled{cursor:not-allowed;opacity:.55}@media(prefers-reduced-motion:reduce){.ds-casebook-primary{transition:none}}"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Shared control shape, shown in Review desk colors.",
+      "html": "<button class=\"ds-secondary\" type=\"button\">Edit transcript</button>",
+      "css": ".ds-secondary{font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:600;color:var(--ink,#203431);background:var(--paper,#fff);border:1px solid var(--line,#cbd5cf);border-radius:6px;padding:9px 13px;cursor:pointer;transition:background .16s ease-out}.ds-secondary:hover{background:var(--tint,#e1ebe4)}.ds-secondary:active{background:var(--line,#cbd5cf)}.ds-secondary:focus-visible{outline:3px solid var(--focus,#176b94);outline-offset:3px}.ds-secondary:disabled{cursor:not-allowed;opacity:.55}@media(prefers-reduced-motion:reduce){.ds-secondary{transition:none}}"
+    },
+    {
+      "name": "Classification model field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "One classification choice; future transcription is disabled. Preview selector performs no action.",
+      "html": "<label class=\"ds-field-label\">Classification model<select class=\"ds-field\"><option>Qwen3.5 · 4B · Q4_K_M</option><option disabled>Whisper · transcription · later</option></select></label>",
+      "css": ".ds-field-label{display:block;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;font-weight:600;color:var(--ink,#203431)}.ds-field{font:inherit;font-size:15px;font-weight:400;color:inherit;width:100%;margin-top:6px;border:1px solid #9facaa;background:var(--paper,#fff);border-radius:5px;padding:9px;min-height:39px}.ds-field:focus-visible{outline:3px solid var(--focus,#176b94);outline-offset:3px}"
+    },
+    {
+      "name": "A Review desk active case navigation",
+      "kind": "nav",
+      "description": "Selected fictional case in the vertical Review desk rail. Casebook uses horizontal navigation with the same content hierarchy.",
+      "html": "<nav class=\"ds-case-nav\" aria-label=\"Development cases\"><button class=\"ds-case-link\" aria-current=\"true\" type=\"button\"><small class=\"ds-case-id\">DEMO-101 · fictional</small><strong class=\"ds-case-title\">Appointment confirmation</strong><span class=\"ds-nav-badge\">Callback required</span></button></nav>",
+      "css": ".ds-case-nav{background:#e8eee7;border-right:1px solid var(--line,#cbd5cf);padding:26px 16px;font-family:'Segoe UI',Arial,sans-serif;color:var(--ink,#203431)}.ds-case-link{text-align:left;border:1px solid transparent;background:transparent;padding:13px 10px;border-radius:6px;font:inherit;font-weight:400;display:grid;gap:7px;width:100%;cursor:pointer;transition:background .16s ease-out}.ds-case-link[aria-current=true]{background:#fff;border-color:#b7c9bc}.ds-case-link:hover{background:var(--tint,#e1ebe4)}.ds-case-link:active{background:var(--line,#cbd5cf)}.ds-case-link:focus-visible{outline:3px solid var(--focus,#176b94);outline-offset:3px}.ds-case-id{color:var(--muted,#52645f);font-size:12px}.ds-case-title{font-size:14px}.ds-nav-badge{display:inline-block;padding:5px 9px;font-size:12px;font-weight:650;border-radius:4px;color:var(--required,#833b17);background:var(--required-bg,#f8e9df);line-height:1.4}@media(prefers-reduced-motion:reduce){.ds-case-link{transition:none}}"
+    },
+    {
+      "name": "Shared outcome badge",
+      "kind": "chip",
+      "refersTo": "badge-required",
+      "description": "Text and color together identify the simulated policy outcome; this is a noninteractive status.",
+      "html": "<span class=\"ds-badge\">Callback required</span>",
+      "css": ".ds-badge{display:inline-block;font-family:'Segoe UI',Arial,sans-serif;padding:5px 9px;font-size:12px;font-weight:650;border-radius:4px;color:var(--required,#833b17);background:var(--required-bg,#f8e9df);line-height:1.4}"
+    },
+    {
+      "name": "Transcript and exact evidence",
+      "kind": "card",
+      "refersTo": "transcript-panel",
+      "description": "Shared bordered reading surface shown with Review desk spacing and fictional exact-quote evidence.",
+      "html": "<section class=\"ds-transcript\"><h2 class=\"ds-transcript-head\">Transcript</h2><div class=\"ds-transcript-meta\">Viewing SIM-101 · v1 · simulated output</div><div class=\"ds-conversation\"><div class=\"ds-utterance\"><span class=\"ds-speaker\">Caller</span><p class=\"ds-utterance-text\"><mark class=\"ds-evidence\">Please still call me tomorrow to confirm the time with my sister.</mark></p></div></div></section>",
+      "css": ".ds-transcript{min-width:0;background:var(--paper,#fff);border:1px solid var(--line,#cbd5cf);border-radius:10px;overflow:hidden;font-family:'Segoe UI',Arial,sans-serif;color:var(--ink,#203431)}.ds-transcript-head{margin:0;padding:20px 22px;border-bottom:1px solid var(--line,#cbd5cf);font-size:18px;line-height:1.4;font-weight:650}.ds-transcript-meta{padding:13px 22px;background:#f6f8f5;font-size:12px;line-height:1.6;color:var(--muted,#52645f)}.ds-conversation{padding:24px 26px;max-width:74ch}.ds-utterance{display:grid;grid-template-columns:94px minmax(0,1fr);gap:14px;margin-bottom:23px;line-height:1.7}.ds-speaker{font-size:12px;color:var(--muted,#52645f);padding-top:3px;font-weight:600}.ds-utterance-text{margin:0;font-size:16px;line-height:1.7;overflow-wrap:anywhere}.ds-evidence{color:#593b08;background:#faedbd;border-radius:2px;padding:2px 0;box-decoration-break:clone}@media(max-width:700px){.ds-conversation{padding:22px 17px}.ds-utterance{grid-template-columns:1fr;gap:5px;margin-bottom:22px}}"
+    },
+    {
+      "name": "Preserved run selection",
+      "kind": "button",
+      "description": "Selected historical-run styling. The actual prototype restores that run's original evidence; this preview is static.",
+      "html": "<button class=\"ds-run\" type=\"button\" aria-pressed=\"true\"><strong class=\"ds-run-title\">SIM-101 · transcript v1</strong>Callback required · not reviewed<br>Qwen3.5 4B · Sample run</button>",
+      "css": ".ds-run{font-family:'Segoe UI',Arial,sans-serif;color:var(--ink,#203431);background:var(--paper,#fff);border:1px solid var(--line,#cbd5cf);border-radius:6px;font-size:12px;text-align:left;line-height:1.6;padding:10px 13px;font-weight:400;cursor:pointer;transition:background .16s ease-out}.ds-run[aria-pressed=true]{border-color:var(--accent,#245e4b);background:var(--tint,#e1ebe4)}.ds-run-title{display:block}.ds-run:hover{background:var(--tint,#e1ebe4)}.ds-run:active{background:var(--line,#cbd5cf)}.ds-run:focus-visible{outline:3px solid var(--focus,#176b94);outline-offset:3px}@media(prefers-reduced-motion:reduce){.ds-run{transition:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "A Review desk",
+    "overview": "A Review desk is the owner-selected visual world (SRC-021), extended into the production Next.js frontend under SRC-022. Its sage case rail, forest actions, white reading surface, system sans, and amber evidence marks remain the incumbent system. B Casebook remains historical prototype comparison evidence, not a second production theme. The frontmatter preserves the existing extracted token baseline; production differences are recorded below and in the surface record rather than silently redefining tokens.\n\nThe restrained hierarchy keeps readable transcript text and separate recommendation and human-review areas adjacent. Production uses the actual local API through Nginx; the original static prototypes remain simulations. Controlled browser-verification output is explicitly labeled and establishes interface behavior, not live-model quality.",
+    "keyCharacteristics": [
+      "Approved Review desk world extended into the production frontend; Casebook retained as historical comparison.",
+      "Exact evidence tied to the selected run's original transcript version.",
+      "Explicit submission, separate human judgment, and visible runtime state."
+    ],
+    "rules": [],
+    "dos": [
+      "Do implement the selected Review desk palette and layout; preserve Casebook as historical prototype evidence.",
+      "Do keep controlled-verification status, selected transcript version, exact evidence, and human judgment visible and distinguishable.",
+      "Do retain keyboard focus, reduced-motion handling, text outcome labels, and narrow sequential layouts."
+    ],
+    "donts": [
+      "Don't present historical Casebook or static simulated output as the production Review desk or live-model quality evidence.",
+      "Don't turn runtime failures into policy outcomes or replace historical evidence with newer transcript text.",
+      "Don't imply multiple installed classifiers, automatic downloads, fabricated hashes, or measured model performance."
+    ]
+  }
+}

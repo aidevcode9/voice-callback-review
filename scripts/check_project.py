@@ -14,7 +14,7 @@ import yaml
 from packaging.requirements import Requirement
 
 ROOT = Path(__file__).resolve().parents[1]
-SUITES = ("quality", "tests", "data", "docs", "package")
+SUITES = ("quality", "tests", "data", "docs", "package", "web")
 
 
 def check_tool_versions() -> None:
@@ -45,7 +45,19 @@ def run(command: list[str], *, cwd: Path = ROOT, env: dict[str, str] | None = No
 def documentation_errors(root: Path) -> tuple[int, list[str]]:
     errors: list[str] = []
     count = 0
-    excluded = {".git", ".venv", ".test-work", "assets", "__pycache__", "build", "dist"}
+    excluded = {
+        ".git",
+        ".venv",
+        ".test-work",
+        "assets",
+        "__pycache__",
+        "build",
+        "dist",
+        "node_modules",
+        ".next",
+        "test-results",
+        "playwright-report",
+    }
     for document in root.rglob("*.md"):
         if excluded.intersection(document.relative_to(root).parts):
             continue
@@ -82,7 +94,11 @@ def workflow_errors(root: Path) -> list[str]:
         errors.append("CI requires pull_request, push, and manual triggers")
     if workflow["permissions"] != {"contents": "read"}:
         errors.append("CI requires read-only contents permission")
-    expected_suites = {"quality": {"quality", "data", "docs"}, "tests": {"tests", "package"}}
+    expected_suites = {
+        "quality": {"quality", "data", "docs"},
+        "tests": {"tests", "package"},
+        "web": {"web"},
+    }
     for name, suites in expected_suites.items():
         steps = workflow["jobs"][name]["steps"]
         for suite in suites:
@@ -166,7 +182,22 @@ def package_check() -> None:
             [
                 str(python),
                 "-c",
-                "import sys, voice_callback; from pathlib import Path; assert Path(voice_callback.__file__).resolve().is_relative_to(Path(sys.prefix).resolve())",
+                "\n".join(
+                    (
+                        "import sys, voice_callback, voice_callback.api",
+                        "from pathlib import Path",
+                        "from voice_callback.classify import build_classification_request",
+                        "from voice_callback.domain import TranscriptOrigin, TranscriptVersion",
+                        "from voice_callback.models import load_registry",
+                        "assert Path(voice_callback.__file__).resolve().is_relative_to(Path(sys.prefix).resolve())",
+                        "model = load_registry(Path(sys.argv[1]))[0]",
+                        "text = TranscriptVersion('package-smoke', 'v1', 'Synthetic call.', TranscriptOrigin.TEXT)",
+                        "request = build_classification_request(text, model, Path(sys.argv[2]).read_bytes())",
+                        "assert len(request.prompt_sha256) == 64",
+                    )
+                ),
+                str(ROOT / "config/models.json"),
+                str(ROOT / "docs/CALLBACK_POLICY.md"),
             ],
             cwd=work,
             env=env,
@@ -203,6 +234,7 @@ def check_suite(suite: str) -> None:
         )
     elif suite == "docs":
         run([python, "scripts/check_quality_baseline.py"])
+        run([python, "scripts/export_workspace_openapi.py", "--check"])
         count, errors = documentation_errors(ROOT)
         errors.extend(workflow_errors(ROOT))
         if errors:
@@ -210,6 +242,8 @@ def check_suite(suite: str) -> None:
         print(f"Verified {count} local links, feature lifecycle, and CI workflow structure.")
     elif suite == "package":
         package_check()
+    elif suite == "web":
+        run([python, "scripts/check_web.py"])
 
 
 def main(argv: list[str] | None = None) -> int:

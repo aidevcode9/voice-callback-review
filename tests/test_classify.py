@@ -14,6 +14,8 @@ from test_ollama import server
 
 from voice_callback.classify import (
     MAX_TRANSCRIPT_BYTES,
+    PROMPT_VERSION,
+    build_classification_request,
     classify,
     load_transcript,
     validate_decision,
@@ -72,6 +74,28 @@ def fixtures():
             0,
         ),
     }
+
+
+class PromptCompatibility(unittest.TestCase):
+    def test_packaged_v2_keeps_existing_system_and_request_hashes(self):
+        transcript = TranscriptVersion(
+            "prompt-compat",
+            "v1",
+            "Caller: café 東京. Please call me back.\nRepresentative: Noted.",
+            TranscriptOrigin.TEXT,
+        )
+        request = build_classification_request(
+            transcript, MODEL, (ROOT / "docs/CALLBACK_POLICY.md").read_bytes()
+        )
+        self.assertEqual(PROMPT_VERSION, "callback-text-v2")
+        self.assertEqual(
+            request.prompt_sha256,
+            "fc0507692c9b15de6ee1cc928475f808c29723a3d6611d28b736c3e9f432e107",
+        )
+        self.assertEqual(
+            request.request_sha256,
+            "14a8b592a577ae20dc29d411ca9f2abac6fdf932213a3f5d4811597363dc46d0",
+        )
 
 
 class ClassificationBehavior(unittest.TestCase):
@@ -135,6 +159,16 @@ class ClassificationBehavior(unittest.TestCase):
                 self.assertEqual(result.failure.code, FailureCode.INVALID_INPUT)
                 self.assertEqual(requests, [])
                 self.assertFalse(hasattr(result, "output"))
+
+    def test_missing_prompt_asset_is_safe_configuration_failure_without_network(self):
+        with patch("voice_callback.classify.files", side_effect=FileNotFoundError("private-path")):
+            result, requests, _ = self.run_classifier()
+        self.assertIsInstance(result, RunFailure)
+        assert isinstance(result, RunFailure)
+        self.assertEqual(result.failure.code, FailureCode.CONFIGURATION)
+        self.assertIn("prompt", result.failure.message)
+        self.assertNotIn("private-path", render_run(result))
+        self.assertEqual(requests, [])
 
     def test_invalid_settings_and_changed_policy_fail_without_network(self):
         for settings in (

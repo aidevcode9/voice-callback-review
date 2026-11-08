@@ -1,21 +1,21 @@
 # F-004: Local model pipeline specification
 
 Requirements: [feature requirements](01_REQUIREMENTS.md).
-Status: batches 1 and 2 implement diagnostics, text classification, and exclusive local classification records. Batch 3 implements development evaluation and guarded held-out preparation; transcription and UI remain proposed.
+Status: batches 1 and 2 implement diagnostics, text classification, and exclusive local classification records. Batch 3 implements development evaluation and guarded held-out preparation. F-006 owns the proposed text frontend/API; transcription and paired-audio verification are the final stage.
 
 ## Current system and selected planning approach
 
 The repo has standard-library Python preparation tools and frozen gold. It now has a Python diagnostics package, local text classifier, and CLI run records, plus evaluation commands, but no UI. Batch 1 rechecked Ollama 0.40.14 responding locally with no installed models. Laptop details and external references are in [local model options](../../../docs/LOCAL_MODEL_OPTIONS.md).
 
-Use one Python package and thin CLI and UI entrypoints. The proposed dashboard is Streamlit, which avoids a separate frontend and API for this local demo. Keep inference outside UI reruns and require explicit submit actions.
+Use the existing Python core and thin CLI/API entrypoints. SRC-020 supersedes the prior Streamlit proposal: F-006 proposes a separate Next.js frontend and FastAPI API behind a single Nginx browser origin. Explicit submissions invoke inference; selector, editor and navigation changes never do. See [F-006 boundaries and contracts](../../completed/F-006-text-review-workspace/02_TECHNICAL_SPEC.md).
 
 ## Alternatives and rationale
 
 | Design | Advantage | Cost | Recommendation |
 | --- | --- | --- | --- |
-| Python core, Ollama classifier, faster-whisper transcription, Streamlit dashboard | Reuses Python tooling, separates the two jobs, and supports a dedicated speech model. | Two inference runtimes and careful GPU release. | Proposed first build. |
+| Python core and Streamlit dashboard (historical proposal) | Low initial setup. | Insufficient fit for the requested review workspace. | Rejected by owner under SRC-020. |
 | Gemma4 for both stages through Ollama | One runtime with text and audio capability. | Untested memory fit and transcription behavior on this laptop. | Keep as a later comparison; no automatic selection. |
-| Separate web frontend and backend API | More UI flexibility and clearer future hosting options. | Additional tooling and deployment boundaries for a small local demo. | Defer until a concrete need appears. |
+| Next.js frontend, thin FastAPI API, Nginx one-origin routing | Precise review/editor state and reusable Python core. | Separate web tooling and API job/persistence contracts. | Owner-approved direction under SRC-020; proposed implementation owned by F-006. |
 
 These alternatives were compared in this planning pass. No competing prototypes or full pstack architecture playbook ran.
 
@@ -33,12 +33,12 @@ These alternatives were compared in this planning pass. No competing prototypes 
 | src/voice_callback/evaluate.py | Read isolated inputs, write predictions, then join expected answers in a separate scorer. |
 | src/voice_callback/storage.py | Store local case versions and immutable run artifacts under ignored runtime directories. |
 | src/voice_callback/cli.py | doctor, models, classify, evaluate, and transcribe entrypoints. |
-| app.py | Dashboard forms, selectors, case view, errors, and separate reviewer decisions. |
+| F-006 web/ and API modules (proposed) | Text workspace, jobs, case/version/review persistence, Nginx routes; see F-006 specification. No app.py or Streamlit entrypoint is planned. |
 | tests/test_models.py and tests/test_ollama.py | First-batch observable CLI and boundary behavior without model downloads. |
 
 Keep existing scripts and frozen artifacts intact. Additional tests follow the behaviors in the requirements, with names recorded before each implementation slice.
 
-Public operations are doctor(), list_models(stage), classify(transcript, model_config), transcribe(audio, model_config), and score(predictions, answers). Their concrete signatures are defined in batch 1. Business logic does not depend on Streamlit.
+Public operations are doctor(), list_models(stage), classify(transcript, model_config), transcribe(audio, model_config), and score(predictions, answers). Their concrete signatures are defined in batch 1. Business logic does not depend on the frontend or FastAPI. They reuse the existing contracts and core operations.
 
 A transcript version carries case ID, version ID, exact text and hash, origin, and optional parent version. A model configuration carries stage, runtime, model ID, and explicit settings. An inference success contains validated output and provenance; a failure contains a typed cause and safe message. A missing result never carries a successful label.
 
@@ -79,7 +79,7 @@ Start audio support with WAV, MP3, and FLAC, maximum 10 minutes and 50 MiB, as p
 
 Proposed faster-whisper execution uses one file at a time, with a tested GPU compute mode. Check CUDA libraries explicitly. Select CPU or the smaller model explicitly if needed and record that choice; no invisible fallback. Unload the prior model and verify actual GPU memory recovery during integration.
 
-Persist runtime data below ignored runtime/ and reports/ directories. Use unique run IDs and exclusive writes. Keep session edits from rerunning inference accidentally. Database migrations, multi-user authorization, generated web clients, and hosted jobs are not applicable to this local single-user design.
+Persist runtime data below ignored runtime/ and reports/ directories. Use unique run IDs and exclusive writes. Keep session edits from rerunning inference accidentally. F-006 separately proposes local case/version/review persistence and single-job API admission; no hosted job infrastructure or multi-user system is planned.
 
 ## Evaluation and verification
 

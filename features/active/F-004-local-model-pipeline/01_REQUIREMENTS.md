@@ -4,7 +4,7 @@ Owner and acceptance owner: project owner.
 Product requirements: PRD-R001 through PRD-R010.
 Sources: SRC-012 through SRC-016 in the [source register](../../../intake/README.md).
 Dependencies: completed F-001 through F-003; frozen gold v1.0.
-Status: active. Batches 1 and 2 implement diagnostics, contracts, and selected text classification. Batch 3 implements evaluation and has a preserved first development baseline; strict contract migration precedes final freeze. Audio and UI remain planned.
+Status: active. Batches 1 and 2 implement diagnostics, contracts, and selected text classification. Batch 3 implements evaluation and has a preserved first development baseline; strict contract migration precedes final freeze. Audio remains the final planned stage. Frontend/API scope and browser acceptance now belong to F-006 (SRC-020).
 
 ## Problem, users, and outcome
 
@@ -14,7 +14,7 @@ SRC-016 places local runtime setup, model selection, transcription, and classifi
 
 ## Scope and exclusions
 
-Deliver local runtime diagnostics, an explicit compatible-model registry, a text-classification baseline, reproducible scoring, speech-to-text, and a small review dashboard. Evaluate callback behavior on text before adding audio. Use the existing accepted policy and frozen gold.
+Deliver local runtime diagnostics, an explicit compatible-model registry, a text-classification baseline, reproducible scoring, speech-to-text, with the text review workspace/API owned separately by F-006. Complete text review/testing before transcription and paired-audio integration, the final stage. Use the existing accepted policy and frozen gold.
 
 Plan Whisper large-v3-turbo through faster-whisper as the first transcription candidate, with small as a selectable fallback. Confirm its actual GPU fit on a fictional recording. The owner selected qwen3.5:4b-q4_K_M for callback classification under SRC-018.
 
@@ -34,12 +34,12 @@ Live calls, speech synthesis, automatic callbacks, CRM writes, cloud inference, 
 | F-004-AC06 | Development scoring includes all cases, a three-outcome confusion matrix, callback recall and precision, review rate, unsafe misses, and processing failures. | Failures remain in total coverage; undefined metrics display their denominator and are not fabricated as zero or perfect. |
 | F-004-AC07 | Held-out scoring uses a frozen configuration and separate input and answer files. | Expected labels never enter inference requests; held-out results do not guide tuning under the same claimed evaluation. |
 | F-004-AC08 | An uploaded fictional recording produces inspectable text using the selected transcription model. | Unsupported, empty, oversized, or undecodable audio produces an error. Silent audio cannot invent a successful conversation. |
-| F-004-AC09 | The reviewer can correct text, rerun classification, and record a separate human decision. | A correction creates a new transcript version; an override never changes gold labels. Changing a selector alone does not run a model. |
+| F-004-AC09 | Transferred to F-006-AC03 and AC05: versioned text editing and separate human decisions. | F-006 owns browser/API acceptance and preserves the original invariant. This row is not independently accepted or silently dropped. |
 | F-004-AC10 | A paired audio demonstration separates transcription differences from decision differences and records actual laptop behavior. | GPU memory failures remain visible. Audio quality and speed are reported only after measurement. |
 
 ## Open decisions
 
-D-003 is narrowed in the [brief](../../../intake/PROJECT_BRIEF.md). The first batch can implement diagnostics and model-independent contracts now. SRC-018 resolves the classifier choice and authorizes explicit provisioning plus development-only inference. Batch 3 owns formal scoring and held-out configuration freeze. The transcription candidate and dashboard stack are planned recommendations, subject to dependency and hardware verification.
+D-003 is narrowed in the [brief](../../../intake/PROJECT_BRIEF.md). The first batch can implement diagnostics and model-independent contracts now. SRC-018 resolves the classifier choice and authorizes explicit provisioning plus development-only inference. Batch 3 owns formal scoring and held-out configuration freeze. The transcription candidate requires dependency/hardware verification in the final stage. SRC-020 selects the Next.js/Nginx/proposed FastAPI direction; [F-006 requirements](../../completed/F-006-text-review-workspace/01_REQUIREMENTS.md) own UI model selection and browser/API acceptance. F-004-AC02 retains registry capability and final independent transcription selection; AC08/AC10 remain here.
 
 D-004 remains open for numeric quality and latency targets. Functional acceptance requires the behaviors above; it does not establish production suitability. D-005 hosting is outside this local feature.
 

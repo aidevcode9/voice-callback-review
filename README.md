@@ -2,11 +2,12 @@
 
 A learning prototype for reviewing recorded service calls and identifying which callers need a callback. The intended interface is a small browser dashboard.
 
-Project stage: 40 owner-approved fictional cases are frozen as golden set v1.0. F-004 is active. Batches 1 and 2 implement diagnostics, an explicit model registry, and local text classification with validated evidence and run provenance. Batch 3 implements development evaluation, offline scoring, and configuration freezing. Its first development baseline matched all 20 labels; strict Pydantic boundaries are implemented and verified offline. A fresh development baseline is required before candidate freeze. Audio and dashboard remain planned.
+Project stage: 40 owner-approved fictional cases are frozen as golden set v1.0. F-004 is active. Batches 1 and 2 implement diagnostics, an explicit model registry, and local text classification with validated evidence and run provenance. Batch 3 implements development evaluation, offline scoring, and configuration freezing. Its first development baseline matched all 20 labels; strict Pydantic boundaries are implemented and verified offline. A fresh development baseline is required before candidate freeze. F-006 completes the selected A Review desk using Next.js, FastAPI/SQLite and a loopback Nginx proxy. Production-stack browser verification uses a controlled Ollama HTTP fixture; it does not measure model quality. Transcription and paired-audio verification remain the final stage.
 
 ## Start here
 
 - [Product requirements](docs/PRD.md) describe the proposed behavior and open decisions.
+- [Classifier prompts](docs/CLASSIFIER_PROMPTS.md) identifies the versioned instruction file and how changes are verified.
 - [Project brief](intake/PROJECT_BRIEF.md) separates user instructions from recommendations.
 - [Source register](intake/README.md) records the context supplied so far.
 - [User flow](docs/USER_FLOW.md), [architecture](docs/ARCHITECTURE.md), and [evaluation](docs/EVALUATION.md) include proposed diagrams.
@@ -21,7 +22,7 @@ The user selected audio upload and text transcript input for the demo, with call
 
 ## Planned flow
 
-Upload a recording or supply a text transcript. Review the transcript, callback recommendation, reason, and supporting excerpt. Compare recommendations against independently reviewed examples.
+Paste text or explicitly load a fictional development case, select a classifier, submit, inspect highlighted evidence and policy rules, then record a separate human decision. Preserve transcript versions and earlier runs. Audio upload/transcription follows the text review flow as the final integration stage. Held-out cases and answers stay out of the iterative workspace.
 
 ## Continue work
 
@@ -29,7 +30,7 @@ Upload a recording or supply a text transcript. Review the transcript, callback 
 
 Use [project-workflow](.agents/skills/project-workflow/SKILL.md) as the project's orchestration entrypoint. It was configured during intake, before implementation, and compares relevant pstack and house skills for substantive tasks.
 
-The [workflow profile](.codex/workflow-profile.md) records the current skill choices and validation limits. Ollama responds locally. Doctor and models commands are available through the [setup guide](docs/LOCAL_SETUP.md). F-004 implements text inference and evaluation commands; transcription and the dashboard remain proposed. Hosting remains undecided.
+The [workflow profile](.codex/workflow-profile.md) records the current skill choices and validation limits. Ollama responds locally. Doctor and models commands are available through the [setup guide](docs/LOCAL_SETUP.md). F-004 implements text inference and evaluation commands; F-006 adds the text review desk. Transcription remains proposed. Hosting remains undecided.
 
 This repository was generated from the project-template starter at commit `bac0ba6f1a4e46fda0c09fdcacaef8e01243a61d`. During intake it adopted the version 0.2 orchestration and diagram update from `52a045957eac7eaddf9ba533b628d88e893cc933`. It has its own local Git history. The shared [build process](docs/HOW_WE_BUILD.md) governs later feature work.
 
@@ -49,3 +50,9 @@ These offline checks use Python 3.10 or later and no API credentials. They valid
 ## Engineering baseline
 
 After installing the pinned development requirements, run `.venv\Scripts\python.exe scripts/check_project.py` for lint, format, types, behavior tests, data, docs, and a clean package smoke test. [Quality checks](docs/QUALITY_CHECKS.md) explains the staged/committed snapshot gates and GitHub Actions matrix. [F-005](features/completed/F-005-development-quality-baseline/01_REQUIREMENTS.md) establishes this baseline before F-004 batch 2; batch 2 adds the selected classifier.
+
+## Text workspace design review
+
+[F-006](features/completed/F-006-text-review-workspace/01_REQUIREMENTS.md) owns the separate frontend/API feature. Review the [two interactive visual directions](prototypes/text-review/index.html) and [verification notes](prototypes/text-review/README.md). All prototype outputs are simulated. The approved stack direction is Next.js with Nginx routing /api to a thin proposed FastAPI API over the existing Python core. The production A Review desk, FastAPI/SQLite persistence and one-origin Nginx wiring are implemented. Use the [setup guide](docs/LOCAL_SETUP.md#run-the-review-desk) to start the app; [browser evidence](docs/evidence/F-006/README.md) records the controlled verification scope. Both classifier PR #1 and evaluation/contracts PR #2 are merged; the UI branch includes main c82f0ed. Hosting and quality targets remain open.
+
+The owner selected A Review desk under SRC-021. Implementation is local on codex/f-006-review-desk. The static alternatives remain historical simulations. Final audio, fresh model-quality evaluation, merge and deployment are separate work.

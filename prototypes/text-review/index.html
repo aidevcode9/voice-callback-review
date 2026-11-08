@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Voice Callback Review · design comparison</title>
+<style>
+body{font:17px/1.6 'Segoe UI',sans-serif;color:#202e39;background:#f2f5f4;margin:0;padding:48px 7vw}main{max-width:1050px;margin:auto}h1{font-size:36px;line-height:1.2;letter-spacing:-.025em}h2{font-size:25px}p{max-width:72ch}a{color:#174c62;text-underline-offset:4px}section{padding:24px 0;border-top:1px solid #bcc8c9}.directions{display:grid;grid-template-columns:1fr 1fr;gap:40px}a:focus-visible{outline:3px solid #12678d;outline-offset:4px}.note{background:#e1e9ee;padding:14px 20px}@media(max-width:720px){body{padding:24px}.directions{display:block}}
+</style>
+<main>
+<h1>Two ways to review a call</h1>
+<p>Voice Callback Review · interactive design prototypes. All cases, recommendations, processing states, and timings here are simulated. No model or API is connected.</p>
+<p class="note">Both directions support the same workflow. Load a fictional case or paste text, choose a model, explicitly classify, inspect exact evidence, and save a separate human decision. Audio comes later.</p>
+<div class="directions">
+<section><h2>A · Review desk</h2><p>A persistent case rail, transcript, and decision column keep evidence and judgment together. Recommended for repeated testing and comparing runs. The tradeoff is a denser desktop workspace.</p><p><a href="desk.html">Try the review desk</a></p></section>
+<section><h2>B · Casebook</h2><p>A horizontal case navigator and a full-width decision band lead into a roomy transcript. Better for a guided walkthrough and long reading; moving through many cases takes more vertical space.</p><p><a href="casebook.html">Try the casebook</a></p></section>
+</div>
+<section><h2>What to try</h2><p>Edit the transcript and save a new version. Inspect the selected classifier without submitting. This prototype shows the one configured Qwen classifier. Classify explicitly, then inspect an earlier run. Use the prototype controls to simulate a timeout, malformed output, unavailable runtime, or loading. Save a human decision and verify that the model result stays intact.</p><p>Prototype history is stored in this browser under separate keys for each direction. Reloading preserves it; “Reset prototype” clears only this direction’s sample workspace. No frozen project data is loaded or changed.</p><p>Open either interactive prototype at a narrow width to compare the mobile layout. The verification script regenerates local screenshots; generated captures are not checked into Git.</p></section>
+</main>
+</html>

@@ -71,7 +71,7 @@ The held-out path requires both --frozen-config and --allow-held-out with --spli
 
 The planned first baseline is one trial of one selected model over 20 fictional development cases, with related conversations grouped together. Report counts alongside fractions. The run can reveal functional failures and development disagreements, but it cannot establish a repeatability spread, a model comparison, a population accuracy estimate, or a performance target. D-004 remains open for the owner's acceptance threshold. A successful small development run is not production approval.
 
-## Add audio after the text baseline
+## Final stage: audio after text review/testing
 
 ```mermaid
 flowchart LR
@@ -84,4 +84,12 @@ flowchart LR
     AudioRun --> Compare
 ```
 
-Audio support and its paired checks remain later batches. A transcription failure remains a processing failure, and gold v1.0 remains unchanged.
+SRC-020 places F-006 text workspace/API and review/testing before audio. Transcription and paired checks are the final F-004 stage. The iterative workspace excludes held-out cases and answers; it does not invoke freeze or held-out evaluation. A transcription failure remains a processing failure, and gold v1.0 remains unchanged.
+
+## Transport uncertainty and admission
+
+F-006 shares inference admission across CLI/API entrypoints. Evaluation now stops after a timeout/unavailable/HTTP/invalid-transport failure, preserving that failed run/prediction plus aborted.json without a completion marker or quality report. It opens no answers and does not send another case while provider execution is uncertain. Known terminal failures such as validated invalid model output can still be included in a completed report and its denominators. Pure metric definitions are unchanged. After stopping/restarting the runtime, explicitly recover admission before a new run; never infer quiescence from a timestamp or closed client connection. Historical baseline artifacts remain unchanged and require their original source for rescore.
+
+## Evaluation admission observation
+
+The CLI evaluation lease observes each classifier result before persistence or provenance checks. A timeout therefore retains recovery admission even if configuration drift makes later validation fail. Library callers that hold an InferenceLease should bind evaluate's observe_result parameter to lease.observe; the shared CLI does this. Unknown provider completion still aborts before another request or answer read.

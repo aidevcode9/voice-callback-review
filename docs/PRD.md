@@ -1,10 +1,10 @@
 # Voice Callback Review: product requirements
 
-Status: draft for discussion.
+Status: living product requirements; text review workspace implemented, final audio and model-quality acceptance pending.
 Product and acceptance owner: the user.
-Sources: SRC-001, SRC-004, SRC-009, SRC-010, SRC-011, and SRC-012 through SRC-017 in the [source register](../intake/README.md).
-Last updated: 2026-11-06.
-Acceptance record: input modes and callback policy v1.0 accepted. Dataset preparation defaults and application design remain distinct decisions.
+Sources: SRC-001, SRC-004, SRC-009, SRC-010, SRC-011, SRC-012 through SRC-019, and SRC-020 through SRC-022 in the [source register](../intake/README.md).
+Last updated: 2026-11-07.
+Acceptance record: input modes and callback policy v1.0 accepted. SRC-021 selects A Review desk. Next.js, loopback Nginx and a thin FastAPI API are implemented in F-006. Functional verification, owner feedback, quality thresholds, merge and hosting remain distinguishable.
 
 ## Purpose
 
@@ -30,12 +30,12 @@ Local inference setup and independent model choices are part of the build (SRC-0
 2. For audio, create a transcript and display transcription success or failure separately from decision status.
 3. Retain the original transcript and identify any reviewer correction used for a new decision.
 4. Recommend one of three outcomes and provide a short reason plus a supporting excerpt.
-5. Display cases and their current recommendations in a small dashboard.
+5. Display fictional development cases and their preserved recommendations in a text-first review workspace.
 6. Compare model recommendations against a versioned golden set and inspect errors.
 
-The initial interface needs a case list, filters for the recommendation, a case detail view, and an evaluation summary. A numeric confidence percentage is not required. The first design should favor evidence the reviewer can inspect.
+The initial text interface needs compact case navigation, useful outcome/review filters, an editable versioned transcript with evidence highlights, a separate human decision, and inspectable run history. Formal evaluation remains a separate CLI flow; held-out inputs and answers do not enter the iterative workspace. A numeric confidence percentage is not required. The first design should favor evidence the reviewer can inspect.
 
-The proposed [user flow](USER_FLOW.md), [architecture](ARCHITECTURE.md), and [evaluation flow](EVALUATION.md) show how these responsibilities connect.
+The [user flow](USER_FLOW.md), [architecture](ARCHITECTURE.md), and [evaluation flow](EVALUATION.md) show how these responsibilities connect.
 
 ## Accepted callback rubric
 
@@ -63,21 +63,23 @@ A separate outstanding callback request or promise still requires a callback aft
 | PRD-R008 | Make the development and demo process explainable. | The owner can walk through intake, requirements, a feature plan, golden labels, observed errors, and an iteration without claiming unrun results. |
 | PRD-R009 | Select transcription and callback models independently. | Text skips transcription. Each selector shows compatible configured models and reports an unavailable choice before execution. Each run records stage-specific runtime, model identity, settings, and transcript version. There is no silent model download or cloud fallback. |
 | PRD-R010 | Make the local inference environment reproducible on the owner's laptop. | Runtime diagnostics distinguish installation, server availability, installed compatible models, and successful inference. Setup uses explicit local model provisioning without paid API credentials; failures and GPU limits are visible. |
+| PRD-R011 | Require explicit inference submissions and preserve versioned history. | Selector, filter, navigation and editing changes invoke no inference. Saved edits create a new version, and earlier outputs retain original input/model provenance after reload. Owned by F-006. |
+| PRD-R012 | Provide one-origin local text review before audio integration. | Proposed Next.js/Nginx/FastAPI boundaries enforce one active job, bounded requests, visible failures, and separate reviewer records. Browser/API acceptance is F-006; audio remains the final F-004 stage. |
 
 The user wants local open-model development and selected qwen3.5:4b-q4_K_M under SRC-018. See [local model options](LOCAL_MODEL_OPTIONS.md) for observed hardware, recommendations, and remaining setup. Provider choices are not inferred from those recommendations.
 
 ## Build sequence
 
-[F-004](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) owns requirements, specification, implementation checkpoints, and evidence.
+[F-004](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) owns the core, formal evaluation and final audio stage. [F-006](../features/completed/F-006-text-review-workspace/03_IMPLEMENTATION_PLAN.md) owns the frontend/API, text review flow and browser acceptance.
 
 1. Add model-independent contracts, Ollama diagnostics, and compatible-model discovery.
 2. Select a classifier and implement policy-grounded text decisions with validated evidence.
 3. Evaluate on development text, then freeze a configuration before held-out evaluation.
-4. Set up local transcription and verify a fictional recording on the actual laptop.
-5. Add the dashboard with separate selectors, editable transcripts, and reviewer decisions.
-6. Demonstrate paired audio and reference-text behavior and record actual quality and timing.
+4. Review two rendered text-workspace directions and choose one before production implementation (F-006).
+5. Implement the text API and Next.js workspace behind local Nginx; verify explicit submissions, transcript versions, earlier results and separate human review (F-006).
+6. Finally set up local transcription, integrate audio and independent stage selectors, then verify paired audio/reference-text behavior and actual resource handoff (F-004).
 
-Text-first evaluation remains the sequence even though both input modes are in scope. The first implementation batch can proceed without choosing a classifier. Numeric quality targets and hosted sharing remain separate open decisions.
+Text-first evaluation remains the sequence even though both input modes are in scope. The classifier is already selected and its core is merged; text workspace design does not require a new model-quality run. Numeric quality targets and hosted sharing remain separate open decisions.
 
 ## Golden set and evaluation
 
@@ -89,7 +91,7 @@ Report a three-outcome confusion matrix, strict callback recall, callback precis
 
 Do not silently discard needs-review cases or change expected labels to improve a run. Changes to labels create a new dataset version with a recorded reason. The initial classifier is selected under SRC-018. Later model changes and numeric quality thresholds require development evidence and the acceptance owner's decision.
 
-For the audio extension, use paired recordings and reviewed reference transcripts. Compare decisions from reference text with decisions from transcribed audio. This separates transcription errors from decision errors. Focused callback development checks exist, but no formal callback-quality evaluation or transcription result exists yet.
+For the audio extension, use paired recordings and reviewed reference transcripts. Compare decisions from reference text with decisions from transcribed audio. This separates transcription errors from decision errors. The historical callback-text-v1 development baseline matched 20/20 fictional labels once. A fresh callback-text-v2 baseline/freeze, held-out acceptance and transcription results remain pending.
 
 ## Exclusions
 
@@ -97,8 +99,12 @@ Live phone handling, speaking agents, automatic dialing, CRM writes, legal guida
 
 ## Proposed acceptance flow
 
-A reviewer supplies a text example, inspects a recommendation and excerpt, compares it to its expected label, and corrects an error. The reviewer then uploads a short fictional recording and can trace the transcript version used for its recommendation. An evaluation run produces an inspectable report, including failures and review cases.
+A reviewer supplies text or a fictional development input, explicitly submits a selected model, inspects its recommendation and exact quote, and records a separate human decision. Expected answers are not exposed in this iterative flow. Formal evaluation remains separate. The reviewer then uploads a short fictional recording and can trace the transcript version used for its recommendation. An evaluation run produces an inspectable report, including failures and review cases.
 
 Functional implementation, decision quality, and audio quality are separate acceptance areas. No product-quality threshold or acceptance result is approved by this draft.
 
-Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). F-001 accepted the rubric and F-002 prepared the candidate set. F-003 completed human approval and gold freeze. F-004 now plans the local inference build. Its first two batches implement diagnostics and the selected local text classifier. Evaluation, audio, and UI remain later work; D-004 quality targets are open.
+Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). F-001 accepted the rubric and F-002 prepared the candidate set. F-003 completed human approval and gold freeze. F-004 now plans the local inference build. Its first two batches implement diagnostics and the selected local text classifier. Evaluation and strict contracts are implemented with offline evidence, but the fresh callback-text-v2 live baseline and candidate freeze remain pending. F-006 completes the selected text Review desk, API/SQLite and local Nginx proxy before the final audio stage; D-004 quality targets are open.
+
+## Text workspace delivery, 2026-11-07
+
+F-006 delivers pasted and explicitly loaded fictional text, available-model selection, explicit idempotent classification, immutable transcript/run history, exact evidence highlights, separate append-only human decisions, filters and provenance. The [feature requirements](../features/completed/F-006-text-review-workspace/01_REQUIREMENTS.md) are the feature PRD; its plan maps acceptance criteria to evidence. The production Next.js/Nginx/FastAPI flow is exercised with controlled HTTP responses, not live model-quality measurement. Audio, fresh text-v2 development evaluation, numeric quality targets, held-out execution and hosting remain open outside F-006.

@@ -5,6 +5,7 @@
 | [Project brief](../intake/PROJECT_BRIEF.md) | Intake synthesis, assumptions, constraints, and open decisions. |
 | [Source register](../intake/README.md) | Provenance and locations of supplied source material. |
 | [Callback policy](CALLBACK_POLICY.md) | Accepted v1.0 label rules and final-resolution precedence. |
+| [Classifier prompts](CLASSIFIER_PROMPTS.md) | Packaged instruction assets, prompt/version/hash ownership and change verification. |
 | [Label guide](LABEL_GUIDE.md) | Human review, candidate/gold distinction, disputes, and versioning. |
 | [Candidate-set plan](CANDIDATE_SET_PLAN.md) | Proposed size, reviewer, language, grouping, and split defaults. |
 | [PRD](PRD.md) | Working product intent, scope, users, and product requirements. |
@@ -30,3 +31,17 @@
 The PRD records intended behavior. Code and runtime observations establish current behavior. A discrepancy must be reconciled, not hidden by editing acceptance evidence. The user's current instructions govern the requested work; source commitments that conflict with them need an explicit decision.
 
 Keep permanent documentation current. Completed feature documents preserve what was delivered at that time. Link to existing facts rather than repeating them across files.
+
+## Text workspace design
+
+- [F-006 requirements](../features/completed/F-006-text-review-workspace/01_REQUIREMENTS.md), [API/design specification](../features/completed/F-006-text-review-workspace/02_TECHNICAL_SPEC.md), and [plan/evidence](../features/completed/F-006-text-review-workspace/03_IMPLEMENTATION_PLAN.md) own the proposed text frontend/API.
+- [Interactive directions](../prototypes/text-review/index.html) and [prototype verification notes](../prototypes/text-review/README.md) show the design exploration.
+- [Product context](../PRODUCT.md) captures durable design constraints; [visual design record](../DESIGN.md) records selected A Review desk and preserves B Casebook as alternative evidence.
+- [Text review surface brief](TEXT_REVIEW_DESIGN_BRIEF.md) records the proposed Operate directions and design workflow adaptation.
+
+## Implemented Review desk
+
+- [Startup and verification](LOCAL_SETUP.md#run-the-review-desk) runs the built Next.js/Nginx/FastAPI stack locally.
+- [Production surface contract](REVIEW_DESK_SURFACE.md) carries selected A into the implementation.
+- [Browser evidence](evidence/F-006/README.md) records functional scope and desktop/narrow captures.
+- [Generated OpenAPI](api/openapi.json) and web/lib/api.generated.ts share strict Python response contracts with the runtime-validated client.

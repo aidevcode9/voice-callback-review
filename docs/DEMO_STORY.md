@@ -1,6 +1,6 @@
 # Explain the planned demo
 
-Status: proposed story. The application, golden set, and evaluation results do not exist yet.
+Status: planned walkthrough. Gold v1.0, the Python classifier/evaluation core and one historical text-v1 development baseline exist. The text workspace is a static simulation; production application and audio remain unimplemented.
 
 ## Explain the product
 
@@ -23,3 +23,7 @@ These steps describe the intended demonstration. Replace proposed steps with rec
 ## Explain what makes it a voice application
 
 The recording is an input with its own error modes. A good explanation distinguishes transcription quality, callback decision quality, and the reviewer's operational decision. The dashboard lets a person follow those stages rather than seeing only a final label.
+
+## Text-first walkthrough
+
+Show a fictional development transcript, select the model and explicitly classify. Read exact evidence, explain the accepted rule, edit into a new version, inspect an earlier result and record a separate human decision. The implemented Review desk supports this flow with local Ollama; saved outputs retain actual provenance. The static design prototypes and labeled controlled browser fixtures are simulations and must be presented as such. Keep held-out cases and answers out of this walkthrough. Show historical evaluation evidence separately, with source/prompt versions and limitations; callback-text-v2 live baseline and candidate freeze remain pending. Audio upload/transcription and paired comparison are the final future stage, after the text workflow is verified.
