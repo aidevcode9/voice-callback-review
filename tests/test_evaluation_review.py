@@ -2,12 +2,15 @@
 
 import json
 import unittest
+from contextlib import redirect_stdout
 from dataclasses import replace
 from hashlib import sha256
+from io import StringIO
 from unittest.mock import patch
 
 import test_evaluate as fixtures
 
+from voice_callback.cli import main
 from voice_callback.datasets import load_split
 from voice_callback.domain import FailureCode, Outcome
 from voice_callback.evaluate import score_run
@@ -39,6 +42,23 @@ class EvaluationReviewBehavior(unittest.TestCase):
         ):
             directory = self.fixture.run_evaluation(fixtures.FakeOllama(outcomes))
         return load_review(directory, self.fixture.dataset)
+
+    def test_saved_review_exit_policy_is_independent_of_output_format(self):
+        for outcomes in (None, [FailureCode.INVALID_OUTPUT, Outcome.NO_CALLBACK]):
+            review = self.make_review(outcomes)
+            for options in ([], ["--json"]):
+                with self.subTest(outcomes=outcomes, options=options), redirect_stdout(StringIO()):
+                    code = main(
+                        [
+                            "evaluations",
+                            "--run-dir",
+                            str(review.directory),
+                            "--dataset",
+                            str(self.fixture.dataset),
+                            *options,
+                        ]
+                    )
+                self.assertEqual(code, 0, "Reading a valid saved run succeeds in either format.")
 
     def test_reads_all_cases_metrics_and_original_source_without_rerunning_it(self):
         review = self.make_review()

@@ -65,9 +65,9 @@ and explicit `freeze-evaluation` remain separate lifecycle actions.
 
 | Module | Owned interfaces and knowledge |
 | --- | --- |
-| evaluation_workflow.py | `DevelopmentRequest`, `run_development(request)`, private verified-checkout and worker command construction. |
+| evaluation_workflow.py | `EvaluationRequest`, `run_evaluation(request)`, `ArtifactRequest`, `run_artifact(request)`, private verified-checkout and worker command construction. |
 | evaluation_environment.py | `evaluation_environment(root, tracing, metadata_only)` returns subprocess settings with allowlisted local defaults. |
-| evaluation_worker.py | Private development-only process boundary; rejects parent-only/held-out options. |
+| evaluation_worker.py | Private prepared-source process boundary; rejects parent-only options and requires explicit frozen/held-out authorization. |
 | evaluate.py | Sole inference/artifact writer; `EvaluationProgress` reports starting, persisted cases, scoring, completion and incomplete location. |
 | evaluation_review.py | `SavedEvaluation`, `load_review`, `assert_baseline_compatible`, `compare_reviews`, `summary_text`, additive `render_review`. |
 | evaluation_report.py | Escaped standalone human report from one validated read model, including light/dark and narrow rendering. |
@@ -100,3 +100,26 @@ quality. Exact commands and evidence belong in the [plan](03_IMPLEMENTATION_PLAN
 ## Design changes
 
 The independently reproduced worker --prepare-only issue is fixed by rejecting parent-only flags before worker execution. Browser review identified mobile table wrapping; the renderer uses internal table scrolling. These refinements preserve the selected boundaries.
+
+## Review corrections: consistent source context and offline status
+
+Canonical `score` and `freeze-evaluation` now use the same current committed
+checkout selection as `evaluate`. The private worker calls the existing core
+operations directly. It never recursively invokes the parent launcher. Windows
+CRLF workspace bytes therefore do not differ from the LF source actually measured
+by evaluation when the artifact is rescored or frozen. Fingerprints and saved
+reports are unchanged: a different committed source still fails verification.
+Older revisions still need their original matching source; there is no implicit
+migration or automatic execution of arbitrary historical code.
+
+Explicit held-out evaluation also executes from the committed checkout so the
+frozen source identity remains usable after candidate preparation. Both CLI and
+worker require the frozen configuration and explicit opt-in; verify_frozen remains
+authoritative. Development .env loading does not extend to held-out operations,
+which retain their process-environment behavior. Artifact operations make no model
+or telemetry calls. Existing input/answer separation and inference admission remain.
+
+Reading a valid saved development evaluation returns 0 in either plain or JSON
+format even when that historical run contains processing failures. JSON retains its
+completed_with_failures status and full counts. Evaluation execution and explicit
+scoring retain exit 1 for processing failures. Invalid saved artifacts still fail.

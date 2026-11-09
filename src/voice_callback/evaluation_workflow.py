@@ -1,11 +1,15 @@
-"""Run the development workflow from an identified committed checkout."""
+"""Run evaluation and artifact operations from an identified committed checkout."""
 
+import os
 import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 from .datasets import load_split
+from .evaluate import read_document
+from .evaluation_contracts import SystemConfiguration
 from .evaluation_environment import evaluation_environment
 from .evaluation_review import assert_baseline_compatible, load_review
 
@@ -37,7 +41,7 @@ def repository_root() -> Path:
 
 
 @dataclass(frozen=True)
-class DevelopmentRequest:
+class EvaluationRequest:
     repository: Path
     model_id: str
     dataset: Path
@@ -53,6 +57,18 @@ class DevelopmentRequest:
     url: str = "http://127.0.0.1:11434"
     timeout: float = 3.0
     inference_timeout: float = 180.0
+    split: Literal["development", "evaluation"] = "development"
+    frozen_config: Path | None = None
+    allow_held_out: bool = False
+
+
+@dataclass(frozen=True)
+class ArtifactRequest:
+    repository: Path
+    operation: Literal["score", "freeze-evaluation"]
+    run_directory: Path
+    dataset: Path
+    output: Path | None = None
 
 
 def _relative_input(root: Path, path: Path) -> str:
@@ -96,7 +112,7 @@ def prepare_checkout(root: Path, input_paths: tuple[Path, ...] = ()) -> Path:
     return checkout
 
 
-def _worker_command(request: DevelopmentRequest, checkout: Path) -> list[str]:
+def _worker_command(request: EvaluationRequest, checkout: Path) -> list[str]:
     root = request.repository
     command = [
         sys.executable,
@@ -104,7 +120,7 @@ def _worker_command(request: DevelopmentRequest, checkout: Path) -> list[str]:
         "voice_callback.evaluation_worker",
         "evaluate",
         "--split",
-        "development",
+        request.split,
         "--model",
         request.model_id,
         "--dataset",
@@ -124,6 +140,10 @@ def _worker_command(request: DevelopmentRequest, checkout: Path) -> list[str]:
         "--inference-timeout",
         str(request.inference_timeout),
     ]
+    if request.frozen_config is not None:
+        command.extend(("--frozen-config", str(request.frozen_config.resolve())))
+    if request.allow_held_out:
+        command.append("--allow-held-out")
     if request.baseline is not None:
         command.extend(("--baseline", str(request.baseline.resolve())))
     if request.json_output:
@@ -131,27 +151,68 @@ def _worker_command(request: DevelopmentRequest, checkout: Path) -> list[str]:
     return command
 
 
-def run_development(request: DevelopmentRequest) -> int:
-    root = request.repository.resolve()
-    # Reject an incompatible experiment before preparing a checkout or calling the model.
-    if request.baseline is not None:
-        baseline = load_review(request.baseline, request.dataset)
-        assert_baseline_compatible(baseline, load_split(request.dataset, "development"))
-    environment = evaluation_environment(
-        root, tracing=request.tracing, metadata_only=request.metadata_only
-    )
-    checkout = prepare_checkout(root, (request.dataset, request.registry, request.policy))
-    environment["PYTHONPATH"] = str(checkout / "src")
+def _run_worker(checkout: Path, command: list[str], environment: dict[str, str]) -> int:
+    environment = {**environment, "PYTHONPATH": str(checkout / "src")}
     environment.pop("PYTHONHOME", None)
-    print(f"Development checkout: {checkout}", file=sys.stderr, flush=True)
-    if request.prepare_only:
-        print("Preparation complete. No inference or tracing request was made.")
-        return 0
     try:
-        return subprocess.run(
-            _worker_command(request, checkout), cwd=checkout, env=environment, check=False
-        ).returncode
+        return subprocess.run(command, cwd=checkout, env=environment, check=False).returncode
     except OSError:
         raise ValueError(
             "Cannot start the evaluation worker; check the Python environment."
         ) from None
+
+
+def run_evaluation(request: EvaluationRequest) -> int:
+    root = request.repository.resolve()
+    if request.split == "evaluation":
+        if not request.allow_held_out or request.frozen_config is None:
+            raise ValueError(
+                "Held-out inference requires --allow-held-out and --frozen-config explicitly."
+            )
+        if (
+            request.baseline is not None
+            or request.prepare_only
+            or request.tracing is not None
+            or request.metadata_only
+        ):
+            raise ValueError("Development workflow options do not apply to held-out evaluation.")
+    elif request.allow_held_out or request.frozen_config is not None:
+        raise ValueError("Held-out options apply only to --split evaluation.")
+    # Reject an incompatible experiment before preparing a checkout or calling the model.
+    if request.baseline is not None:
+        baseline = load_review(request.baseline, request.dataset)
+        assert_baseline_compatible(baseline, load_split(request.dataset, "development"))
+    environment = (
+        evaluation_environment(root, tracing=request.tracing, metadata_only=request.metadata_only)
+        if request.split == "development"
+        else os.environ.copy()
+    )
+    checkout = prepare_checkout(root, (request.dataset, request.registry, request.policy))
+    print(f"{request.split.title()} checkout: {checkout}", file=sys.stderr, flush=True)
+    if request.prepare_only:
+        print("Preparation complete. No inference or tracing request was made.")
+        return 0
+    return _run_worker(checkout, _worker_command(request, checkout), environment)
+
+
+def run_artifact(request: ArtifactRequest) -> int:
+    root = request.repository.resolve()
+    # Read metadata first so missing/invalid run paths fail before Git preparation.
+    read_document(request.run_directory / "configuration.json", SystemConfiguration)
+    checkout = prepare_checkout(root, (request.dataset,))
+    command = [
+        sys.executable,
+        "-m",
+        "voice_callback.evaluation_worker",
+        request.operation,
+        "--run-dir",
+        str(request.run_directory.resolve()),
+        "--dataset",
+        str(checkout / _relative_input(root, request.dataset)),
+    ]
+    if request.output is not None:
+        command.extend(("--output", str(request.output.resolve())))
+    environment = {**os.environ, "VCR_LANGFUSE_ENABLED": "0", "LANGFUSE_TRACING_ENABLED": "false"}
+    print(f"Artifact checkout: {checkout}", file=sys.stderr, flush=True)
+    # score_run/freeze_run in the selected source retain their original fingerprint guards.
+    return _run_worker(checkout, command, environment)

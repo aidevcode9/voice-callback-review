@@ -301,6 +301,136 @@ class CanonicalEvaluationIntegration(unittest.TestCase):
             self.assertEqual(len(requests), request_count)
             self.assertEqual(len(list((self.root / "reports/text").iterdir())), 2)
 
+    def test_clean_crlf_workspace_can_rescore_freeze_and_run_explicit_synthetic_held_out(self):
+        # Match the project's LF Git attributes while keeping a Git-clean CRLF caller.
+        for relative in self.git("ls-files").splitlines():
+            path = self.root / relative
+            path.write_bytes(path.read_bytes().replace(b"\r\n", b"\n"))
+        (self.root / ".gitattributes").write_bytes(b"* text=auto eol=lf\n")
+        caller = self.root / "src/voice_callback/cli.py"
+        caller.write_bytes(caller.read_bytes().replace(b"\n", b"\r\n"))
+        dataset = self.root / "data/gold/synthetic"
+        manifest = json.loads((dataset / "manifest.json").read_bytes())
+        manifest["splits"]["evaluation"] = ["H1", "H2"]
+        for part in ("inputs", "answers"):
+            rows = [
+                json.loads(row)
+                for row in (dataset / part / "development.jsonl").read_text().splitlines()
+            ]
+            for row in rows:
+                row["case_id"] = row["case_id"].replace("D", "H", 1)
+            raw = ("\n".join(json.dumps(row) for row in rows) + "\n").encode()
+            relative = f"{part}/evaluation.jsonl"
+            (dataset / relative).write_bytes(raw)
+            manifest["files"][relative] = {"sha256": sha256(raw).hexdigest()}
+        (dataset / "manifest.json").write_bytes(json.dumps(manifest).encode())
+        self.git("add", ".")
+        self.git("add", "--renormalize", ".")
+        self.git(
+            "-c",
+            "user.name=Fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "commit",
+            "--quiet",
+            "-m",
+            "Normalize synthetic committed source",
+        )
+        self.revision = self.git("rev-parse", "HEAD")
+        package = self.root / "src/voice_callback"
+        self.source_digest = digest_json(
+            {
+                path.relative_to(package).as_posix(): sha256(
+                    subprocess.check_output(
+                        [
+                            "git",
+                            "show",
+                            f"HEAD:src/voice_callback/{path.relative_to(package).as_posix()}",
+                        ],
+                        cwd=self.root,
+                    )
+                ).hexdigest()
+                for path in sorted([*package.glob("*.py"), *package.glob("prompts/*.txt")])
+            }
+        )
+        self.environment["PYTHONPATH"] = str(self.root / "src")
+        self.assertEqual(self.git("status", "--porcelain"), "")
+        self.assertIn(b"\r\n", caller.read_bytes())
+        with synthetic_runtime() as (url, adapter, requests):
+            directory, _ = self.completed_run(
+                self.command(
+                    "evaluate",
+                    "--model",
+                    "qwen35-4b",
+                    "--dataset",
+                    "data/gold/synthetic",
+                    "--no-trace",
+                    "--json",
+                    "--url",
+                    url,
+                )
+            )
+            original = (directory / "report.json").read_bytes()
+            request_count = len(requests)
+            for operation in ("score", "freeze-evaluation"):
+                result = self.command(
+                    operation, "--run-dir", str(directory), "--dataset", "data/gold/synthetic"
+                )
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(
+                len(requests), request_count, "Artifact operations must make no HTTP calls."
+            )
+            self.assertEqual((directory / "report.json").read_bytes(), original)
+            frozen = directory / "frozen-configuration.json"
+            self.assertTrue(frozen.exists())
+            self.environment["VCR_LANGFUSE_ENABLED"] = "0"
+            held_out = [
+                "evaluate",
+                "--split",
+                "evaluation",
+                "--model",
+                "qwen35-4b",
+                "--dataset",
+                "data/gold/synthetic",
+                "--url",
+                url,
+                "--frozen-config",
+                str(frozen),
+                "--json",
+            ]
+            refused = self.command(*held_out)
+            self.assertEqual(refused.returncode, 2, refused.stdout + refused.stderr)
+            self.assertEqual(len(requests), request_count)
+            completed = self.command(*held_out, "--allow-held-out")
+            self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+            self.assertEqual(json.loads(completed.stdout)["report"]["split"], "evaluation")
+            self.assertEqual(len(adapter.requests), 4)
+            self.assertNotIn("ANSWER_ONLY_INTEGRATION", json.dumps(adapter.requests))
+            self.assertEqual(self.git("status", "--porcelain"), "")
+            source = self.root / "src/voice_callback/evaluation_worker.py"
+            source.write_bytes(
+                source.read_bytes() + b"\n# Changed source must not rescore an older run.\n"
+            )
+            self.git("add", ".")
+            self.git(
+                "-c",
+                "user.name=Fixture",
+                "-c",
+                "user.email=fixture@example.invalid",
+                "commit",
+                "--quiet",
+                "-m",
+                "Change synthetic source",
+            )
+            request_count = len(requests)
+            for operation in ("score", "freeze-evaluation"):
+                result = self.command(
+                    operation, "--run-dir", str(directory), "--dataset", "data/gold/synthetic"
+                )
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("identity differs", result.stdout)
+            self.assertEqual(len(requests), request_count)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -708,14 +708,15 @@ class EvaluationArtifacts(unittest.TestCase):
             redirect_stdout(StringIO()),
         ):
             self.assertEqual(
-                main(["score", "--run-dir", str(directory), "--dataset", str(self.dataset)]), 0
+                worker_main(["score", "--run-dir", str(directory), "--dataset", str(self.dataset)]),
+                0,
             )
         with (
             patch("voice_callback.evaluation_config.subprocess.check_output", return_value="dirty"),
             redirect_stdout(StringIO()),
         ):
             self.assertEqual(
-                main(
+                worker_main(
                     [
                         "freeze-evaluation",
                         "--run-dir",

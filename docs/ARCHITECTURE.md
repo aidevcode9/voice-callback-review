@@ -165,9 +165,9 @@ The read path refuses held-out declarations before loading their cases or answer
 
 ```mermaid
 flowchart LR
-    Command[Canonical evaluate command] --> Prepare[Committed checkout and resolved environment]
+    Command[Evaluate, score and freeze commands] --> Prepare[Committed checkout and resolved environment]
     Prepare --> Worker[Private worker in selected source]
-    Worker --> Engine[Existing evaluator and classifier]
+    Worker --> Engine[Existing evaluator and source-checked artifact operations]
     Engine --> Artifacts[Immutable completed artifacts]
     Artifacts --> Review[Saved development review]
     Baseline[Compatible saved baseline] --> Review
@@ -178,3 +178,9 @@ flowchart LR
 Model settings remain in `config/models.json`. Local credentials are ignored `.env`
 or process values, not report configuration. No app API, job database, deployment
 or automatic held-out execution is added by this first slice.
+
+The worker also owns explicit score/freeze dispatch and explicitly authorized
+held-out execution. All three use committed source bytes rather than mixing a
+Windows CRLF caller with an LF evaluation checkout. Existing fingerprint and
+frozen-system checks remain authoritative; saved-snapshot review stays read-only
+and source-independent. The parent resolves tracing .env only for development.

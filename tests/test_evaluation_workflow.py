@@ -11,7 +11,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from voice_callback.cli import main
-from voice_callback.evaluation_workflow import DevelopmentRequest, prepare_checkout, run_development
+from voice_callback.evaluation_workflow import EvaluationRequest, prepare_checkout, run_evaluation
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -46,7 +46,7 @@ class EvaluationWorkflowTests(unittest.TestCase):
             "-m",
             "Synthetic fixture",
         )
-        self.request = DevelopmentRequest(
+        self.request = EvaluationRequest(
             repository=self.root,
             model_id="fixture",
             dataset=self.root / "data/gold/fixture",
@@ -109,7 +109,7 @@ class EvaluationWorkflowTests(unittest.TestCase):
             patch("voice_callback.evaluation_workflow.subprocess.run", side_effect=capture),
             contextlib.redirect_stderr(io.StringIO()) as output,
         ):
-            self.assertEqual(run_development(self.request), 0)
+            self.assertEqual(run_evaluation(self.request), 0)
         command, options = calls[0]
         self.assertEqual(options["env"]["PYTHONPATH"], str(options["cwd"] / "src"))
         self.assertEqual(options["env"]["VCR_LANGFUSE_ENABLED"], "0")
@@ -129,7 +129,7 @@ class EvaluationWorkflowTests(unittest.TestCase):
             contextlib.redirect_stdout(io.StringIO()),
             contextlib.redirect_stderr(io.StringIO()),
         ):
-            self.assertEqual(run_development(replace(self.request, prepare_only=True)), 0)
+            self.assertEqual(run_evaluation(replace(self.request, prepare_only=True)), 0)
 
     def test_incompatible_baseline_is_rejected_before_checkout_or_worker(self):
         request = replace(self.request, baseline=self.root / "missing")
@@ -138,12 +138,12 @@ class EvaluationWorkflowTests(unittest.TestCase):
             side_effect=AssertionError("checkout started"),
         ):
             with self.assertRaises(OSError):
-                run_development(request)
+                run_evaluation(request)
 
     def test_cli_dispatches_to_one_workflow_and_offline_history_needs_no_model(self):
         with (
             patch("voice_callback.evaluation_workflow.repository_root", return_value=self.root),
-            patch("voice_callback.evaluation_workflow.run_development", return_value=0) as launch,
+            patch("voice_callback.evaluation_workflow.run_evaluation", return_value=0) as launch,
         ):
             self.assertEqual(
                 main(
@@ -171,12 +171,12 @@ class EvaluationWorkflowTests(unittest.TestCase):
             )
         self.assertEqual(json.loads(output.getvalue()), {"evaluations": []})
 
-    def test_worker_errors_are_safe_and_held_out_is_rejected(self):
+    def test_worker_errors_are_safe_and_held_out_requires_authorization(self):
         from voice_callback.evaluation_worker import main as worker_main
 
         with (
             patch(
-                "voice_callback.evaluation_worker.execute_development",
+                "voice_callback.evaluation_worker.execute_evaluation",
                 side_effect=OSError("private path"),
             ),
             contextlib.redirect_stdout(io.StringIO()) as output,
@@ -187,7 +187,7 @@ class EvaluationWorkflowTests(unittest.TestCase):
             worker_main(["evaluate", "--split", "evaluation", "--model", "fixture"])
         for option in ("--prepare-only", "--trace", "--no-trace", "--metadata-only"):
             with (
-                patch("voice_callback.evaluation_worker.execute_development") as execute,
+                patch("voice_callback.evaluation_worker.execute_evaluation") as execute,
                 contextlib.redirect_stderr(io.StringIO()),
                 self.assertRaises(SystemExit),
             ):

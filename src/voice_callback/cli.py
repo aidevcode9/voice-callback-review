@@ -142,7 +142,7 @@ def _evaluation_command(
     return _print_evaluation(read_document(directory / "report.json", EvaluationReport), directory)
 
 
-def _artifact_command(args: argparse.Namespace) -> int:
+def execute_artifact(args: argparse.Namespace) -> int:
     if args.command == "score":
         return _print_evaluation(score_run(args.run_dir, args.dataset), args.run_dir)
     path = freeze_run(args.run_dir, args.dataset, args.output)
@@ -227,12 +227,13 @@ def _saved_evaluations(args: argparse.Namespace) -> int:
         comparison = compare_reviews(current, baseline) if baseline is not None else None
         path = render_review(current, baseline)
         if args.json:
-            return _print_evaluation(
+            _print_evaluation(
                 read_document(args.run_dir / "report.json", EvaluationReport),
                 args.run_dir,
                 review_path=path,
                 comparison=comparison,
             )
+            return 0
         print(summary_text(current, comparison))
         print(f"Browser report: {path}")
         return 0
@@ -267,8 +268,8 @@ def _saved_evaluations(args: argparse.Namespace) -> int:
     return 0
 
 
-def _development_command(args: argparse.Namespace) -> int:
-    from .evaluation_workflow import DevelopmentRequest, repository_root, run_development
+def _prepared_evaluation_command(args: argparse.Namespace) -> int:
+    from .evaluation_workflow import EvaluationRequest, repository_root, run_evaluation
 
     status = InferenceAdmission(args.inference_lock_dir).status()
     if status == "busy":
@@ -279,8 +280,8 @@ def _development_command(args: argparse.Namespace) -> int:
             503,
             "Stop/restart Ollama and explicitly recover admission before another evaluation.",
         )
-    return run_development(
-        DevelopmentRequest(
+    return run_evaluation(
+        EvaluationRequest(
             repository=repository_root(),
             model_id=args.model,
             dataset=args.dataset.resolve(),
@@ -296,6 +297,9 @@ def _development_command(args: argparse.Namespace) -> int:
             url=args.url,
             timeout=args.timeout,
             inference_timeout=args.inference_timeout,
+            split=args.split,
+            frozen_config=args.frozen_config.resolve() if args.frozen_config is not None else None,
+            allow_held_out=args.allow_held_out,
         )
     )
 
@@ -331,7 +335,7 @@ def operation_error(
     return code
 
 
-def execute_development(args: argparse.Namespace) -> int:
+def execute_evaluation(args: argparse.Namespace) -> int:
     client = OllamaClient(args.url, timeout=args.timeout, inference_timeout=args.inference_timeout)
     return _evaluation_command(args, client, load_registry(args.registry))
 
@@ -348,13 +352,25 @@ def main(argv: list[str] | None = None) -> int:
             )
             return 0
         if args.command in {"score", "freeze-evaluation"}:
-            return _artifact_command(args)
+            from .evaluation_workflow import ArtifactRequest, repository_root, run_artifact
+
+            return run_artifact(
+                ArtifactRequest(
+                    repository=repository_root(),
+                    operation=args.command,
+                    run_directory=args.run_dir.resolve(),
+                    dataset=args.dataset.resolve(),
+                    output=args.output.resolve()
+                    if args.command == "freeze-evaluation" and args.output is not None
+                    else None,
+                )
+            )
         if args.command == "evaluations":
             return _saved_evaluations(args)
         if args.command == "evaluate" and args.split == "development":
             if args.allow_held_out or args.frozen_config is not None:
                 raise ValueError("Held-out options apply only to --split evaluation.")
-            return _development_command(args)
+            return _prepared_evaluation_command(args)
         if args.command == "evaluate" and (
             args.baseline is not None
             or args.prepare_only
@@ -362,6 +378,12 @@ def main(argv: list[str] | None = None) -> int:
             or args.metadata_only
         ):
             raise ValueError("Development workflow options do not apply to held-out evaluation.")
+        if args.command == "evaluate":
+            if not args.allow_held_out or args.frozen_config is None:
+                raise ValueError(
+                    "Held-out inference requires --allow-held-out and --frozen-config explicitly."
+                )
+            return _prepared_evaluation_command(args)
         client = OllamaClient(
             args.url,
             timeout=args.timeout,
@@ -372,8 +394,6 @@ def main(argv: list[str] | None = None) -> int:
         configs = load_registry(args.registry)
         if args.command == "classify":
             return _classify_command(args, client, configs)
-        if args.command == "evaluate":
-            return _evaluation_command(args, client, configs)
     except (WorkspaceError, ValueError, OllamaError, OSError, KeyboardInterrupt) as error:
         return operation_error(error)
     report = doctor(client)

@@ -145,3 +145,41 @@ No source fixes, live model/held-out runs, real credential reads or remote updat
 were performed. The full application/browser suite was not repeated for the
 documentation-only rename; the earlier full staged/committed receipts still apply
 to the unchanged implementation source.
+
+## Fixing review findings and preparing the PR
+
+The owner authorized fixing both P2 issues, committing, pushing and creating a PR
+for review on 2026-11-08. The existing dedicated feature branch is retained.
+Project-workflow selects systematic-debugging as lead after comparing the narrow
+TDD candidate; regression-first techniques apply because both failures have
+existing executable fixture paths. Code-review-workflow, branch-finish and the
+configured staged/committed snapshot gates guide handoff. No unrelated change or
+real held-out run is authorized by this verification work.
+
+- [x] Reproduce both issues as permanent failing tests before source changes.
+- [x] Share committed source context for execution, rescore and freezing without
+  normalizing or weakening fingerprints; include the explicitly guarded synthetic
+  held-out continuation so freezing does not leave that same mismatch downstream.
+- [x] Give successful saved-run inspection status 0 in both output formats;
+  execution/scoring failure exits and visible failure counts remain unchanged.
+- [x] Run focused green tests; confirm changed source still rejects old artifacts
+  and missing held-out opt-in sends no provider request.
+- [x] Independent read-only review of the corrections found no actionable issue.
+
+Delivery uses the configured pre-commit and pre-push snapshot gates before
+publication. The local receipts are `.test-work/f011-fix-precommit.log` and
+`.test-work/f011-fix-prepush.log`; actual gate outcomes and commit identity accompany
+the pull request and final handoff. The requested PR is for owner review, not merge.
+The two earlier findings are corrected in source and covered by the regression
+scenarios below; their original reproductions remain historical review evidence.
+
+Failing-before evidence: the new saved-review test returned 1 instead of 0 with
+--json; the CRLF integration test returned 2 from score after a successful canonical
+run, with the original source-identity error. Local logs:
+`.test-work/f011-red-review.log` and `.test-work/f011-red-source.log`.
+Passing-after focused runs: 15 reporting tests, eight workflow tests and two actual
+subprocess integration tests passed. The CRLF fixture verifies rescore/freeze make
+zero HTTP calls, report bytes are unchanged, missing held-out opt-in is rejected,
+explicit synthetic held-out execution succeeds under the freeze, and a subsequently
+committed source change still makes score/freeze fail with identity errors.
+Verification is synthetic engineering evidence, not model quality.
