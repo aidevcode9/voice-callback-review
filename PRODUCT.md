@@ -28,7 +28,7 @@ The existing Python CLI provides diagnostics, classification, evaluation, scorin
 
 ## Evidence on Hand
 
-[PRD](docs/PRD.md), [accepted policy](docs/CALLBACK_POLICY.md), and [F-004 evidence](features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) own the detailed record. The historical callback-text-v1 baseline matched 20/20 fictional development labels once. The callback-text-v2 live baseline, candidate freeze and numeric quality acceptance remain pending. Prototype outputs are simulations, not model measurements.
+[PRD](docs/PRD.md), [accepted policy](docs/CALLBACK_POLICY.md), and [F-004 evidence](features/completed/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) own the detailed record. The current-source callback-text-v2 development baseline matched 20/20 fictional labels. SRC-026 accepts F-004 text delivery after owner testing and QA. Candidate freeze, real held-out measurement, and numeric production-quality targets remain follow-up work. Prototype outputs are simulations, not model measurements.
 
 ## Product Principles
 
@@ -39,4 +39,4 @@ The existing Python CLI provides diagnostics, classification, evaluation, scorin
 
 ## Open Decisions
 
-The owner selected A Review desk on 2026-11-06 and authorized implementation (SRC-021). B Casebook remains historical comparison evidence. Hosting and numeric quality thresholds remain open. Specific API limits and persistence design are proposals in F-006, not accepted operating guarantees.
+The owner selected A Review desk on 2026-11-06 and authorized implementation (SRC-021). B Casebook remains historical comparison evidence. Hosting and numeric quality thresholds remain open. F-006 implements API limits and persistence; controlled browser evidence verifies the local workflow, not production operating guarantees.

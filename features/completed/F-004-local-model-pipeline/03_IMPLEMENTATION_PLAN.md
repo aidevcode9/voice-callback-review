@@ -1,15 +1,44 @@
 # F-004: Local model pipeline implementation plan
 
 Read [requirements](01_REQUIREMENTS.md) and [technical specification](02_TECHNICAL_SPEC.md).
-Status: active. Batches 1–3 and strict Pydantic contracts are implemented and merged through PR #2 at c82f0ed. The historical text-v1 development baseline is preserved; fresh text-v2 live baseline, candidate freeze and quality acceptance remain pending. F-006 implements the text workspace and API. SRC-024 defers audio and paired-audio verification to the [roadmap](../../../docs/ROADMAP.md). Dated execution sections retain their historical scope and evidence.
+Status: completed for the retained text scope on 2026-11-08 by owner testing and QA acceptance, SRC-026. The current-source callback-text-v2 development baseline is validated. F-011 extends the original evaluator with one command, readable reports, and compatible saved-run comparison, merged through PR #7 at 98a2d5b. F-006 owns the text workspace. Audio is deferred under SRC-024; actual candidate freeze, real held-out measurement, and numeric production-quality targets remain explicit follow-up work. Dated execution sections below preserve historical scope and observations.
 
-## Workflow and ownership
+## Owner QA closeout, SRC-026, 2026-11-08
+
+The owner stated, "we can close f-004 i did the testing and qa," and requested a documentation cleanup branch and evaluation references in the engineering map. This is owner acceptance of the retained text delivery. It does not assert that a candidate was frozen, that real held-out inference ran, or that a numeric production threshold was selected. Those remaining activities are tracked in the [roadmap](../../../docs/ROADMAP.md#model-quality-and-release-follow-up).
+
+The implementation and tests are already merged. F-011 [PR #7](https://github.com/aidevcode9/voice-callback-review/pull/7) merged at `98a2d5b079fe129cc67fdc68e7b7e40fceef7acf`. Its final implementation revision is `7302c3356143c2d435db1615d4467e37611d8ca9`. The [F-011 plan](../../completed/F-011-evaluation-workflow/03_IMPLEMENTATION_PLAN.md) records the fixes and prior verification. The final local receipts `.test-work/f011-fix-precommit.log` and `.test-work/f011-fix-prepush.log` record all selected checks passing with 167 Python tests and six production-stack browser flows. These are prior verification results, not newly rerun for this documentation change.
+
+### Fresh development evidence
+
+Saved run `4280e453-bf5a-42f8-80c8-b11ae767ce22` started at `2026-11-09T00:26:35.102133Z` (November 8 in the owner's timezone). It used clean revision `7302c3356143c2d435db1615d4467e37611d8ca9`, `callback-text-v2`, `qwen35-4b`, and gold v1.0 development inputs. Its source fingerprint `bb5cd4ce59a5a3326ed6c04009e24f3efeeefc16f7e4c9957dbc3c9b88da4ca8` matches merged main's package and prompt bytes.
+
+On November 8, saved artifacts were revalidated with `load_review(Path("reports/text/4280e453-bf5a-42f8-80c8-b11ae767ce22"), Path("data/gold/v1.0"))` from `voice_callback.evaluation_review`. This checks artifact bindings and callback-score-v1 counts without inference. The run has 20/20 valid outputs and correct labels, callback recall 8/8, precision 8/8, needs-review rate 6/20, and zero unsafe misses or processing failures. The report SHA-256 is `65284d6b270697f5f03095bc1f8f6b826eec893dbd2004b166bf9283d7ff49a7`.
+
+The ignored run directory includes `review-baseline-5d2b3bafcc265941c01fc55bd362590b07f49a95dce241a6b5e3672284316801.html`. Preserve the directory separately when moving machines. This fictional development result does not measure unseen-case performance or production suitability. Original v1 artifacts and dated evidence below remain unchanged.
+
+### Final acceptance mapping
+
+| Criteria | Closeout disposition |
+| --- | --- |
+| AC01–AC02 | Implemented diagnostics, explicit registry, selected local Qwen classifier, and missing/incompatible-model failures. Batch 1/2 offline and live evidence below; owner QA accepted retained classification scope. |
+| AC03–AC05 | Implemented strict output/evidence validation, separate processing failures, immutable transcript-bound provenance. Batch 2 evidence and F-006 controlled browser acceptance; owner QA accepted text delivery. |
+| AC06 | Implemented scoring with explicit denominators and failures. Fresh v2 development evidence above plus F-011 readable reports and saved comparison. |
+| AC07 | Implemented guarded frozen-system path and input/answer isolation, verified with synthetic tests. SRC-026 closes the text delivery and transfers actual candidate freeze and real held-out measurement to quality follow-up. No real held-out result is asserted. |
+| AC08, AC10, transcription part of AC02 | Deferred to the audio roadmap under SRC-024. Not implemented or accepted as audio capability. |
+| AC09 | Transferred to completed F-006-AC03/AC05, with controlled browser evidence in its plan. |
+
+### Documentation cleanup workflow
+
+Branch `docs/f-004-closeout-evaluation-map` was created from main `98a2d5b` before edits. Project-workflow selects pstack technical-writing as the lead for this bounded documentation closeout, with unslop and verification-before-completion supporting it. House planning-workflows was considered; no new implementation design or architecture playbook is needed. The cleanup updates living status, transfers, links, and the HTML map, while preserving dated execution history. SRC-027 expands the roadmap for technical-team handoff, including production hardening, deployment, and automated CI/CD. Verification uses the shared docs suite, whitespace/link checks, and rendered desktop/narrow HTML inspection. No new model run, candidate freeze, or real held-out execution is part of this branch.
+
+## Original batch 1 workflow and ownership (historical)
 
 Use project-workflow as the orchestrator and house planning-workflows as the lead. House planning-workflows, pstack Feature, and architect were inspected again for implementation. House planning fits the agreed module design and bounded diagnostics batch. Pstack technical-writing and unslop support the documents; verification-before-completion supports evidence. No full pstack Feature, architect, or delegated implementation run is claimed.
 
 The user requested this GPT-6.1 Sol high-reasoning chat for batch 1. The previous planning chat finished its documentation before implementation began. This chat owns the coupled batch and shared implementation plan; no concurrent writer was used.
 
-## Throughput and shared state
+## Original batch 1 throughput and shared state (historical)
 
 - Blocking first steps: read AGENTS, PRD, this feature, and the profile; inspect the working tree; keep frozen data unchanged. No classifier choice is needed for batch 1.
 - Independent workstreams: later UI and audio experiments can separate only after shared types and contracts exist. No fan-out is needed for batch 1.
@@ -20,10 +49,10 @@ The user requested this GPT-6.1 Sol high-reasoning chat for batch 1. The previou
 
 - [x] Batch 1: package, contracts, runtime health, and model registry. Create pyproject.toml, domain.py, models.py, ollama.py, cli.py, config/models.json, and focused tests. doctor reports the current server and empty-model status; models distinguishes configured from installed and compatible. No classifier default, model downloads, sign-in, inference, audio installation, or dashboard work. Update setup documentation and observed evidence.
 - [x] Batch 2: selected text classifier. Owner selected qwen3.5:4b-q4_K_M before explicit provisioning. Implemented the accepted-policy prompt, structured response validation, provenance, exclusive run records, and classify CLI. Offline checks and focused development inference verified outcomes, evidence, identity, and failure behavior. See the execution record below; formal evaluation remains batch 3.
-- [ ] Batch 3 final verification/freeze: development scoring, immutable artifacts and strict contracts are implemented and merged; preserve the v1 baseline. Run the fresh text-v2 development baseline and inspect differences before explicit candidate freeze. Held-out inference remains separately authorized; D-004 quality acceptance remains open.
+- [x] Batch 3 text implementation and development verification: scoring, immutable artifacts, strict contracts, candidate-freeze command, and guarded held-out path are implemented. The fresh callback-text-v2 development baseline is validated below. Actual candidate freeze and real held-out execution are transferred to the quality follow-up under SRC-026; neither is claimed complete.
 - [x] Text workspace handoff: F-006 owns Next.js/API/Nginx, explicit text submissions, versioned editing, result/history, separate human decisions, case filters and browser acceptance.
 - Deferred, not completed: former transcription and paired-audio stages, including AC08, AC10 and the transcription part of AC02, are transferred to the roadmap under SRC-024.
-- [ ] Review every acceptance criterion, record unrun checks and quality limitations, then move the feature to completed only when its agreed delivery scope is satisfied.
+- [x] Review the retained acceptance criteria and transfers, record owner testing and QA acceptance under SRC-026, and move F-004 to completed. See the closeout mapping below. Numeric production-quality targets remain D-004.
 
 Each batch ends in a verified state before dependent work starts. A future audio feature needs its own scope and acceptance ownership.
 
@@ -39,8 +68,8 @@ Existing commands below are available now. Planned commands must be implemented 
 | F-004-AC02 | 1 | python -m voice_callback.cli models --stage classification | Configured choices with distinct availability; only installed compatible choices selectable; no download. | Batch 1: .venv\Scripts\python.exe -m voice_callback.cli models --stage classification exited 0 with no configured classifier or invented default. |
 | F-004-AC01 and AC02 | 1 | Stopped server, timeout, malformed HTTP response, incompatible and missing model fixtures | Useful status and appropriate process exit; no model selected implicitly. | Controlled offline behavior verified in test_ollama.py and test_models.py, including exact stage/tag joins, refusal, timeouts, malformed JSON/schema, redirects, HTTP errors, response caps, premature bodies, and no defaults. |
 | F-004-AC03 through AC05 | 2 | .venv\Scripts\python.exe -m voice_callback.cli classify --input data/gold/v1.0/inputs/development.jsonl --case-id VC-001 --model qwen35-4b | Valid result or explicit failure with provenance. | Implemented; VC-001 returned callback_required / UR-001 with exact transcript quotes and model/prompt/policy/transcript provenance. See batch 2 record below. |
-| F-004-AC06 | 3 | python -m voice_callback.cli evaluate --split development --model MODEL_ID | Complete counts, failures, denominators, and inspectable predictions and scoring report. | Implemented and offline verified; historical v1 live baseline preserved; fresh callback-text-v2 live baseline pending. |
-| F-004-AC07 | 3 | Freeze candidate configuration, then run held-out evaluation once | Input-answer separation and configuration hash; tuning stops before run. | Not run. |
+| F-004-AC06 | 3 | python -m voice_callback.cli evaluate --split development --model MODEL_ID | Complete counts, failures, denominators, and inspectable predictions and scoring report. | Implemented and offline verified; historical v1 evidence preserved. Validated callback-text-v2 run 4280e453-bf5a-42f8-80c8-b11ae767ce22 matched 20/20 labels; see closeout below. |
+| F-004-AC07 | 3 | Synthetic freeze/held-out boundary checks; actual run requires explicit opt-in and matching freeze | Input-answer separation, configuration hashes, drift rejection. | Implemented and offline verified in F-004/F-011. No real held-out inference or candidate freeze is claimed; actual measurement is transferred to quality follow-up under SRC-026. |
 | F-004-AC08, AC10 and transcription part of AC02 | Future roadmap | No current command or delivery gate | Future feature defines acceptance and verification. | Deferred, not run or accepted. |
 | Former F-004-AC09 -> F-006-AC03/05 | F-006 | Explicit submission, versioned edits and separate review | No automatic inference; earlier results remain inspectable. | Controlled browser evidence is recorded in the completed F-006 plan. |
 | Documentation | Each batch | git diff --check and local Markdown link inspection | No whitespace errors or broken changed-document links. | Batch 1: git diff --check passed. 146 local Markdown targets in 38 working documents passed; whitespace in all 14 untracked files passed. Bundled template assets excluded; see execution record. |
@@ -49,7 +78,7 @@ Use the project virtual environment. Batch 1 must document its editable installa
 
 ## Blockers and decisions
 
-SRC-018 resolves the classifier choice and authorizes provisioning and development inference. The selected Qwen model is installed and exercised; formal text evaluation remains batch 3. D-004 quality targets remain open; report results without inventing a pass threshold.
+SRC-018 resolves the classifier choice and authorizes provisioning and development inference. The selected Qwen model is installed and exercised. SRC-026 accepts the retained text feature after owner testing and QA. D-004 numeric production-quality targets remain open; report measured development counts without inventing a pass threshold.
 
 SRC-020 rejects Streamlit. F-006 implements the Next.js/API workspace. SRC-024 moves audio to the roadmap; earlier audio limits and model suggestions are unaccepted historical proposals.
 
@@ -61,7 +90,7 @@ Later batches remain unchecked. No audio/UI dependencies, model inference, model
 
 ## Completion and delivery
 
-No overall application or model quality is accepted by this plan. Batch 2 explicitly downloaded the selected local classifier and ran development checks. Final completion requires evidence against the retained text criteria, the explicit AC09 transfer to F-006, and clear reporting of the remaining quality decision. F-006 text functionality is implemented and verified with controlled browser evidence; broader product acceptance and deployment remain separate. Audio criteria are deferred under SRC-024.
+SRC-026 accepts F-004's retained text delivery after owner testing and QA. The feature is completed; the implementation is merged, while this documentation closeout is on a local review branch. The owner's acceptance covers the prototype text scope. Numeric production-quality targets, real held-out measurement, and hosted deployment remain separate. F-006 owns text workspace acceptance, F-011 owns the evaluation experience, and audio is deferred under SRC-024.
 
 ## Batch 1 execution record
 
@@ -243,3 +272,7 @@ PR #1 is merged at 9abcb84 and PR #2 is merged into main at c82f0ed. The dedicat
 ### Text workspace handoff completed, 2026-11-07
 
 F-006 completes selected A Next.js, FastAPI/SQLite and Nginx with controlled production-stack browser/API evidence, separate human decisions, immutable version/run provenance, keyboard/accessibility checks and shared gates. Its completed plan maps the former UI criteria. No new live model-quality baseline, candidate freeze, held-out action or audio provisioning occurred. F-004 remains active for text-v2 quality work; SRC-024 defers audio. Earlier dated pending-dashboard statements remain historical.
+
+## Documentation closeout verification, 2026-11-08
+
+The shared docs suite passed quality-baseline configuration, generated OpenAPI consistency, local Markdown targets, feature lifecycle, and CI structure checks. The HTML map was exercised with Playwright at 1440px and 390px in light and dark schemes: no document overflow or JavaScript errors, six evaluation steps, five configured CI jobs, and valid internal anchors. Desktop and narrow screenshots were inspected; the wide delivery diagram scrolls locally on narrow screens. Browser checks blocked the optional remote font stylesheet and verified system-font fallback. Local captures and check receipts remain ignored under `.test-work/docs-map-*`. Full Python/model/application-browser suites were not rerun for this documentation-only change; earlier engineering receipts are recorded separately above.

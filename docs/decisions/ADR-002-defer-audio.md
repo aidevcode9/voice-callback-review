@@ -16,3 +16,7 @@ F-004 retains local text inference, development evaluation, candidate-freeze pre
 ## Consequences
 
 The leadership demonstration can use the implemented text workspace and controlled evidence. The historical text-v1 baseline is not a current quality acceptance. Fresh text-v2 development evaluation, candidate freeze, numeric quality decisions, and separately authorized held-out evaluation remain open. Audio quality and hardware fit are not claimed.
+
+## Subsequent closeout, 2026-11-08
+
+SRC-026 accepts F-004 text delivery after owner testing and QA. A fresh callback-text-v2 development baseline is now recorded in the [evaluation guide](../EVALUATION.md). Actual candidate freeze, real held-out measurement, and numeric production-quality targets remain follow-up work. SRC-027 expands the roadmap to include production hardening and deployment/CI/CD. This note updates current status without rewriting the original decision above.

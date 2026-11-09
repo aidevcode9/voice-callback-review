@@ -1,12 +1,18 @@
 # Text evaluation
 
-Status: batch 3 implements a development runner, immutable artifacts, deterministic offline scoring, and candidate configuration freezing. The first development baseline matched all 20 reference labels. Strict Pydantic boundary contracts are implemented and verified offline; a fresh development baseline now precedes candidate freeze. The frozen release has 20 development and 20 held-out evaluation cases. The [PRD](PRD.md) owns the rubric and acceptance decisions.
+Status: F-004 text delivery is complete after owner testing and QA acceptance (SRC-026). [F-011](../features/completed/F-011-evaluation-workflow/01_REQUIREMENTS.md), merged through [PR #7](https://github.com/aidevcode9/voice-callback-review/pull/7), provides the canonical development command, readable browser reports, saved-run inspection, and compatible baseline comparison. The frozen release has 20 development and 20 held-out cases. Candidate-freeze and guarded held-out commands are implemented; actual candidate freeze and real held-out measurement remain [quality follow-up](ROADMAP.md#model-quality-and-release-follow-up).
 
-## Development checkpoint before contract migration
+## Current development checkpoint and acceptance
 
-The owner ran evaluation 7f31782d-c234-4937-85fe-252add830d39 on clean commit 1f94357 with callback-text-v1 and the selected Qwen digest. Offline rescore reproduced 20/20 valid and correct outputs: callback recall 8/8, precision 8/8, needs-review rate 6/20, and no processing failures or unsafe misses. Original reports remain in the ignored reports/text directory; their hashes and full revision are recorded in the [implementation plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md). Copy that directory separately when preserving evidence across machines; ignored artifacts are not included in the Git commit.
+Run `4280e453-bf5a-42f8-80c8-b11ae767ce22` uses clean revision `7302c33`, `callback-text-v2`, and `qwen35-4b`. Its source fingerprint matches merged main `98a2d5b`. Saved-snapshot validation reproduced 20/20 valid and correct outputs, callback recall 8/8, precision 8/8, needs-review rate 6/20, and zero unsafe misses or processing failures. The [F-004 closeout](../features/completed/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md#owner-qa-closeout-src-026-2026-11-08) records provenance, artifact hashes, and the owner's testing and QA acceptance. This accepts the prototype text delivery; numeric production targets remain D-004.
 
-One fictional development trial establishes neither held-out quality nor repeatability. Preserve that evidence. The approved strict Pydantic contract migration has passed offline checks. Commit the verified implementation and run a fresh development baseline before configuration freeze. The generated response schema requires callback-text-v2 and a new prompt/source fingerprint. Existing reports are not rewritten or presented as migrated runs; offline rescoring uses the original matching source revision.
+The saved run directory includes a `review-baseline-*.html` comparison report. Use `evaluations --run-dir` to inspect a saved run or add `--baseline` to compare compatible development runs. Choosing a baseline is explicit; there is no automatically promoted default. Expected answers remain outside inference. Development counts do not establish held-out performance or production suitability.
+
+## Development checkpoint before contract migration (historical)
+
+The owner ran evaluation 7f31782d-c234-4937-85fe-252add830d39 on clean commit 1f94357 with callback-text-v1 and the selected Qwen digest. Offline rescore reproduced 20/20 valid and correct outputs: callback recall 8/8, precision 8/8, needs-review rate 6/20, and no processing failures or unsafe misses. Original reports remain in the ignored reports/text directory; their hashes and full revision are recorded in the [implementation plan](../features/completed/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md). Copy that directory separately when preserving evidence across machines; ignored artifacts are not included in the Git commit.
+
+The migration changed the generated response schema to callback-text-v2 and required a new prompt/source fingerprint. Fresh v2 development evidence is now recorded above. Existing reports are not rewritten or presented as migrated runs; original-source rescoring still requires the matching source revision. The v1 checkpoint remains historical.
 
 ## Run development inference before scoring
 

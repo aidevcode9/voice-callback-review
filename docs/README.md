@@ -9,7 +9,8 @@
 | [Label guide](LABEL_GUIDE.md) | Human review, candidate/gold distinction, disputes, and versioning. |
 | [Candidate-set plan](CANDIDATE_SET_PLAN.md) | Proposed size, reviewer, language, grouping, and split defaults. |
 | [PRD](PRD.md) | Working product intent, scope, users, and product requirements. |
-| [Roadmap](ROADMAP.md) | Deferred audio and voice-to-text enhancement and transferred acceptance criteria. |
+| [Technical roadmap](ROADMAP.md) | Proposed production hardening, identity/access, logging, AI security, deployment/CI/CD, quality gates, and audio work for the technical team. |
+| [Engineering workflow map](vc-review-map.html) | Standalone HTML delivery map, evaluation flow, and current evidence boundaries. |
 | [Demo story](DEMO_STORY.md) | Planned walkthrough of the product and development process. |
 | [User flow](USER_FLOW.md) | Proposed reviewer journey and processing-error paths. |
 | [Golden set](../data/gold/v1.0/README.md) | Current frozen, owner-approved labels and isolated input/answer artifacts. |
@@ -20,7 +21,7 @@
 | [Evaluation workflow feature](../features/completed/F-011-evaluation-workflow/01_REQUIREMENTS.md) | Canonical development command, local configuration, readable reports and baseline comparison. |
 | [Evaluation](EVALUATION.md) | Implemented text evaluation, artifact integrity, metrics, freeze controls, and proposed audio comparison. |
 | [Workflow selection](WORKFLOW_SELECTION.md) | Selected skills, orchestration role, and actual process stage. |
-| [Local model build plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) | Sequenced implementation batches, model-choice dependencies, and acceptance evidence. |
+| [Local model build plan](../features/completed/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) | Sequenced implementation batches, model-choice dependencies, and acceptance evidence. |
 | [Quality checks](QUALITY_CHECKS.md) | Shared static, behavior, data, documentation, package, and snapshot gates; CI costs and limits. |
 | [Langfuse tracing](LANGFUSE.md) | Optional tracing, content controls, setup, and privacy boundaries. |
 | [Local setup](LOCAL_SETUP.md) | Reproducible project environment, runtime diagnostics, registry states, and offline checks. |
@@ -37,7 +38,7 @@ Keep permanent documentation current. Completed feature documents preserve what 
 
 ## Text workspace design
 
-- [F-006 requirements](../features/completed/F-006-text-review-workspace/01_REQUIREMENTS.md), [API/design specification](../features/completed/F-006-text-review-workspace/02_TECHNICAL_SPEC.md), and [plan/evidence](../features/completed/F-006-text-review-workspace/03_IMPLEMENTATION_PLAN.md) own the proposed text frontend/API.
+- [F-006 requirements](../features/completed/F-006-text-review-workspace/01_REQUIREMENTS.md), [API/design specification](../features/completed/F-006-text-review-workspace/02_TECHNICAL_SPEC.md), and [plan/evidence](../features/completed/F-006-text-review-workspace/03_IMPLEMENTATION_PLAN.md) own the implemented text frontend/API.
 - [Interactive directions](../prototypes/text-review/index.html) and [prototype verification notes](../prototypes/text-review/README.md) show the design exploration.
 - [Product context](../PRODUCT.md) captures durable design constraints; [visual design record](../DESIGN.md) records selected A Review desk and preserves B Casebook as alternative evidence.
 - [Text review surface brief](TEXT_REVIEW_DESIGN_BRIEF.md) records the proposed Operate directions and design workflow adaptation.

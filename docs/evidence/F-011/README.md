@@ -64,5 +64,4 @@ Saved-snapshot review validates artifact bindings and versioned metric-count
 consistency. It does not re-execute historical source or relax the original-source
 guard on `score`. Unsupported pre-contract artifacts still require their original
 source environment; they are not automatically migrated. Synthetic successes here
-establish workflow correctness only. F-004's fresh model-quality baseline, owner
-quality thresholds and explicitly authorized held-out check remain separate work.
+establish workflow correctness only. The [F-004 closeout](../../../features/completed/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md#owner-qa-closeout-src-026-2026-11-08) records the later fresh v2 development baseline and owner testing and QA acceptance. Numeric production-quality targets, actual candidate freeze, and a separately authorized real held-out check remain follow-up work.

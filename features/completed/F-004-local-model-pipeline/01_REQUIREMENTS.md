@@ -2,9 +2,9 @@
 
 Owner and acceptance owner: project owner.
 Product requirements: PRD-R001 through PRD-R010.
-Sources: SRC-012 through SRC-016 in the [source register](../../../intake/README.md).
+Sources: SRC-012 through SRC-019, SRC-024, and SRC-026 in the [source register](../../../intake/README.md).
 Dependencies: completed F-001 through F-003; frozen gold v1.0.
-Status: active. Batches 1 and 2 implement diagnostics, contracts, and selected text classification. Batch 3 implements evaluation and has a preserved first development baseline; fresh text-v2 evaluation and candidate freeze remain open. F-006 owns the implemented text workspace. SRC-024 defers audio and transcription to the [roadmap](../../../docs/ROADMAP.md).
+Status: completed for the retained text scope on 2026-11-08. SRC-026 records the owner's completed testing and QA and instruction to close F-004. Diagnostics, classification, strict contracts, and evaluation are implemented. F-006 owns browser/API acceptance; F-011 owns the coherent evaluation command, reports, and comparison. Audio remains deferred under SRC-024. Actual candidate freeze and real held-out measurement remain follow-up work, not claimed as performed.
 
 ## Problem, users, and outcome
 
@@ -39,7 +39,7 @@ Live calls, speech synthesis, automatic callbacks, CRM writes, cloud inference, 
 
 ## Open decisions
 
-D-003 is narrowed in the [brief](../../../intake/PROJECT_BRIEF.md). SRC-018 resolves the classifier choice and authorizes explicit provisioning plus development-only inference. Batch 3 owns formal scoring and held-out configuration freeze. [F-006 requirements](../../completed/F-006-text-review-workspace/01_REQUIREMENTS.md) own text UI selection and browser/API acceptance. SRC-024 defers the audio portions of AC02, AC08, and AC10 to the roadmap.
+D-003 resolves the text classifier choice through SRC-018. [F-006](../../completed/F-006-text-review-workspace/01_REQUIREMENTS.md) owns the accepted text UI. SRC-024 defers the audio portions of AC02, AC08, and AC10. SRC-026 closes the implemented text delivery after owner testing and QA. The [closeout record](03_IMPLEMENTATION_PLAN.md#owner-qa-closeout-src-026-2026-11-08) maps every criterion to evidence or transferred scope. Candidate freeze and real held-out execution remain in the [quality follow-up](../../../docs/ROADMAP.md#model-quality-and-release-follow-up).
 
 D-004 remains open for numeric quality and latency targets. Functional acceptance requires the behaviors above; it does not establish production suitability. D-005 hosting is outside this local feature.
 

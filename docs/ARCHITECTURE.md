@@ -1,6 +1,6 @@
 # Architecture
 
-Current state: policy documents, synthetic candidates, an explicit human-approval ledger, frozen gold v1.0, and offline validation/export tools. F-004 batches 1 and 2 add diagnostics, local text classification, and exclusive JSON run records. Batch 3 adds isolated evaluation artifacts and offline scoring. F-006 adds the Next.js Review desk, FastAPI/SQLite persistence and Nginx single-origin routing. Audio is a future roadmap enhancement; hosting remains undecided. The first diagram describes the current text workflow.
+Current state: accepted policy, owner-approved frozen gold v1.0, diagnostics, local text classification, strict contracts, immutable run records, and offline scoring. F-004 text delivery is complete after owner testing and QA acceptance. F-006 delivers the Next.js Review desk, FastAPI/SQLite persistence, and Nginx single-origin routing. F-011 provides one development evaluation command, readable browser reports, and compatible saved-run comparison. Audio and hosting remain follow-up work. The first diagram describes the current text workflow.
 
 ```mermaid
 flowchart LR
@@ -42,7 +42,7 @@ flowchart LR
 
 Internal dataclasses and the pure scorer remain independent of the UI and provider SDKs. CallbackOutput is the authoritative response contract used for both validation and schema generation. Rule consistency and exact evidence checks remain application validation after generation; a valid schema does not establish semantic truth or deterministic inference. callback-text-v2 records the generated schema's prompt change. System snapshots include the contract and Pydantic/core versions, and prior artifacts retain their original hashes and source identity.
 
-The [F-004 specification](../features/active/F-004-local-model-pipeline/02_TECHNICAL_SPEC.md) owns the Python/Ollama classifier; [F-006](../features/completed/F-006-text-review-workspace/02_TECHNICAL_SPEC.md) owns the implemented Next.js frontend, FastAPI API and Nginx routing. The owner selected qwen3.5:4b-q4_K_M under D-003 in the [brief](../intake/PROJECT_BRIEF.md). Audio and GPU handoff are future concerns; deployment is outside this feature.
+The [F-004 specification](../features/completed/F-004-local-model-pipeline/02_TECHNICAL_SPEC.md) owns the Python/Ollama classifier; [F-006](../features/completed/F-006-text-review-workspace/02_TECHNICAL_SPEC.md) owns the implemented Next.js frontend, FastAPI API and Nginx routing. The owner selected qwen3.5:4b-q4_K_M under D-003 in the [brief](../intake/PROJECT_BRIEF.md). Audio and GPU handoff are future concerns; deployment is outside this feature.
 
 Update this diagram when the implemented structure changes. Keep proposed components labeled until they exist.
 
