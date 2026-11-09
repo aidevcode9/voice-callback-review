@@ -111,3 +111,37 @@ receipts both passed all suites, including 165 Python and six browser tests.
 Independent read-only reviewers cover runner lifecycle and report/baseline
 integrity; final findings and limits accompany the review handoff. The unrelated
 reviewer HTML and local credentials remain outside commits.
+
+## Code review results, 2026-11-08
+
+Reviewed implementation 5f4ac9a against baseline 884168c. The branch rename and
+review-record commits change documentation only. Two P2 defects were reproduced;
+their corrections remain open and this review does not approve merging the feature.
+Earlier passing acceptance checks remain historical evidence, not proof that these
+newly covered scenarios work.
+
+1. **Artifact commands use different source bytes from the canonical run.**
+   `evaluation_workflow.py` executes the worker in a committed checkout, but CLI
+   `score`/`freeze-evaluation` execute from the caller's package. The project's LF
+   attributes allow Git-clean Windows working files with CRLF bytes. A disposable
+   synthetic repository reproduced `evaluate` exit 0 followed by `score` and
+   `freeze-evaluation` exit 2 because their source fingerprints differed; Git status
+   stayed clean and no further model calls occurred. Route artifact operations
+   through the recorded source checkout while preserving strict fingerprint checks.
+   Local proof: `.test-work/review-f011-runner/repro_line_endings.py`.
+2. **Output format changes the offline review exit status.** The same valid
+   completed synthetic run containing a processing failure returns 0 from plain
+   `evaluations --run-dir`, but 1 with only `--json` added. The JSON branch applies
+   `_print_evaluation`'s failure policy and the plain branch returns 0 unconditionally.
+   Both formats need the same exit policy. Local proof:
+   `.test-work/review-f011-reports/repro_exit.py`.
+
+Fresh focused verification ran
+`.venv\Scripts\python.exe -m unittest discover -s tests -p 'test_evaluation*.py' -v`:
+37 tests passed. The controlled HTTP integration needed the socket-capable execution
+context. The JSON exit-status reproduction was also rerun independently by the
+review owner. No additional actionable defect was established in this pass.
+No source fixes, live model/held-out runs, real credential reads or remote updates
+were performed. The full application/browser suite was not repeated for the
+documentation-only rename; the earlier full staged/committed receipts still apply
+to the unchanged implementation source.
