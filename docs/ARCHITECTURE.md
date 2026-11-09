@@ -22,7 +22,7 @@ The callback evaluator receives the transcript version selected for the decision
 
 Golden labels are part of a separate [evaluation flow](EVALUATION.md). They do not enter classifier inputs.
 
-Optional [Langfuse tracing](LANGFUSE.md) records the submitted transcript, validated decision, and operational metadata from the shared classifier for CLI and review-desk runs. An environment setting restricts traces to metadata. The system prompt, case identifier, and raw model response are not exported. Evaluation runs do not export traces. Telemetry is disabled by default and does not replace local provenance.
+Optional [Langfuse tracing](LANGFUSE.md) records the submitted transcript, validated decision, and operational metadata from the shared classifier for CLI, review-desk, and evaluation runs. An environment setting restricts traces to metadata. Evaluation traces include their run ID, split, dataset version, and case ID for correlation; expected answers remain local. The system prompt and raw model response are not exported. Telemetry is disabled by default and does not replace local provenance.
 
 ## Strict external contracts
 
@@ -145,3 +145,42 @@ flowchart LR
 ```
 
 Source ownership and exact API deviations are recorded in F-006. Workspace results retain the existing strict run JSON inside append-only SQLite records; CLI artifacts/evaluation remain separate. Atomic transactions, immutable-history triggers and shared process admission protect explicit submissions. Production-stack browser checks cover explicit requests, editing/history/reviews, reconnect/restart, runtime failures and desktop/narrow accessibility. The Ollama endpoint is a controlled fixture; no model-quality result follows. The static prototypes remain simulations.
+
+## F-011 development evaluation workflow
+
+The canonical `evaluate --model MODEL_ID` development command uses
+`evaluation_workflow.py` to prepare and verify a committed checkout and launch the
+private `evaluation_worker` from that source. `evaluation_environment.py` owns
+allowlisted root `.env` loading with process precedence and optional tracing.
+The worker invokes the existing evaluator under the existing inference lease;
+progress is emitted after saved predictions. The evaluator remains the only
+inference/scoring artifact writer.
+
+`evaluation_review.py` validates saved development artifacts and exposes one typed
+read model for terminal summaries, case review and compatible baseline comparison.
+`evaluation_report.py` projects it into escaped self-contained HTML. Baseline
+inspection permits different source identities and validates saved v1 counts; it
+never claims original-source re-execution or weakens `score_run`'s source guard.
+The read path refuses held-out declarations before loading their cases or answers.
+
+```mermaid
+flowchart LR
+    Command[Evaluate, score and freeze commands] --> Prepare[Committed checkout and resolved environment]
+    Prepare --> Worker[Private worker in selected source]
+    Worker --> Engine[Existing evaluator and source-checked artifact operations]
+    Engine --> Artifacts[Immutable completed artifacts]
+    Artifacts --> Review[Saved development review]
+    Baseline[Compatible saved baseline] --> Review
+    Review --> Summary[Terminal summary and browser report]
+    History[Evaluations command] --> Review
+```
+
+Model settings remain in `config/models.json`. Local credentials are ignored `.env`
+or process values, not report configuration. No app API, job database, deployment
+or automatic held-out execution is added by this first slice.
+
+The worker also owns explicit score/freeze dispatch and explicitly authorized
+held-out execution. All three use committed source bytes rather than mixing a
+Windows CRLF caller with an LF evaluation checkout. Existing fingerprint and
+frozen-system checks remain authoritative; saved-snapshot review stays read-only
+and source-independent. The parent resolves tracing .env only for development.

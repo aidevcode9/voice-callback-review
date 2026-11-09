@@ -7,11 +7,15 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
+from pydantic import TypeAdapter
+
 from .admission import InferenceAdmission
 from .classify import classify, load_transcript
+from .datasets import load_split
 from .domain import JsonValue, ModelConfig, RunSuccess, Stage
-from .evaluate import evaluate, freeze_run, read_document, score_run
-from .evaluation_contracts import EvaluationReport
+from .evaluate import EvaluationProgress, evaluate, freeze_run, read_document, score_run
+from .evaluation_contracts import EvaluationDeclaration, EvaluationReport
+from .evaluation_review import Comparison
 from .models import list_models, load_registry
 from .ollama import OllamaClient, OllamaError, doctor
 from .storage import render_run, save_run
@@ -46,7 +50,13 @@ def _classify_command(
     return 0 if isinstance(result, RunSuccess) else 1
 
 
-def _print_evaluation(report: dict[str, JsonValue], directory: Path) -> int:
+def _print_evaluation(
+    report: dict[str, JsonValue],
+    directory: Path,
+    *,
+    review_path: Path | None = None,
+    comparison: Comparison | None = None,
+) -> int:
     scored = report["score"]
     if not isinstance(scored, dict):
         raise ValueError("Evaluation report is invalid.")
@@ -57,6 +67,10 @@ def _print_evaluation(report: dict[str, JsonValue], directory: Path) -> int:
                 "status": "completed_with_failures" if failed else "completed",
                 "report_path": str(directory / "report.json"),
                 "report": report,
+                "review_path": str(review_path) if review_path is not None else None,
+                "comparison": TypeAdapter(Comparison).dump_python(comparison, mode="json")
+                if comparison is not None
+                else None,
             },
             indent=2,
         )
@@ -70,6 +84,32 @@ def _evaluation_command(
     matches = [config for config in configs if config.id == args.model]
     if len(matches) != 1:
         raise ValueError("Choose an explicit configured classifier ID.")
+    baseline = None
+    if args.baseline is not None:
+        from .evaluation_review import assert_baseline_compatible, load_review
+
+        baseline = load_review(args.baseline, args.dataset)
+        assert_baseline_compatible(baseline, load_split(args.dataset, args.split))
+
+    def progress(event: EvaluationProgress) -> None:
+        if event.phase == "starting":
+            print(f"Evaluation: {event.directory}", file=sys.stderr, flush=True)
+        elif event.phase == "persisted":
+            print(
+                f"{event.completed}/{event.total} saved: {event.case_id}",
+                file=sys.stderr,
+                flush=True,
+            )
+        elif event.phase == "incomplete":
+            print(
+                f"Incomplete run preserved: {event.directory}. If provider completion is unknown, "
+                "stop/restart Ollama, then use recover-inference --runtime-stopped before retrying.",
+                file=sys.stderr,
+                flush=True,
+            )
+        else:
+            print(f"Evaluation {event.phase}.", file=sys.stderr, flush=True)
+
     with InferenceAdmission(args.inference_lock_dir).operation() as lease:
         directory = evaluate(
             args.dataset,
@@ -81,11 +121,28 @@ def _evaluation_command(
             frozen_path=args.frozen_config,
             allow_held_out=args.allow_held_out,
             observe_result=lease.observe,
+            progress=progress,
+        )
+    if args.split == "development":
+        from .evaluation_review import compare_reviews, load_review, render_review, summary_text
+
+        current = load_review(directory, args.dataset)
+        comparison = compare_reviews(current, baseline) if baseline is not None else None
+        review_path = render_review(current, baseline)
+        if not args.json:
+            print(summary_text(current, comparison))
+            print(f"Browser report: {review_path}")
+            return 0 if current.report.score.valid_outputs == current.report.score.total else 1
+        return _print_evaluation(
+            read_document(directory / "report.json", EvaluationReport),
+            directory,
+            review_path=review_path,
+            comparison=comparison,
         )
     return _print_evaluation(read_document(directory / "report.json", EvaluationReport), directory)
 
 
-def _artifact_command(args: argparse.Namespace) -> int:
+def execute_artifact(args: argparse.Namespace) -> int:
     if args.command == "score":
         return _print_evaluation(score_run(args.run_dir, args.dataset), args.run_dir)
     path = freeze_run(args.run_dir, args.dataset, args.output)
@@ -93,7 +150,7 @@ def _artifact_command(args: argparse.Namespace) -> int:
     return 0
 
 
-def main(argv: list[str] | None = None) -> int:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
     for name in ("doctor", "models", "classify", "evaluate"):
@@ -119,10 +176,31 @@ def main(argv: list[str] | None = None) -> int:
             command.add_argument("--output-dir", type=Path, default=Path("runtime/classifications"))
         if name == "evaluate":
             command.add_argument("--dataset", type=Path, default=Path("data/gold/v1.0"))
-            command.add_argument("--split", required=True, choices=("development", "evaluation"))
+            command.add_argument(
+                "--split", default="development", choices=("development", "evaluation")
+            )
             command.add_argument("--output-dir", type=Path, default=Path("reports/text"))
             command.add_argument("--frozen-config", type=Path)
             command.add_argument("--allow-held-out", action="store_true")
+            command.add_argument(
+                "--baseline", type=Path, help="Compare a completed development run."
+            )
+            command.add_argument(
+                "--json", action="store_true", help="Print machine-readable results."
+            )
+            command.add_argument("--trace", action=argparse.BooleanOptionalAction, default=None)
+            command.add_argument("--metadata-only", action="store_true")
+            command.add_argument(
+                "--prepare-only", action="store_true", help="Prepare without inference."
+            )
+    review = subparsers.add_parser(
+        "evaluations", help="List or review saved development evaluations."
+    )
+    review.add_argument("--run-dir", type=Path)
+    review.add_argument("--baseline", type=Path)
+    review.add_argument("--dataset", type=Path, default=Path("data/gold/v1.0"))
+    review.add_argument("--output-dir", type=Path, default=Path("reports/text"))
+    review.add_argument("--json", action="store_true")
     for name in ("score", "freeze-evaluation"):
         command = subparsers.add_parser(name)
         command.add_argument("--run-dir", required=True, type=Path)
@@ -137,7 +215,133 @@ def main(argv: list[str] | None = None) -> int:
         help="Confirm you stopped/restarted Ollama after an interrupted operation.",
     )
     recover.add_argument("--inference-lock-dir", type=Path, default=Path("runtime/inference"))
-    args = parser.parse_args(argv)
+    return parser
+
+
+def _saved_evaluations(args: argparse.Namespace) -> int:
+    from .evaluation_review import compare_reviews, load_review, render_review, summary_text
+
+    if args.run_dir is not None:
+        current = load_review(args.run_dir, args.dataset)
+        baseline = load_review(args.baseline, args.dataset) if args.baseline is not None else None
+        comparison = compare_reviews(current, baseline) if baseline is not None else None
+        path = render_review(current, baseline)
+        if args.json:
+            _print_evaluation(
+                read_document(args.run_dir / "report.json", EvaluationReport),
+                args.run_dir,
+                review_path=path,
+                comparison=comparison,
+            )
+            return 0
+        print(summary_text(current, comparison))
+        print(f"Browser report: {path}")
+        return 0
+    if args.baseline is not None:
+        raise ValueError("Choose --run-dir when comparing a saved baseline.")
+    rows: list[dict[str, JsonValue]] = []
+    for path in sorted(args.output_dir.glob("*/evaluation.json")):
+        started_at: JsonValue = None
+        try:
+            declaration = read_document(path, EvaluationDeclaration)
+            if declaration["split"] != "development":
+                continue
+            started_at = declaration["started_at"]
+            status = "incomplete"
+            if (path.parent / "report.json").is_file() and not (
+                path.parent / "aborted.json"
+            ).exists():
+                load_review(path.parent, args.dataset)
+                status = "completed"
+        except (ValueError, OSError):
+            status = "invalid"
+        rows.append({"run_dir": str(path.parent), "status": status, "started_at": started_at})
+    rows.sort(key=lambda row: str(row["started_at"] or ""), reverse=True)
+    if args.json:
+        print(json.dumps({"evaluations": rows}, indent=2))
+    else:
+        print("Saved development evaluations (no inference):")
+        for row in rows:
+            print(f"{row['started_at'] or 'unknown date'} / {row['status']}: {row['run_dir']}")
+        if not rows:
+            print("No saved development evaluations. Start with evaluate --model MODEL_ID.")
+    return 0
+
+
+def _prepared_evaluation_command(args: argparse.Namespace) -> int:
+    from .evaluation_workflow import EvaluationRequest, repository_root, run_evaluation
+
+    status = InferenceAdmission(args.inference_lock_dir).status()
+    if status == "busy":
+        raise WorkspaceError("job_busy", 409, "Another local inference operation is active.")
+    if status == "recovery_required":
+        raise WorkspaceError(
+            "recovery_required",
+            503,
+            "Stop/restart Ollama and explicitly recover admission before another evaluation.",
+        )
+    return run_evaluation(
+        EvaluationRequest(
+            repository=repository_root(),
+            model_id=args.model,
+            dataset=args.dataset.resolve(),
+            registry=args.registry.resolve(),
+            policy=args.policy.resolve(),
+            output=args.output_dir.resolve(),
+            inference_lock=args.inference_lock_dir.resolve(),
+            baseline=args.baseline.resolve() if args.baseline is not None else None,
+            tracing=args.trace,
+            metadata_only=args.metadata_only,
+            prepare_only=args.prepare_only,
+            json_output=args.json,
+            url=args.url,
+            timeout=args.timeout,
+            inference_timeout=args.inference_timeout,
+            split=args.split,
+            frozen_config=args.frozen_config.resolve() if args.frozen_config is not None else None,
+            allow_held_out=args.allow_held_out,
+        )
+    )
+
+
+def operation_error(
+    error: WorkspaceError | ValueError | OllamaError | OSError | KeyboardInterrupt,
+) -> int:
+    if isinstance(error, WorkspaceError):
+        result = {
+            "status": "processing_error",
+            "failure": {"code": error.code, "message": error.message},
+        }
+        code = 1
+    elif isinstance(error, ValueError):
+        result = {"status": "configuration_error", "message": str(error)}
+        code = 2
+    elif isinstance(error, OllamaError):
+        result = {"status": "processing_error", "failure": asdict(error.failure)}
+        code = 1
+    elif isinstance(error, KeyboardInterrupt):
+        result = {
+            "status": "interrupted",
+            "message": "Evaluation interrupted; incomplete artifacts are retained and cannot be scored.",
+        }
+        code = 130
+    else:
+        result = {
+            "status": "io_error",
+            "message": "Cannot read or write operation artifacts; check paths and permissions.",
+        }
+        code = 1
+    print(json.dumps(result))
+    return code
+
+
+def execute_evaluation(args: argparse.Namespace) -> int:
+    client = OllamaClient(args.url, timeout=args.timeout, inference_timeout=args.inference_timeout)
+    return _evaluation_command(args, client, load_registry(args.registry))
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
     try:
         if args.command == "recover-inference":
             InferenceAdmission(args.inference_lock_dir).recover()
@@ -148,7 +352,38 @@ def main(argv: list[str] | None = None) -> int:
             )
             return 0
         if args.command in {"score", "freeze-evaluation"}:
-            return _artifact_command(args)
+            from .evaluation_workflow import ArtifactRequest, repository_root, run_artifact
+
+            return run_artifact(
+                ArtifactRequest(
+                    repository=repository_root(),
+                    operation=args.command,
+                    run_directory=args.run_dir.resolve(),
+                    dataset=args.dataset.resolve(),
+                    output=args.output.resolve()
+                    if args.command == "freeze-evaluation" and args.output is not None
+                    else None,
+                )
+            )
+        if args.command == "evaluations":
+            return _saved_evaluations(args)
+        if args.command == "evaluate" and args.split == "development":
+            if args.allow_held_out or args.frozen_config is not None:
+                raise ValueError("Held-out options apply only to --split evaluation.")
+            return _prepared_evaluation_command(args)
+        if args.command == "evaluate" and (
+            args.baseline is not None
+            or args.prepare_only
+            or args.trace is not None
+            or args.metadata_only
+        ):
+            raise ValueError("Development workflow options do not apply to held-out evaluation.")
+        if args.command == "evaluate":
+            if not args.allow_held_out or args.frozen_config is None:
+                raise ValueError(
+                    "Held-out inference requires --allow-held-out and --frozen-config explicitly."
+                )
+            return _prepared_evaluation_command(args)
         client = OllamaClient(
             args.url,
             timeout=args.timeout,
@@ -159,44 +394,8 @@ def main(argv: list[str] | None = None) -> int:
         configs = load_registry(args.registry)
         if args.command == "classify":
             return _classify_command(args, client, configs)
-        if args.command == "evaluate":
-            return _evaluation_command(args, client, configs)
-    except WorkspaceError as error:
-        print(
-            json.dumps(
-                {
-                    "status": "processing_error",
-                    "failure": {"code": error.code, "message": error.message},
-                }
-            )
-        )
-        return 1
-    except ValueError as error:
-        print(json.dumps({"status": "configuration_error", "message": str(error)}))
-        return 2
-    except OllamaError as error:
-        print(json.dumps({"status": "processing_error", "failure": asdict(error.failure)}))
-        return 1
-    except OSError:
-        print(
-            json.dumps(
-                {
-                    "status": "io_error",
-                    "message": "Cannot read or write operation artifacts; check paths and permissions.",
-                }
-            )
-        )
-        return 1
-    except KeyboardInterrupt:
-        print(
-            json.dumps(
-                {
-                    "status": "interrupted",
-                    "message": "Evaluation interrupted; incomplete artifacts are retained and cannot be scored.",
-                }
-            )
-        )
-        return 130
+    except (WorkspaceError, ValueError, OllamaError, OSError, KeyboardInterrupt) as error:
+        return operation_error(error)
     report = doctor(client)
     stage = Stage(args.stage) if args.command == "models" and args.stage else None
     choices = list_models(configs, report.installed_models, stage)

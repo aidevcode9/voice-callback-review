@@ -2,6 +2,7 @@
 
 import json
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from hashlib import sha256
 from pathlib import Path
@@ -39,7 +40,17 @@ from .json_io import parse_json, parse_jsonl, read_bounded
 from .ollama import OllamaClient
 from .scoring import Prediction, score
 from .storage import render_json, save_run, write_json
+from .telemetry import EvaluationTraceContext
 from .workspace import WorkspaceError
+
+SCORE_DEFINITIONS: dict[str, JsonValue] = {
+    "confusion_matrix": "Rows are expected outcomes; columns are valid predicted outcomes. Processing failures are separate.",
+    "strict_callback_recall": "Correct callback predictions / all expected callbacks, including failures and needs_review.",
+    "callback_precision": "Correct callback predictions / valid predicted callbacks.",
+    "needs_review_rate": "Valid needs_review outputs / all input cases, including failures.",
+    "valid_output_coverage": "Validated outputs / all input cases.",
+    "undefined": "A zero denominator has value null.",
+}
 
 
 def read_document(path: Path, contract: type[Contract]) -> dict[str, JsonValue]:
@@ -85,7 +96,7 @@ def _prediction_document(result: RunResult, run_path: Path) -> dict[str, JsonVal
     return document
 
 
-def _read_predictions(raw: bytes, dataset: DatasetSplit, directory: Path) -> tuple[Prediction, ...]:
+def read_predictions(raw: bytes, dataset: DatasetSplit, directory: Path) -> tuple[Prediction, ...]:
     transcripts = {row.case_id: row for row in dataset.transcripts}
     predictions: list[Prediction] = []
     ids: set[str] = set()
@@ -163,7 +174,7 @@ def score_run(directory: Path, dataset_root: Path) -> dict[str, JsonValue]:
         != source_identity()["source_sha256"]
     ):
         raise ValueError("Evaluation artifact, dataset, or scoring-code identity differs.")
-    predictions = _read_predictions(predictions_raw, dataset, directory)
+    predictions = read_predictions(predictions_raw, dataset, directory)
     answers = load_answers(dataset)
     scored = score(predictions, answers)
     report: dict[str, JsonValue] = {
@@ -179,14 +190,7 @@ def score_run(directory: Path, dataset_root: Path) -> dict[str, JsonValue]:
         "trial_count": 1,
         "score_version": "callback-score-v1",
         "score": object_value(parse_json(render_json(scored))),
-        "definitions": {
-            "confusion_matrix": "Rows are expected outcomes; columns are valid predicted outcomes. Processing failures are separate.",
-            "strict_callback_recall": "Correct callback predictions / all expected callbacks, including failures and needs_review.",
-            "callback_precision": "Correct callback predictions / valid predicted callbacks.",
-            "needs_review_rate": "Valid needs_review outputs / all input cases, including failures.",
-            "valid_output_coverage": "Validated outputs / all input cases.",
-            "undefined": "A zero denominator has value null.",
-        },
+        "definitions": SCORE_DEFINITIONS,
         "limitations": [
             "One trial on a small fictional grouped split.",
             "No repeatability spread, model comparison, performance claim, or quality threshold is established.",
@@ -194,6 +198,15 @@ def score_run(directory: Path, dataset_root: Path) -> dict[str, JsonValue]:
     }
     _write_or_verify(directory / "report.json", report, EvaluationReport)
     return report
+
+
+@dataclass(frozen=True)
+class EvaluationProgress:
+    directory: Path
+    phase: str
+    completed: int
+    total: int
+    case_id: str | None = None
 
 
 def evaluate(
@@ -207,6 +220,7 @@ def evaluate(
     frozen_path: Path | None = None,
     allow_held_out: bool = False,
     observe_result: Callable[[RunResult], None] | None = None,
+    progress: Callable[[EvaluationProgress], None] | None = None,
 ) -> Path:
     if split == "evaluation" and (not allow_held_out or frozen_path is None):
         raise ValueError(
@@ -224,6 +238,13 @@ def evaluate(
     directory = output_root / evaluation_id
     directory.mkdir(parents=True)
     completed = 0
+
+    def notify(phase: str, case_id: str | None = None) -> None:
+        if progress is not None:
+            progress(
+                EvaluationProgress(directory, phase, completed, len(dataset.transcripts), case_id)
+            )
+
     try:
         write_json(directory / "configuration.json", system, SystemConfiguration)
         write_json(
@@ -239,12 +260,19 @@ def evaluate(
             },
             EvaluationDeclaration,
         )
+        notify("starting")
         with (directory / "inputs.jsonl").open("xb") as stream:
             stream.write(dataset.input_bytes)
         with (directory / "predictions.jsonl").open("x", encoding="utf-8", newline="\n") as stream:
             for transcript in dataset.transcripts:
                 result = classify(
-                    transcript, model, client, policy_path=policy_path, trace_enabled=False
+                    transcript,
+                    model,
+                    client,
+                    policy_path=policy_path,
+                    evaluation_trace=EvaluationTraceContext(
+                        evaluation_id, split, dataset.version, transcript.case_id
+                    ),
                 )
                 if observe_result is not None:
                     observe_result(result)
@@ -263,6 +291,7 @@ def evaluate(
                 )
                 stream.flush()
                 completed += 1
+                notify("persisted", transcript.case_id)
                 if not provider_quiescent(result):
                     raise WorkspaceError(
                         "recovery_required",
@@ -296,8 +325,11 @@ def evaluate(
             )
         except OSError:
             pass
+        notify("incomplete")
         raise
+    notify("scoring")
     score_run(directory, dataset_root)
+    notify("completed")
     return directory
 
 

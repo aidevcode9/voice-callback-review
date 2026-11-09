@@ -119,3 +119,16 @@ SRC-021 selects A Review desk and authorizes implementation. Reassessed pstack a
 ## F-006 production completion run
 
 The owner's continuation to completion retains house planning-workflows as lead. Impeccable Operate supports the selected A extension, one detector pass, independent fresh-context finish review and design documentation. TypeScript best practices/schema-derived boundary validation support the Next.js client. Actual integration runs the built Next.js, Nginx and FastAPI with the existing classifier pointed at a controlled Ollama HTTP fixture. This is functional acceptance, not a live model-quality or hosted deployment result. The final feature plan records the reviewer disposition and snapshot gate.
+
+## F-011 evaluation workflow, 2026-11-08
+
+Project-workflow selects house planning-workflows as lead after reading the profile,
+workflow manager, house planning and pstack architect/arena candidates. The design
+uses an adapted architect competing-sketch step: two independent parent-model
+candidates, root synthesis and a function-based package operation. Both preserve
+one engine and separate saved-baseline inspection from original-source rescoring.
+Pstack default cross-family models/judge are unavailable; no full architect/arena
+run is claimed. Focused implementation owners write disjoint environment and
+report files; root owns CLI, checkout orchestration, engine integration and records.
+Code-quality/error-handling and the configured review, verification and snapshot
+handoff gates support delivery. Exact evidence lives in the [feature plan](../features/completed/F-011-evaluation-workflow/03_IMPLEMENTATION_PLAN.md).

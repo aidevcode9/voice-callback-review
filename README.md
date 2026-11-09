@@ -12,6 +12,7 @@ Project stage: 40 owner-approved fictional cases are frozen as golden set v1.0. 
 - [Source register](intake/README.md) records the context supplied so far.
 - [User flow](docs/USER_FLOW.md), [architecture](docs/ARCHITECTURE.md), and [evaluation](docs/EVALUATION.md) include proposed diagrams.
 - [Quality checks](docs/QUALITY_CHECKS.md) defines the shared local/CI gates, snapshot preflight, and Actions cost limits.
+- [Evaluation workflow](features/completed/F-011-evaluation-workflow/01_REQUIREMENTS.md) makes development runs, saved reports and baseline comparison one packaged workflow.
 - [Langfuse tracing](docs/LANGFUSE.md) describes optional operational traces and the TCO worksheet.
 - [Local setup](docs/LOCAL_SETUP.md) creates the environment, explicitly provisions the selected model, and runs diagnostics/classification.
 - [Local model options](docs/LOCAL_MODEL_OPTIONS.md) records laptop fit, the selected classifier, and its alternatives.

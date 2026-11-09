@@ -1,0 +1,113 @@
+{
+  "status": "passed",
+  "date": "2026-11-08",
+  "synthetic": true,
+  "modelQualityMeasured": false,
+  "fixture": {
+    "plain": "C:\\Users\\dev-user\\projects\\voice-callback-review\\.test-work\\f011-browser\\reports\\1697223f-bc3e-44ed-8ce4-a2582c7ba2d0\\review-855f7ed5cf1dc044.html",
+    "comparison": "C:\\Users\\dev-user\\projects\\voice-callback-review\\.test-work\\f011-browser\\reports\\1697223f-bc3e-44ed-8ce4-a2582c7ba2d0\\review-baseline-c9e46b56ef360f487cc8ef397ab834697219d92a48ba879f3750e1fba93edc84-2c51f0127e2f87b7.html",
+    "baseline": "C:\\Users\\dev-user\\projects\\voice-callback-review\\.test-work\\f011-browser\\reports\\204a38b5-74ed-406b-b10c-27676306ecec\\review-34d8438c983fc5f6.html",
+    "current_id": "1697223f-bc3e-44ed-8ce4-a2582c7ba2d0",
+    "baseline_id": "204a38b5-74ed-406b-b10c-27676306ecec",
+    "synthetic": true
+  },
+  "checks": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "comparisonTotals": true,
+      "fixes": 2,
+      "regressions": 0,
+      "removedUnsafeMisses": 1,
+      "caseDetailsExpanded": true,
+      "transcriptAndEvidence": true,
+      "anchors": true,
+      "noHorizontalPageOverflow": true,
+      "noRemoteRequests": true,
+      "noInjectionExecution": true,
+      "screenshot": "comparison-1440-light.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "dark",
+      "comparisonTotals": true,
+      "fixes": 2,
+      "regressions": 0,
+      "removedUnsafeMisses": 1,
+      "caseDetailsExpanded": true,
+      "transcriptAndEvidence": true,
+      "anchors": true,
+      "noHorizontalPageOverflow": true,
+      "noRemoteRequests": true,
+      "noInjectionExecution": true,
+      "screenshot": "comparison-1440-dark.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 1000
+      },
+      "theme": "light",
+      "comparisonTotals": true,
+      "fixes": 2,
+      "regressions": 0,
+      "removedUnsafeMisses": 1,
+      "caseDetailsExpanded": true,
+      "transcriptAndEvidence": true,
+      "anchors": true,
+      "noHorizontalPageOverflow": true,
+      "noRemoteRequests": true,
+      "noInjectionExecution": true,
+      "screenshot": "comparison-390-light.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 1000
+      },
+      "theme": "dark",
+      "comparisonTotals": true,
+      "fixes": 2,
+      "regressions": 0,
+      "removedUnsafeMisses": 1,
+      "caseDetailsExpanded": true,
+      "transcriptAndEvidence": true,
+      "anchors": true,
+      "noHorizontalPageOverflow": true,
+      "noRemoteRequests": true,
+      "noInjectionExecution": true,
+      "screenshot": "comparison-390-dark.png"
+    }
+  ],
+  "additionalChecks": {
+    "plainReportWithoutBaseline": true,
+    "baselineUnsafeMissAndFailure": true,
+    "keyboardFocusVisible": {
+      "outline": "solid",
+      "width": "3px",
+      "visible": true
+    },
+    "mobileTableScroll": true
+  },
+  "visualInspection": {
+    "status": "passed",
+    "captures": [
+      "comparison-1440-light.png",
+      "comparison-1440-dark.png",
+      "mobile-top.png",
+      "mobile-comparison.png",
+      "mobile-comparison-dark.png",
+      "mobile-comparison-scrolled.png"
+    ],
+    "resolvedConcerns": [
+      "Mobile tables retain readable cell text and scroll locally, without page overflow."
+    ],
+    "remainingConcerns": []
+  }
+}

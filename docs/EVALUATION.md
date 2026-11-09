@@ -10,11 +10,71 @@ One fictional development trial establishes neither held-out quality nor repeata
 
 ## Run development inference before scoring
 
+Run the canonical packaged workflow from the repository root:
+
 ```powershell
-.venv\Scripts\python.exe -m voice_callback.cli evaluate --split development --model qwen35-4b
+.venv\Scripts\python.exe -m voice_callback.cli evaluate --model qwen35-4b
 ```
 
+The development split is the default. This command prepares a verified clean
+checkout of the current commit, calls the shared classifier, saves predictions,
+automatically scores them, and creates a self-contained `review.html` beside
+`report.json`. It prints per-case progress to stderr and a readable summary to
+stdout. Add `--json` for the machine-readable report. Commit source, registry,
+policy and dataset changes first: relevant dirty or untracked inputs are rejected
+rather than silently evaluating an older version. Outputs and the shared inference
+lock stay in this repository's `reports/text` and `runtime/inference` directories.
+No model is downloaded and the current command never automatically runs held-out.
+
+Use `--prepare-only` to prepare the checkout without inference or telemetry. The
+old `scripts/run_development_evaluation.py` is only an argument adapter; it now
+requires the same explicit `--model` and has no separate setup or tracing policy.
+
+Tracing is optional. The workflow reads supported settings from root `.env`, then
+applies process environment values (including explicit empty values), then command
+overrides. `--trace` enables it, `--no-trace` disables it, and `--metadata-only`
+excludes transcript/decision content. Missing credentials or SDK do not block the
+underlying evaluation; trace delivery is a separate observation. See
+[Langfuse setup](LANGFUSE.md). Credentials are not stored in run artifacts or argv.
+Keep non-secret model settings in `config/models.json`; no YAML profile is needed.
+
+```powershell
+.venv\Scripts\python.exe -m voice_callback.cli evaluate --model qwen35-4b --trace --metadata-only
+.venv\Scripts\python.exe -m voice_callback.cli evaluate --model qwen35-4b --baseline reports/text/BASELINE_ID
+.venv\Scripts\python.exe -m voice_callback.cli evaluations
+.venv\Scripts\python.exe -m voice_callback.cli evaluations --run-dir reports/text/RUN_ID
+.venv\Scripts\python.exe -m voice_callback.cli evaluations --run-dir reports/text/RUN_ID --baseline reports/text/BASELINE_ID
+```
+
+`evaluations` lists development runs, including incomplete/invalid states. Selecting
+`--run-dir` validates and renders a saved completed development report with no
+inference or telemetry. The report shows all cases, approved answers, predictions,
+reasons, evidence, transcripts, confusion counts, failures and source identity.
+Inputs with held-out declarations are refused before loading their data/answers.
+A valid saved review returns 0 in both plain and JSON formats, even if the saved
+run contains processing failures. Failures remain visible in its report; invalid
+artifacts still return an error.
+Interrupted runs keep partial artifacts and no completed report; the run path and
+runtime recovery instructions remain visible in progress output and history.
+
+Comparison validates the selected baseline before new inference. Dataset version,
+manifest/input/answer hashes, exact case/transcript coverage, scorer version and
+metric definitions must match. Model, prompt, settings and code can differ; those
+changes are displayed. Fixes, regressions, unsafe misses and metric fractions/deltas
+are paired by case. Undefined metrics have no numeric delta. Reports infer no
+acceptance threshold. A baseline comparison is not a repeatability or statistical
+significance claim.
+
+Saved-snapshot review checks artifact/provenance integrity and callback-score-v1
+count consistency. It does not rerun historical source. Existing `score` still
+requires the original matching source fingerprint. Original `report.json` bytes
+and baseline artifacts are never rewritten; baseline-specific HTML is additive.
+Historical artifact formats unsupported by the strict contracts are rejected
+explicitly rather than migrated. See [F-011](../features/completed/F-011-evaluation-workflow/01_REQUIREMENTS.md).
+
 The runner validates the frozen manifest, exact split IDs, and input-file hash. It reads only ID/transcript records before inference. Each case gets a classification run with its original input version/hash, the selected model identity/settings, and prompt/policy provenance. No answer, rationale, or expected label enters the model request.
+
+When [Langfuse tracing](LANGFUSE.md) is enabled, each case also produces a trace labeled with the evaluation ID, split, dataset version, and case ID. The normal content setting controls whether the input transcript and model decision are sent. Expected answers and scoring reports remain local. The held-out split still requires a frozen configuration and separate owner authorization; tracing an authorized held-out run can send its inputs and predictions to the configured Langfuse service.
 
 ```mermaid
 flowchart TD
@@ -57,6 +117,13 @@ The labels are independently owner-approved references. Validation checks output
 
 Replace RUN_ID with the directory printed by evaluate. Offline scoring verifies completion, coverage, hashes, per-case run bindings, and the source fingerprint before opening answers. An identical report is verified without rewriting it; a differing report is preserved and reported as an error. No model call occurs. Exit 0 means all inputs have valid outputs, exit 1 means a completed report contains processing failures or an I/O/runtime operation failed, and exit 2 means invalid configuration or artifact validation. Incorrect policy predictions remain visible disagreements even when execution exits 0.
 
+The canonical artifact commands prepare the current committed source just like
+`evaluate`, then invoke the original scorer/freezer inside that clean checkout.
+Run them from the repository root with committed source and dataset inputs. This
+handles Git-clean CRLF Windows workspaces without changing source fingerprints.
+Rescoring a different source revision still fails: use the original matching source
+for historical runs. No report is migrated or rewritten to make it match.
+
 ## Freeze a candidate before held-out inference
 
 ```powershell
@@ -65,7 +132,7 @@ Replace RUN_ID with the directory printed by evaluate. Offline scoring verifies 
 
 Freeze requires a complete development report without processing failures, an originally clean committed implementation, and unchanged Python source in a currently clean Git revision. It writes an exclusive frozen-configuration.json bound to the development report, full system snapshot, dataset manifest, and current Git revision. Freezing is reproducibility preparation, not quality acceptance. Use --output to name another artifact rather than replacing a differing freeze.
 
-The held-out path requires both --frozen-config and --allow-held-out with --split evaluation. It also requires the exact frozen code revision/source, model digest and metadata, prompt/policy, settings, runtime, and dataset manifest. Tests exercise this path with a separate synthetic fixture. No real held-out inference is part of the current authorization; the owner selects that action separately after the candidate is frozen.
+The held-out path requires both --frozen-config and --allow-held-out with --split evaluation. It also requires the exact frozen code revision/source, model digest and metadata, prompt/policy, settings, runtime, and dataset manifest. The explicitly authorized command uses the same committed-source worker as the development run and artifact commands. Its frozen-system checks are unchanged, and it retains process-environment tracing settings rather than automatically loading development `.env`. Tests exercise this path with a separate synthetic fixture. No real held-out inference is part of the current authorization; the owner selects that action separately after the candidate is frozen.
 
 ## Limits of the first baseline
 
