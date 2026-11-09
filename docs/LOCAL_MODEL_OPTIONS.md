@@ -1,6 +1,6 @@
 # Local model options
 
-Status: classifier selected and provisioned, 2026-11-06. The owner chose qwen3.5:4b-q4_K_M for [F-004 batch 2](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md). Focused development inference works through the [local setup](LOCAL_SETUP.md). Formal model evaluation remains batch 3.
+Status: the owner-selected qwen3.5:4b-q4_K_M classifier is provisioned and exercised. F-004 text delivery is complete after owner testing and QA acceptance (SRC-026). The [evaluation guide](EVALUATION.md) records the current-source callback-text-v2 development baseline and F-011 command/report workflow. Future model changes need new development evidence; numeric production-quality targets remain open.
 
 ## Observed laptop and runtime
 

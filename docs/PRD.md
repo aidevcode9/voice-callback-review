@@ -1,9 +1,9 @@
 # Voice Callback Review: product requirements
 
-Status: living product requirements; text review workspace implemented, text quality acceptance pending, and audio deferred to the roadmap.
+Status: living product requirements. F-004 text delivery is complete after owner testing and QA acceptance (SRC-026); F-006 delivers the Review desk and F-011 delivers the coherent evaluation workflow. Audio, numeric production-quality targets, and deployment remain follow-up work.
 Product and acceptance owner: the user.
-Sources: SRC-001, SRC-004, SRC-009, SRC-010, SRC-011, SRC-012 through SRC-019, and SRC-020 through SRC-022 in the [source register](../intake/README.md).
-Last updated: 2026-11-07.
+Sources: SRC-001, SRC-004, SRC-009, SRC-010, SRC-011, SRC-012 through SRC-019, and SRC-020 through SRC-027 in the [source register](../intake/README.md).
+Last updated: 2026-11-08.
 Acceptance record: input modes and callback policy v1.0 accepted. SRC-021 selects A Review desk. Next.js, loopback Nginx and a thin FastAPI API are implemented in F-006. Functional verification, owner feedback, quality thresholds, merge and hosting remain distinguishable.
 
 ## Purpose
@@ -24,7 +24,7 @@ The current demo accepts existing text transcripts and fictional development cas
 
 ## First-demo build scope
 
-Local inference and explicit classifier selection are part of the build. SRC-018 selects qwen3.5:4b-q4_K_M for callback classification. The scope is specified in [F-004 requirements](../features/active/F-004-local-model-pipeline/01_REQUIREMENTS.md).
+Local inference and explicit classifier selection are part of the build. SRC-018 selects qwen3.5:4b-q4_K_M for callback classification. The scope is specified in [F-004 requirements](../features/completed/F-004-local-model-pipeline/01_REQUIREMENTS.md).
 
 1. Supply a text transcript or load a fictional development case.
 2. Retain the original transcript and identify any reviewer correction used for a new decision.
@@ -69,7 +69,7 @@ The user wants local open-model development and selected qwen3.5:4b-q4_K_M under
 
 ## Build sequence
 
-[F-004](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) owns the core and formal text evaluation. [F-006](../features/completed/F-006-text-review-workspace/03_IMPLEMENTATION_PLAN.md) owns the frontend/API, text review flow and browser acceptance.
+[F-004](../features/completed/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) owns the core and formal text evaluation. [F-006](../features/completed/F-006-text-review-workspace/03_IMPLEMENTATION_PLAN.md) owns the frontend/API, text review flow and browser acceptance.
 
 1. Add model-independent contracts, Ollama diagnostics, and compatible-model discovery.
 2. Select a classifier and implement policy-grounded text decisions with validated evidence.
@@ -90,7 +90,7 @@ Report a three-outcome confusion matrix, strict callback recall, callback precis
 
 Do not silently discard needs-review cases or change expected labels to improve a run. Changes to labels create a new dataset version with a recorded reason. The initial classifier is selected under SRC-018. Later model changes and numeric quality thresholds require development evidence and the acceptance owner's decision.
 
-The historical callback-text-v1 development baseline matched 20/20 fictional labels once. A fresh callback-text-v2 baseline/freeze and quality acceptance remain pending. A future audio extension would need paired recordings and reviewed reference transcripts; see the [roadmap](ROADMAP.md).
+The current-source callback-text-v2 development baseline matched 20/20 fictional labels, with counts and provenance in the [evaluation guide](EVALUATION.md). SRC-026 records owner testing and QA acceptance of F-004 text delivery. Actual candidate freeze, real held-out measurement, numeric production-quality targets, and audio remain in the [roadmap](ROADMAP.md).
 
 ## Exclusions
 
@@ -100,10 +100,10 @@ Live phone handling, speaking agents, automatic dialing, CRM writes, legal guida
 
 A reviewer supplies text or a fictional development input, explicitly submits a selected model, inspects its recommendation and exact quote, and records a separate human decision. Expected answers are not exposed in this iterative flow. Formal evaluation remains separate from individual service-call review and uses the F-011 command and readable saved reports, including failures, review cases and explicit development baseline comparison.
 
-Functional implementation and decision quality are separate acceptance areas. No product-quality threshold or acceptance result is approved by this draft.
+SRC-026 accepts the prototype text delivery after owner testing and QA. Functional acceptance and numeric production-quality targets remain distinct; D-004 is open.
 
-Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). F-001 accepted the rubric, F-002 prepared candidates, and F-003 froze approved gold. F-004 implements diagnostics, classification, and evaluation with offline evidence; the fresh callback-text-v2 baseline and candidate freeze remain pending. F-006 completes the text Review desk, API/SQLite, and local Nginx proxy. D-004 quality targets are open.
+Open decisions and owners are tracked in the [project brief](../intake/PROJECT_BRIEF.md). F-001 accepted the rubric, F-002 prepared candidates, and F-003 froze approved gold. F-004 completes diagnostics, classification, and evaluation, F-006 completes the Review desk, and F-011 provides the coherent command/report/comparison workflow. Follow-up quality and hosting work is recorded in the roadmap.
 
 ## Text workspace delivery, 2026-11-07
 
-F-006 delivers pasted and explicitly loaded fictional text, available-model selection, explicit idempotent classification, immutable transcript/run history, exact evidence highlights, separate append-only human decisions, filters and provenance. The [feature requirements](../features/completed/F-006-text-review-workspace/01_REQUIREMENTS.md) are the feature PRD; its plan maps acceptance criteria to evidence. The Next.js/Nginx/FastAPI flow is exercised with controlled HTTP responses, not live model-quality measurement. Fresh text-v2 development evaluation, numeric quality targets, held-out execution and hosting remain open. Audio is deferred.
+F-006 delivers pasted and explicitly loaded fictional text, available-model selection, explicit idempotent classification, immutable transcript/run history, exact evidence highlights, separate append-only human decisions, filters and provenance. The [feature requirements](../features/completed/F-006-text-review-workspace/01_REQUIREMENTS.md) are the feature PRD; its plan maps acceptance criteria to evidence. The Next.js/Nginx/FastAPI flow is exercised with controlled HTTP responses, not live model-quality measurement. Current v2 development evidence is recorded in the evaluation guide. Actual candidate freeze, numeric production-quality targets, real held-out execution, and hosting remain follow-up work. Audio is deferred.

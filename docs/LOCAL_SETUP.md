@@ -108,7 +108,7 @@ Classification prints one JSON record to stdout and its saved path to stderr. Ea
 
 The record includes the exact model tag/digest and settings, server version and URL, case/transcript version/hash, prompt/policy version/hash, metadata/request hashes, UTC start, elapsed time, and either a validated decision or a typed failure. Prior records remain separate when text or settings change. These files are ignored local runtime artifacts. Structure and exact evidence validation do not prove that every statement in a reason is semantically correct.
 
-Batch 2 development checks cover VC-001, VC-021, VC-025, VC-033, synthetic context overflow, and instruction-like transcript data. They are integration evidence, not a full development score or held-out result. No answer file is opened by classification. The [implementation plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) records observations. Batch 3 adds the evaluation commands below; audio and dashboard remain later work.
+Batch 2 development checks cover VC-001, VC-021, VC-025, VC-033, synthetic context overflow, and instruction-like transcript data. They are integration evidence, not a full development score or held-out result. No answer file is opened by classification. The [implementation plan](../features/completed/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) records observations. Batch 3 adds the evaluation commands below; audio and dashboard remain later work.
 
 ## Evaluate the development split
 

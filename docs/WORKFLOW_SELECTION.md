@@ -8,7 +8,7 @@ project-workflow selected house systematic-debugging for six reproduced failures
 
 Under SRC-023, project-workflow retains house planning-workflows as lead for the agreed bounded refactor. Compared architect; another design arena is unnecessary for the selected exact extraction. Code-quality and focused compatibility/source identity/package checks support implementation. A read-only code-review-workflow reviewer checks the independent package/provenance surface while the owner maintains documentation and runs gates. Preserve this branch, the rendered callback-text-v2 prompt/request and all stored runs/reviews. No real inference or new freeze is part of this batch. [F-007](../features/completed/F-007-versioned-classifier-prompt/FEATURE.md) records actual results.
 
-Stage: accepted policy, frozen owner-approved gold v1.0, and active F-004 with diagnostics and text classification. The evaluation/contracts implementation is merged; the historical text-v1 baseline is preserved and fresh text-v2 development verification/freeze remain pending. F-006 implements the text workspace. SRC-024 defers audio to the roadmap. This project has its own local Git repository under projects.
+Stage: accepted policy and frozen gold v1.0; completed F-004 text pipeline after owner testing and QA acceptance (SRC-026), completed F-006 Review desk, and merged F-011 evaluation workflow. Current-source v2 development evidence is recorded in the evaluation guide. Audio, actual candidate freeze, real held-out measurement, numeric production-quality targets, and hosting remain follow-up work.
 
 ## Orchestrator and timing
 
@@ -98,7 +98,7 @@ The owner explicitly approved all 40 proposed labels as-is after approval scope 
 
 F-004 moved to active at implementation start after Git status review and exact resolved-path checks. Prior uncommitted documentation was preserved and incoming links were repaired. The package provides model-independent contracts, explicit registry validation, bounded loopback Ollama health/inventory requests, and doctor/models CLI commands. The one-owner throughput checkpoint in the feature plan remains applicable; no subagents or other-chat messages were used.
 
-The first offline run exposed an HTTP/1.0 socket lifecycle bug. Systematic-debugging traced the first error to resetting the timeout after response completion. The adapter now stops at response closure, preserves total deadlines, and rejects premature bodies. Current verification is 49 passing tests, 40-case gold integrity, and live Ollama 0.40.14 with zero installed models. No inference or model-quality claim follows. See the [active plan](../features/active/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) for exact commands and remaining batches.
+The first offline run exposed an HTTP/1.0 socket lifecycle bug. Systematic-debugging traced the first error to resetting the timeout after response completion. The adapter now stops at response closure, preserves total deadlines, and rejects premature bodies. Current verification is 49 passing tests, 40-case gold integrity, and live Ollama 0.40.14 with zero installed models. No inference or model-quality claim follows. See the [active plan](../features/completed/F-004-local-model-pipeline/03_IMPLEMENTATION_PLAN.md) for exact commands and remaining batches.
 
 ## Batch 3 evaluation workflow
 
@@ -132,3 +132,7 @@ run is claimed. Focused implementation owners write disjoint environment and
 report files; root owns CLI, checkout orchestration, engine integration and records.
 Code-quality/error-handling and the configured review, verification and snapshot
 handoff gates support delivery. Exact evidence lives in the [feature plan](../features/completed/F-011-evaluation-workflow/03_IMPLEMENTATION_PLAN.md).
+
+## F-004 documentation closeout, SRC-026, 2026-11-08
+
+Project-workflow selects technical-writing as the lead for the bounded documentation cleanup after considering house planning-workflows. Unslop supports wording; verification-before-completion and branch-finish support the local handoff. No implementation design, delegated work, or full architecture playbook is needed. Owner testing and QA accept the retained text delivery. The F-004 closeout records current v2 evidence and transferred follow-up work. The HTML engineering map is tracked in docs and copied to the owner-requested external location.

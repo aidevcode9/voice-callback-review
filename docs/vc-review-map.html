@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Voice Callback Review: repository workflow, agent orchestration, verification gates, and evaluation reports, and production roadmap.">
+  <title>Voice Callback Review | Engineering workflow process map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+  :root {
+    --bg:#f5f7f9; --paper:#fff; --ink:#17232d; --muted:#61717c; --line:#d7e0e7;
+    --blue:#2755a4; --blue-soft:#eaf1fd; --teal:#086e69; --teal-soft:#e5f5f1;
+    --amber:#ae5707; --amber-soft:#fff2df; --rose:#b83c43; --rose-soft:#fff0f0;
+    --shadow:0 8px 30px rgba(25,40,64,.045);
+    --body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --display:'IBM Plex Sans Condensed','Arial Narrow',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#0f171e;--paper:#18242f;--ink:#e7eef5;--muted:#a3b2bd;--line:#304250;
+    --blue:#89b4ff;--blue-soft:#1d314d;--teal:#64d6c7;--teal-soft:#193a37;
+    --amber:#ffc078;--amber-soft:#3c3023;--rose:#ff929a;--rose-soft:#422830;
+    --shadow:0 8px 25px rgba(0,0,0,.12);
+  }}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--body)}
+  a{color:var(--blue);text-underline-offset:3px}
+  a:hover{text-decoration-thickness:2px}
+  .page{max-width:1300px;margin:auto;padding:38px max(22px,env(safe-area-inset-right)) 70px;display:grid;gap:34px}
+  .eyebrow{font:500 11px/1.6 var(--mono);text-transform:uppercase;letter-spacing:.105em;color:var(--blue)}
+  h1,h2,h3,p{margin:0}h1,h2,h3{font-family:var(--display);line-height:1.1}
+  h1{font-size:clamp(33px,5vw,57px);max-width:23ch;letter-spacing:-.024em}
+  h2{font-size:clamp(23px,2.5vw,31px);letter-spacing:-.01em}
+  h3{font-size:20px}
+  .header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:16px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+  .lede{max-width:77ch;font-size:17px;color:var(--muted);margin-top:12px}
+  .lede strong{color:var(--ink)}
+  .stamp{border:1px solid var(--line);background:var(--paper);padding:12px 16px;border-radius:9px;text-align:right;display:grid;gap:4px;min-width:172px}
+  .stamp strong{font:600 12px var(--mono);color:var(--teal)}
+  .stamp span{font:400 11px var(--mono);color:var(--muted)}
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .metric{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:16px 17px;box-shadow:var(--shadow)}
+  .metric .num{font:700 31px/1 var(--display);font-variant-numeric:tabular-nums}
+  .metric .what{font-size:12px;color:var(--muted);margin-top:7px}
+  .metric .note{font:400 10px var(--mono);color:var(--teal);margin-top:6px}
+  .section{display:grid;gap:14px}
+  .section-intro{max-width:85ch;color:var(--muted)}
+  .small-label{font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .tag{display:inline-flex;gap:6px;align-items:center;padding:5px 9px;border-radius:6px;font:500 11px/1.35 var(--mono);border:1px solid var(--line);background:var(--paper)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none}
+  .tag.auto .dot{background:var(--teal)}.tag.owner .dot{background:var(--amber)}.tag.loop .dot{background:var(--rose)}
+  .flow-box{overflow-x:auto;background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:16px 14px 10px;box-shadow:var(--shadow)}
+  .flow-box svg{display:block;min-width:1120px;width:100%;height:auto}
+  .diagram-caption{font-size:13px;color:var(--muted);max-width:105ch}
+  .svg-stage{fill:var(--paper);stroke:var(--line);stroke-width:1.6}
+  .svg-stage.auto{fill:var(--teal-soft);stroke:var(--teal);stroke-width:1.8}
+  .svg-stage.human{fill:var(--amber-soft);stroke:var(--amber);stroke-width:1.8}
+  .svg-index{font:500 12px var(--mono);fill:var(--muted)}
+  .svg-name{font:600 18px var(--display);fill:var(--ink)}
+  .svg-tool{font:500 10px var(--mono);fill:var(--blue)}
+  .svg-phase{font:500 11px var(--mono);letter-spacing:1px;fill:var(--muted)}
+  .svg-new{font:600 9px var(--mono);fill:var(--teal)}
+  .svg-wire{stroke:var(--muted);stroke-width:1.8;fill:none}
+  .svg-loop{stroke:var(--rose);stroke-width:1.6;fill:none}
+  .svg-loop.blue{stroke:var(--blue)}
+  .svg-loop.gray{stroke:var(--muted);stroke-dasharray:5 4}
+  .svg-label{font:500 11px var(--body);paint-order:stroke;stroke:var(--paper);stroke-width:6px;stroke-linejoin:round;fill:var(--rose)}
+  .svg-label.blue{fill:var(--blue)}.svg-label.gray{fill:var(--muted)}
+  .svg-brace{stroke:var(--line);stroke-width:1.4;fill:none}
+  .steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .step{border:1px solid var(--line);background:var(--paper);padding:17px;border-radius:10px;min-width:0;display:grid;align-content:start;gap:13px;box-shadow:var(--shadow)}
+  .step.auto{border-top:3px solid var(--teal)}.step.owner{border-top:3px solid var(--amber)}
+  .step-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+  .step-num{font:500 12px var(--mono);color:var(--muted)}
+  .pill{font:500 10px var(--mono);padding:2px 7px;border-radius:99px;background:var(--blue-soft);color:var(--blue);white-space:nowrap}
+  .pill.auto{background:var(--teal-soft);color:var(--teal)}.pill.owner{background:var(--amber-soft);color:var(--amber)}
+  .tool{background:var(--blue-soft);color:var(--blue);padding:3px 7px;border-radius:5px;font:500 11px var(--mono);justify-self:start;max-width:100%;overflow-wrap:anywhere}
+  .terms{display:grid;gap:10px}.terms div{display:grid;gap:2px}
+  .terms dt{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .terms dd{margin:0;font-size:13px}
+  .lower{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px, .85fr);gap:18px}
+  .pane{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;align-content:start;gap:15px}
+  .checkpoint-grid p{font-size:13px;color:var(--muted)}
+  .checkpoint-grid code{font:500 11px var(--mono);overflow-wrap:anywhere}
+  .checkpoint-grid a{font-size:13px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .job{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:82px;display:grid;align-content:start;gap:6px}
+  .job strong{font:600 12px var(--mono)}.job span{color:var(--muted);font-size:12px}
+  .job .ok{color:var(--teal);font:600 10px var(--mono)}
+  .rules{display:grid;gap:11px;list-style:none;margin:0;padding:0}
+  .rules li{border-left:2px solid var(--line);padding-left:11px;display:grid;gap:3px}
+  .rules strong{font-size:14px}.rules span{font-size:13px;color:var(--muted)}
+  .code{font:500 11px/1.6 var(--mono);overflow-wrap:anywhere;padding:10px 12px;border-radius:7px;background:var(--bg);border:1px solid var(--line);white-space:pre-wrap}
+  .caution{background:var(--amber-soft);border:1px solid var(--amber);border-radius:8px;padding:12px 14px;font-size:13px}
+  .caution strong{display:block;margin-bottom:3px}
+  .sources{font-size:12px;color:var(--muted);display:grid;gap:7px}
+  footer{border-top:1px solid var(--line);padding-top:17px;font-size:12px;color:var(--muted);display:grid;gap:7px}
+  .eval-flow{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;counter-reset:eval}.eval-flow li{padding:16px;border:1px solid var(--line);border-top:3px solid var(--teal);border-radius:9px;background:var(--paper);display:grid;gap:9px}.eval-flow p{color:var(--muted);font-size:14px}.code,code{overflow-wrap:anywhere}.code{white-space:pre-wrap}.job,.pane,.step,.metric{min-width:0}.pane p{overflow-wrap:anywhere}
+  @media(max-width:650px){.eval-flow{grid-template-columns:1fr}.grid3[style]{grid-template-columns:1fr!important}}
+  @media(max-width:1000px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.lower{grid-template-columns:1fr}}
+  @media(max-width:650px){.page{padding:22px 14px 48px;gap:27px}.header{grid-template-columns:1fr}.stamp{text-align:left;justify-self:start}.summary{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}.lede{font-size:15px}}
+  @media print{:root,:root:not([data-theme="light"]){--bg:#f5f7f9;--paper:#fff;--ink:#17232d;--muted:#61717c;--line:#d7e0e7;--blue:#2755a4;--blue-soft:#eaf1fd;--teal:#086e69;--teal-soft:#e5f5f1;--amber:#ae5707;--amber-soft:#fff2df;--rose:#b83c43;--rose-soft:#fff0f0}html{color-scheme:light}body{background:white;color:#16202a;font-size:12px}.page{max-width:none;padding:10mm;gap:12mm}.header{grid-template-columns:1fr auto}.flow-box{overflow:visible;padding:4mm}.flow-box svg{min-width:0}.steps{grid-template-columns:repeat(4,1fr)}.step{padding:8px;box-shadow:none;break-inside:avoid}.metric{box-shadow:none}.lower{grid-template-columns:1.1fr .9fr}.pane{break-inside:avoid}a{text-decoration:none;color:#234d88}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div>
+        <div class="eyebrow">AI engineering · repository workflow</div>
+        <h1>How we build, verify, and review a change.</h1>
+        <p class="lede">The <strong>Voice Callback Review</strong> project uses one workflow orchestrator, feature contracts, immutable evaluation data, and a shared quality runner. Automated checks run against the working tree, the staged index or committed snapshot, and hosted CI. <strong>The agent implements the change. Checks verify defined behavior. The owner controls acceptance and publication.</strong></p>
+      </div>
+      <aside class="stamp" aria-label="Evidence date and status"><strong>ENGINEERING WORKFLOW</strong><span>Updated · 08 NOV 2026</span><span>Implementation main · 98a2d5b</span><span>F-011 merged · PR #7</span><span>F-004 text scope · owner QA accepted</span></aside>
+    </header>
+
+    <section class="summary" aria-label="Verified project facts">
+      <div class="metric"><div class="num">8</div><div class="what">Workflow stages</div><div class="note">Coordinated by project-workflow</div></div>
+      <div class="metric"><div class="num">20 / 20</div><div class="what">Development labels matched</div><div class="note">callback-text-v2 · run 4280e453</div></div>
+      <div class="metric"><div class="num">40</div><div class="what">Approved frozen gold cases</div><div class="note">20 development · 20 held-out</div></div>
+      <div class="metric"><div class="num">5</div><div class="what">Configured hosted CI jobs</div><div class="note">Quality · 3 Python jobs · browser</div></div>
+    </section>
+
+
+    <section class="section" aria-labelledby="checkpoint">
+      <div><div class="eyebrow">Implementation checkpoint · 08 NOV 2026</div><h2 id="checkpoint">Completed text delivery and next work</h2></div>
+      <div class="grid3 checkpoint-grid">
+        <article class="pane"><div class="small-label">F-004 · owner QA accepted</div><h3>Local text pipeline complete</h3><p>Diagnostics, explicit model selection, policy-grounded classification, strict Pydantic contracts, exact evidence, provenance, and scoring are implemented. SRC-026 records the owner's completed testing and QA and instruction to close the retained text scope.</p><p class="diagram-caption">Audio criteria remain deferred. This closeout does not claim a frozen candidate or real held-out measurement.</p></article>
+        <article class="pane"><div class="small-label">F-006 and F-011 · implemented</div><h3>Review desk and evaluation</h3><p>The Next.js Review desk uses FastAPI/SQLite and one-origin Nginx routing. F-011 provides one evaluation command, persisted-case progress, readable browser reports, saved history, and explicit compatible baseline comparison.</p><a href="https://github.com/aidevcode9/voice-callback-review/pull/7">Merged evaluation workflow PR #7</a></article>
+        <article class="pane"><div class="small-label">Proposed roadmap · no schedule committed</div><h3>Production hardening and audio</h3><p>Define login and access control, privacy, audit logs, monitoring, rate limits, prompt-injection defenses, recovery, deployment, and automated CI/CD. Select quality targets and a restricted pilot scope. Audio upload and transcription need separate requirements and paired evaluation.</p><a href="https://github.com/aidevcode9/voice-callback-review/blob/main/docs/ROADMAP.md">Technical roadmap</a></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="map">
+      <div><div class="eyebrow">01 / The delivery workflow</div><h2 id="map">A single workflow entrypoint; multiple independent quality gates</h2></div>
+      <div class="legend" aria-label="Map legend">
+        <span class="tag"><span class="dot"></span> Agent-assisted work</span>
+        <span class="tag auto"><span class="dot"></span> Executable validation</span>
+        <span class="tag owner"><span class="dot"></span> Owner / reviewer decision</span>
+        <span class="tag loop"><span class="dot"></span> Failure or scope-change loop</span>
+      </div>
+      <figure style="margin:0;display:grid;gap:9px">
+        <div class="flow-box" role="region" tabindex="0" aria-label="Workflow diagram. Scroll horizontally on narrow screens.">
+          <svg viewBox="0 0 1480 404" role="img" aria-labelledby="diagram-title diagram-desc">
+            <title id="diagram-title">Eight-stage engineering workflow</title>
+            <desc id="diagram-desc">Intake, feature agreement, workflow selection, implementation, local quality checks, exact snapshot preflight, pull request and hosted CI, then review and handoff. Before implementation, verify the feature branch and configured quality gates. Failed checks return to implementation. Scope changes return to the feature contract. Evaluation workflow PR #7 is merged. The current CI definition has five jobs; individual hosted results belong to their recorded revision.</desc>
+            <defs>
+              <marker id="arr-gray" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--muted)"/></marker>
+              <marker id="arr-red" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--rose)"/></marker>
+              <marker id="arr-blue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--blue)"/></marker>
+            </defs>
+            <text class="svg-phase" x="177" y="32" text-anchor="middle">DEFINE AND AUTHORIZE</text>
+            <path class="svg-brace" d="M15 52 V45 H539 V52"/>
+            <text class="svg-phase" x="818" y="32" text-anchor="middle">BUILD AND PROVE</text>
+            <path class="svg-brace" d="M558 52 V45 H1082 V52"/>
+            <text class="svg-phase" x="1286" y="32" text-anchor="middle">REVIEW AND HANDOFF</text>
+            <path class="svg-brace" d="M1101 52 V45 H1465 V52"/>
+            <path class="svg-wire" d="M174 135 H196" marker-end="url(#arr-gray)"/><path class="svg-wire" d="M355 135 H377" marker-end="url(#arr-gray)"/>
+            <path class="svg-wire" d="M536 135 H558" marker-end="url(#arr-gray)"/><path class="svg-wire" d="M717 135 H739" marker-end="url(#arr-gray)"/>
+            <path class="svg-wire" d="M898 135 H920" marker-end="url(#arr-gray)"/><path class="svg-wire" d="M1079 135 H1101" marker-end="url(#arr-gray)"/>
+            <path class="svg-wire" d="M1260 135 H1282" marker-end="url(#arr-gray)"/>
+            <g transform="translate(15 82)"><rect class="svg-stage" width="159" height="109" rx="9"/><text class="svg-index" x="13" y="22">01</text><text class="svg-name" x="13" y="58">Intake</text><text class="svg-tool" x="13" y="92">project-intake</text></g>
+            <g transform="translate(196 82)"><rect class="svg-stage human" width="159" height="109" rx="9"/><text class="svg-index" x="13" y="22">02</text><text class="svg-name" x="13" y="52">Feature &amp;</text><text class="svg-name" x="13" y="70">acceptance</text><text class="svg-tool" x="13" y="92">PRD · owner gate</text></g>
+            <g transform="translate(377 82)"><rect class="svg-stage" width="159" height="109" rx="9"/><text class="svg-index" x="13" y="22">03</text><text class="svg-name" x="13" y="52">Workflow</text><text class="svg-name" x="13" y="70">selection</text><text class="svg-tool" x="13" y="92">project-workflow</text></g>
+            <g transform="translate(558 82)"><rect class="svg-stage" width="159" height="109" rx="9"/><text class="svg-index" x="13" y="22">04</text><text class="svg-name" x="13" y="58">Build slice</text><text class="svg-tool" x="13" y="92">spec · code · tests</text></g>
+            <g transform="translate(739 82)"><rect class="svg-stage auto" width="159" height="109" rx="9"/><text class="svg-index" x="13" y="22">05</text><text class="svg-new" x="146" y="22" text-anchor="end">LIVE</text><text class="svg-name" x="13" y="52">Local</text><text class="svg-name" x="13" y="70">quality</text><text class="svg-tool" x="13" y="92">check_project.py</text></g>
+            <g transform="translate(920 82)"><rect class="svg-stage auto" width="159" height="109" rx="9"/><text class="svg-index" x="13" y="22">06</text><text class="svg-new" x="146" y="22" text-anchor="end">LIVE</text><text class="svg-name" x="13" y="52">Snapshot</text><text class="svg-name" x="13" y="70">preflight</text><text class="svg-tool" x="13" y="92">codex_preflight.py</text></g>
+            <g transform="translate(1101 82)"><rect class="svg-stage auto" width="159" height="109" rx="9"/><text class="svg-index" x="13" y="22">07</text><text class="svg-new" x="146" y="22" text-anchor="end">LIVE</text><text class="svg-name" x="13" y="52">PR / hosted</text><text class="svg-name" x="13" y="70">CI matrix</text><text class="svg-tool" x="13" y="92">.github/workflows</text></g>
+            <g transform="translate(1282 82)"><rect class="svg-stage human" width="183" height="109" rx="9"/><text class="svg-index" x="13" y="22">08</text><text class="svg-name" x="13" y="52">Review &amp;</text><text class="svg-name" x="13" y="70">handoff</text><text class="svg-tool" x="13" y="92">owner · branch-finish</text></g>
+            <path class="svg-loop" d="M819 195 V225 H637 V195" marker-end="url(#arr-red)"/>
+            <text class="svg-label" x="728" y="218" text-anchor="middle">lint / type / test fails</text>
+            <path class="svg-loop blue" d="M1000 195 V267 H669 V195" marker-end="url(#arr-blue)"/>
+            <text class="svg-label blue" x="902" y="260" text-anchor="middle">snapshot checks fail: fix, stage or commit, rerun</text>
+            <path class="svg-loop" d="M1181 195 V312 H606 V195" marker-end="url(#arr-red)"/>
+            <text class="svg-label" x="1055" y="305" text-anchor="middle">hosted failure: reproduce, patch, rerun</text>
+            <path class="svg-loop gray" d="M1374 195 V353 H267 V195" marker-end="url(#arr-gray)"/>
+            <text class="svg-label gray" x="834" y="346" text-anchor="middle">scope or acceptance mismatch → owner decision and revised feature contract</text>
+            <text class="svg-phase" x="18" y="393">FEATURE ARTIFACTS: REQUIREMENTS → SPECIFICATION → PLAN → CODE/TESTS → VALIDATION EVIDENCE → REVIEW / RELEASE RECORD</text>
+          </svg>
+        </div>
+        <figcaption class="diagram-caption">project-workflow coordinates substantial tasks and rechecks skill selection when the work changes. The arrows show the delivery sequence, not eight automatic approval gates. Before step 04, verify the dedicated feature branch and run scripts/check_quality_baseline.py. Failed checks block readiness. Main has no protected-branch enforcement at this checkpoint. On narrow screens, scroll the diagram horizontally.</figcaption>
+      </figure>
+    </section>
+
+    <section class="section" aria-labelledby="stages">
+      <div><div class="eyebrow">02 / Stage reference</div><h2 id="stages">What each stage does, leaves behind and must prove</h2></div>
+      <div class="steps">
+        <article class="step"><div class="step-head"><span class="step-num">01</span><span class="pill">Agent-assisted</span></div><h3>Intake and provenance</h3><span class="tool">project-intake</span><dl class="terms"><div><dt>Does</dt><dd>Records user intent, existing artifacts, constraints, source boundaries and open decisions.</dd></div><div><dt>Leaves</dt><dd>Source register, project brief, reconciled PRD and initial feature proposal.</dd></div><div><dt>Gate</dt><dd>Material scope assumptions are resolved before implementation is declared ready.</dd></div></dl></article>
+        <article class="step owner"><div class="step-head"><span class="step-num">02</span><span class="pill owner">Owner decision</span></div><h3>Feature contract</h3><span class="tool">features/{backlog,active,completed}/F-*/</span><dl class="terms"><div><dt>Does</dt><dd>Defines acceptance cases, exclusions, dependencies, affected interfaces and owner choices.</dd></div><div><dt>Leaves</dt><dd>One small-feature file or requirements + technical spec + plan for substantial work.</dd></div><div><dt>Gate</dt><dd>Scope selected and blockers cleared; owner approves material decisions.</dd></div></dl></article>
+        <article class="step"><div class="step-head"><span class="step-num">03</span><span class="pill">Agent-assisted</span></div><h3>Workflow routing</h3><span class="tool">project-workflow</span><dl class="terms"><div><dt>Does</dt><dd>Compares available project and installed workflow skills. Selects one lead workflow and the supporting skills needed for the task.</dd></div><div><dt>Leaves</dt><dd>Recorded skill choice, rationale, unavailable prerequisites and planned validation.</dd></div><div><dt>Gate</dt><dd>No claim of executing a playbook merely because it was inspected.</dd></div></dl></article>
+        <article class="step"><div class="step-head"><span class="step-num">04</span><span class="pill">Agent-assisted</span></div><h3>Implement a vertical slice</h3><span class="tool">src/ · scripts/ · tests/</span><dl class="terms"><div><dt>Does</dt><dd>Implements a verifiable slice on its dedicated feature branch. Updates the code, feature contract, tests, and evidence together.</dd></div><div><dt>Leaves</dt><dd>Code, regression tests, current feature-plan status and changed documentation.</dd></div><div><dt>Gate</dt><dd>Before coding, verify the branch and configured quality gates. Connect observed behavior to acceptance criteria and keep proposals labeled.</dd></div></dl></article>
+        <article class="step auto"><div class="step-head"><span class="step-num">05</span><span class="pill auto">Executable</span></div><h3>Working-tree quality</h3><span class="tool">scripts/check_project.py</span><dl class="terms"><div><dt>Does</dt><dd>Runs Ruff lint and format, Pyright, behavior tests, data/docs checks, clean-wheel verification, and frontend build and controlled production-stack browser checks.</dd></div><div><dt>Leaves</dt><dd>Six suite results: quality, tests, data, docs, package, web.</dd></div><div><dt>Gate</dt><dd>Nonzero check blocks readiness. Passing checks do not prove model inference or product acceptance.</dd></div></dl></article>
+        <article class="step auto"><div class="step-head"><span class="step-num">06</span><span class="pill auto">Executable</span></div><h3>Exact snapshot preflight</h3><span class="tool">scripts/codex_preflight.py</span><dl class="terms"><div><dt>Does</dt><dd>Exports the staged index for pre-commit, or HEAD for review and pre-push. Runs configured checks against the exported content. Documentation-only changes use the profile's focused docs checks.</dd></div><div><dt>Leaves</dt><dd>Verification evidence for the exact content to be shared.</dd></div><div><dt>Gate</dt><dd>Validate the content that will be committed or shared. A dirty checkout alone does not fail preflight, and unstaged files cannot satisfy it.</dd></div></dl></article>
+        <article class="step auto"><div class="step-head"><span class="step-num">07</span><span class="pill auto">Hosted CI</span></div><h3>PR and CI execution</h3><span class="tool">.github/workflows/ci.yml</span><dl class="terms"><div><dt>Does</dt><dd>Runs the shared check script in five bounded jobs on PRs, main pushes, and manual dispatch. Uses Linux and Windows runners.</dd></div><div><dt>Leaves</dt><dd>GitHub Actions job and run status tied to the remote revision.</dd></div><div><dt>Gate</dt><dd>Use existing owner authorization before publishing a branch or PR. Check the remote revision, hosted result, and configured merge rules.</dd></div></dl></article>
+        <article class="step owner"><div class="step-head"><span class="step-num">08</span><span class="pill owner">Owner decision</span></div><h3>Review and handoff</h3><span class="tool">branch-finish · review</span><dl class="terms"><div><dt>Does</dt><dd>Compares acceptance evidence to the contract; records limitations and next action.</dd></div><div><dt>Leaves</dt><dd>Review notes, completion state, and separate merge/deploy/release status.</dd></div><div><dt>Gate</dt><dd>Confirm acceptance from recorded evidence and existing authorization. Track implementation, verification, merge, and deployment separately.</dd></div></dl></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="evaluation">
+      <div><div class="eyebrow">03 / Implemented evaluation workflow · F-011</div><h2 id="evaluation">One command produces an inspectable browser report</h2><p class="section-intro">The command coordinates reusable modules through one packaged workflow. The existing evaluator remains the inference and scoring artifact writer. Saved-run inspection and baseline comparison start no inference or telemetry.</p></div>
+      <div class="code">voice-callback evaluate --model qwen35-4b
+voice-callback evaluate --model qwen35-4b --baseline reports/text/BASELINE_ID</div>
+      <ol class="eval-flow" aria-label="Development evaluation flow">
+        <li><span class="small-label">01</span><h3>Prepare</h3><p>Verify committed source and explicit model. Resolve optional development tracing from root .env and overrides.</p></li>
+        <li><span class="small-label">02</span><h3>Infer</h3><p>Send development ID/text inputs through the shared local classifier. Expected answers stay outside requests.</p></li>
+        <li><span class="small-label">03</span><h3>Persist</h3><p>Save each prediction or failure before progress advances. Preserve partial work on interruption.</p></li>
+        <li><span class="small-label">04</span><h3>Score</h3><p>Close predictions, then open separate development answers. Count outcomes, failures, unsafe misses, and denominators.</p></li>
+        <li><span class="small-label">05</span><h3>Review</h3><p>Validate saved artifacts and compare an explicitly selected compatible baseline. Show fixes, regressions, and configuration changes.</p></li>
+        <li><span class="small-label">06</span><h3>Open report</h3><p>Read the terminal summary and local HTML with every case, transcript, expected label, decision, and evidence.</p></li>
+      </ol>
+      <div class="lower">
+        <div class="pane"><div class="small-label">Inspect existing runs · no model call</div><div class="code">voice-callback evaluations
+voice-callback evaluations --run-dir reports/text/RUN_ID
+voice-callback evaluations --run-dir reports/text/RUN_ID --baseline reports/text/BASELINE_ID</div><p class="diagram-caption">Any compatible completed development run can be selected as a baseline. Matching data, case coverage, scorer, and metric definitions are required; model, prompt, and source identities can differ. There is no automatic default-baseline promotion.</p></div>
+        <div class="pane"><div class="small-label">Current development evidence</div><h3>20 valid · 20 correct</h3><p>Run 4280e453-bf5a-42f8-80c8-b11ae767ce22 uses clean implementation 7302c33, callback-text-v2, and gold v1.0. Saved artifacts validate recall 8/8, precision 8/8, review rate 6/20, zero unsafe misses, and zero processing failures.</p><p class="diagram-caption">Its source fingerprint matches merged main 98a2d5b. These fictional development counts do not establish held-out quality or production suitability. Actual candidate freeze and real held-out inference remain separate work.</p></div>
+      </div>
+      <div class="caution"><strong>Preserve the evaluation boundary.</strong>Model settings stay in config/models.json; secrets remain in ignored .env or process values. Historical reports retain their source identities. Held-out artifacts are refused by development review, and real held-out inference requires a matching freeze and explicit authorization.</div>
+    </section>
+
+    <section class="section" aria-labelledby="ci">
+      <div><div class="eyebrow">04 / Automated engineering controls</div><h2 id="ci">One local runner, five configured hosted jobs</h2><p class="section-intro">The CI workflow calls the same suite implementations as local validation, rather than maintaining an independent set of shell commands. GitHub Actions uses immutable action revision pins, read-only repository permission, eight-minute Python/quality job limits and a ten-minute browser job limit, and cancels superseded runs.</p></div>
+      <div class="lower">
+        <div class="pane">
+          <div class="small-label">Quality gate execution</div>
+          <div class="grid3">
+            <div class="job"><strong>Quality · data · docs</strong><span>Ubuntu 24.04 · Python 3.13</span><span class="ok">CONFIGURED</span></div>
+            <div class="job"><strong>Tests + package</strong><span>Ubuntu 24.04 · Python 3.10</span><span class="ok">CONFIGURED</span></div>
+            <div class="job"><strong>Tests + package</strong><span>Ubuntu 24.04 · Python 3.13</span><span class="ok">CONFIGURED</span></div>
+          </div>
+          <div class="grid3" style="grid-template-columns:1fr 2fr">
+            <div class="job"><strong>Tests + package</strong><span>Windows 2022 · Python 3.13</span><span class="ok">CONFIGURED</span></div>
+            <div class="job"><strong>Review desk browser acceptance</strong><span>Linux · Next.js/Nginx/FastAPI · controlled Ollama HTTP fixture</span><span class="ok">CONFIGURED</span></div>
+          </div>
+          <p class="diagram-caption">Run these commands in the project virtual environment after installing the pinned requirements. Local package checks require the prepared runtime wheel cache.</p>
+          <div class="small-label">One command invokes all suites</div>
+          <div class="code">python scripts/check_project.py</div>
+          <div class="small-label">Snapshot checks</div>
+          <div class="code">python scripts/codex_preflight.py --mode pre-commit
+python scripts/codex_preflight.py --mode review
+python scripts/codex_preflight.py --mode pre-push</div>
+        </div>
+        <div class="pane">
+          <div class="small-label">What the gates actually check</div>
+          <ul class="rules">
+            <li><strong>Code correctness and types</strong><span>Ruff correctness/import rules and formatting; Pyright strict on application source, standard on scripts and tests.</span></li>
+            <li><strong>Behavior and reproducibility</strong><span>Unittest with branch-coverage reporting, frozen-data hashes, golden input/answer separation, and candidate packet integrity.</span></li>
+            <li><strong>Documentation and package integrity</strong><span>Markdown links, feature lifecycle, quality configuration, CI structure, and isolated wheel installation. Local Pydantic checks verify pinned runtime wheels offline by hash.</span></li>
+            <li><strong>Source-of-truth checks</strong><span>The runner validates the selected index or HEAD snapshot independently of unstaged files. Missing dependencies and failed commands block the check.</span></li>
+          </ul>
+          <div class="caution"><strong>Configured CI is not mandatory merge protection.</strong>The earlier PR #1 run is historical hosted evidence. This map does not assert the current branch-protection configuration or a hosted result for another revision. The project requires feature-branch review; repository enforcement must be verified separately. A green run verifies only its recorded remote revision.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="rules">
+      <div><div class="eyebrow">05 / Standing rules and evidence</div><h2 id="rules">How we keep changes reviewable</h2></div>
+      <div class="lower">
+        <div class="pane">
+          <ul class="rules">
+            <li><strong>Model output is not authorization.</strong><span>Agents can recommend implementation; policy checks and named human decisions govern acceptance, publishing and release.</span></li>
+            <li><strong>Evidence belongs to a precise revision.</strong><span>Requirements, feature plans, Git snapshots, model/prompt/data versions, and evaluation inputs must be distinguishable.</span></li>
+            <li><strong>Expected answers stay out of inference requests.</strong><span>The runner reads ID and transcript inputs, then closes predictions before the scorer opens expected answers. Approved development and held-out splits remain separate.</span></li>
+            <li><strong>Failed stages remain failed.</strong><span>A type error, broken link, changed gold artifact or bad wheel blocks readiness; a model or integration failure cannot be relabeled as a successful business outcome.</span></li>
+            <li><strong>Implementation and live verification have separate status.</strong><span>The text pipeline, Review desk, and coherent evaluation workflow are implemented. SRC-026 accepts F-004 text testing and QA. Current v2 development evidence exists; actual candidate freeze, real held-out measurement, numeric production targets, and audio remain follow-up work.</span></li>
+          </ul>
+        </div>
+        <div class="pane">
+          <div class="small-label">Implementation references · main 98a2d5b</div>
+          <div class="sources">
+            <a href="https://github.com/aidevcode9/voice-callback-review/blob/98a2d5b079fe129cc67fdc68e7b7e40fceef7acf/.agents/skills/project-workflow/SKILL.md">Workflow orchestrator</a>
+            <a href="https://github.com/aidevcode9/voice-callback-review/blob/98a2d5b079fe129cc67fdc68e7b7e40fceef7acf/.codex/workflow-profile.md">Repository profile and invariants</a>
+            <a href="https://github.com/aidevcode9/voice-callback-review/blob/98a2d5b079fe129cc67fdc68e7b7e40fceef7acf/docs/HOW_WE_BUILD.md">Feature lifecycle and build process</a>
+            <a href="https://github.com/aidevcode9/voice-callback-review/blob/98a2d5b079fe129cc67fdc68e7b7e40fceef7acf/quality-gates.json">Quality gate configuration</a>
+            <a href="https://github.com/aidevcode9/voice-callback-review/blob/98a2d5b079fe129cc67fdc68e7b7e40fceef7acf/docs/QUALITY_CHECKS.md">Detailed quality implementation</a>
+            <a href="https://github.com/aidevcode9/voice-callback-review/blob/98a2d5b079fe129cc67fdc68e7b7e40fceef7acf/.github/workflows/ci.yml">GitHub Actions definition</a>
+            <a href="https://github.com/aidevcode9/voice-callback-review/blob/98a2d5b079fe129cc67fdc68e7b7e40fceef7acf/features/completed/F-005-development-quality-baseline/03_IMPLEMENTATION_PLAN.md">Published F-005 implementation record</a>
+            <a href="https://github.com/aidevcode9/voice-callback-review/actions/runs/42292225594">Successful PR-triggered CI run</a>
+          </div>
+          <div class="small-label">Current delivery and roadmap references</div>
+          <p class="diagram-caption">F-011 PR #7 is merged. The F-004 closeout records owner testing and QA and the saved v2 development run. The technical roadmap defines proposed production hardening, deployment, automated CI/CD, and deferred transcription.</p>
+          <div class="code">python -m voice_callback.cli --help
+python scripts/check_project.py
+python scripts/codex_preflight.py --mode review</div>
+          <div class="sources"><a href="https://github.com/aidevcode9/voice-callback-review/blob/main/docs/EVALUATION.md">Evaluation commands and evidence</a><a href="https://github.com/aidevcode9/voice-callback-review/blob/main/features/completed/F-011-evaluation-workflow/03_IMPLEMENTATION_PLAN.md">F-011 implementation and verification</a><a href="https://github.com/aidevcode9/voice-callback-review/blob/main/docs/ROADMAP.md">Production hardening and delivery roadmap</a></div><div class="caution"><strong>Evidence boundary</strong>Model-quality counts describe one fictional development run. Browser verification uses controlled model responses. Owner QA accepts the retained prototype text scope; numeric production-quality targets and deployment remain separate.</div>
+        </div>
+      </div>
+    </section>
+    <footer>
+      <div>Voice Callback Review · Updated November 8, 2026 against merged implementation main 98a2d5b and saved development run 4280e453. SRC-026 records owner QA acceptance; SRC-027 adds the production roadmap. Documentation closeout branch: docs/f-004-closeout-evaluation-map. GitHub main documentation links reflect this closeout after merge.</div>
+      <div>Scope: the engineering workflow and its current implementation evidence. The eight stages describe delivery controls; the separate evaluation path describes implemented development measurement. Audio and automated deployment are roadmap proposals. The page supports technical walkthroughs and print or PDF export.</div>
+    </footer>
+  </main>
+</body>
+</html>
